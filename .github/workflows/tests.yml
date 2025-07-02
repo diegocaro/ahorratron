@@ -23,4 +23,4 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest
+          uv run pytest tests
