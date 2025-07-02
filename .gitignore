@@ -11,3 +11,6 @@ wheels/
 
 # Temporary files
 tmp
+
+# Dotenv files
+.env

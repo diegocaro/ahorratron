@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug: Ahorratron API",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "ahorratron.api.main",
+            "args": [],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug: Uvicorn Reload",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "ahorratron.api.main:app",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000",
+                "--reload"
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}
