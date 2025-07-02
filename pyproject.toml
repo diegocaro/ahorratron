@@ -25,3 +25,6 @@ dev = [
 
 [tool.setuptools]
 packages = ["ahorratron"]
+
+[tool.uv]
+package = true
