@@ -21,6 +21,7 @@ ahorratron-api = "ahorratron.api.main:run_server"
 dev = [
     "pytest>=8.4.1",
     "httpx>=0.25.0",
+    "pre-commit>=4.2.0",
 ]
 
 [tool.setuptools]

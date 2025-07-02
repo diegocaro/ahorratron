@@ -24,6 +24,7 @@ class ActualBudgetService:
         with Actual(
             base_url=self.base_url, password=self.password, file=self.file
         ) as actual:
+            get_accounts(actual.session)
             return True
 
     def add_transaction(self, transaction: Transaction) -> str:
