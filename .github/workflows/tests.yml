@@ -24,3 +24,9 @@ jobs:
       - name: Run tests
         run: |
           uv run pytest tests
+
+      - name: Run pre-commit
+        run: |
+          uv run pre-commit install
+          uv run pre-commit run --all-files
+
