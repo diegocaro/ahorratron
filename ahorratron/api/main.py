@@ -15,6 +15,7 @@ app = FastAPI(
     title="Ahorratron API",
     description="API for processing Apple Pay transactions and integrating with Actual Budget",
     version="0.1.0",
+    docs_url="/api/docs",
 )
 app.include_router(router)
 

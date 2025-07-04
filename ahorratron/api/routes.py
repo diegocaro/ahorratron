@@ -1,4 +1,5 @@
 import logging
+from datetime import date
 from typing import Optional
 
 from fastapi import APIRouter, Depends
@@ -41,10 +42,11 @@ async def add_transaction(
     )
 
 
-@router.get("/transactions", response_model=list[dict])
-async def get_transactions(
-    account: Optional[str] = None, api_key: str = Depends(verify_api_key)
+@router.get("/summary", response_model=dict)
+async def get_summary(
+    month: Optional[date] = None,
+    api_key: str = Depends(verify_api_key),
 ):
+
     service = ActualBudgetService()
-    transactions = service.get_transactions(account)
-    return transactions
+    return service.get_summary(month)

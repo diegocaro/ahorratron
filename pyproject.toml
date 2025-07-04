@@ -29,3 +29,7 @@ packages = ["ahorratron"]
 
 [tool.uv]
 package = true
+
+[tool.ruff.lint]
+# Ignore E731 (lambda assignment)
+ignore = ["E731"]
