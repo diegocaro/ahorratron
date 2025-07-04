@@ -98,7 +98,7 @@ class ActualBudgetService:
                 spent, on="category_id", how="left", validate="one_to_one"
             ).merge(budgets, on="category_id", how="left", validate="one_to_one")
 
-            joined = joined[~joined.category_is_income]
+            joined = joined[joined.category_is_income == False]  # noqa
 
             ans = joined[["category_name", "group_name", "budgeted", "spent"]].fillna(0)
 
