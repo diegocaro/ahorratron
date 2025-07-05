@@ -39,9 +39,9 @@ class ActualBudgetService:
         with Actual(
             base_url=self.base_url, password=self.password, file=self.file
         ) as actual:
-            account = get_account(actual.session, transaction.account)
+            account = get_account(actual.session, self.default_account)
             if not account:
-                raise ValueError(f"Account {transaction.account} not found.")
+                raise ValueError(f"Account {self.default_account} not found.")
             t = create_transaction(
                 actual.session,
                 transaction.date.date(),

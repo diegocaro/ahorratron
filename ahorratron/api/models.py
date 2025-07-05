@@ -5,7 +5,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class Transaction(BaseModel):
-    account: str
     amount: float
     date: datetime
     payee: Optional[str] = None
