@@ -31,7 +31,7 @@ async def health_check():
 async def add_transaction(
     transaction: Transaction, api_key: str = Depends(verify_api_key)
 ) -> TransactionResponse:
-    logger.info(f"Processing transaction for payee: {transaction}")
+    logger.info(f"Processing transaction: {transaction}")
     service = ActualBudgetService()
     transaction_id = service.add_transaction(transaction)
     logger.info(f"Successfully added transaction with ID: {transaction_id}")

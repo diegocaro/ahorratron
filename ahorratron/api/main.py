@@ -17,6 +17,18 @@ app = FastAPI(
     version="0.1.0",
     docs_url="/api/docs",
 )
+
+
+@app.middleware("http")
+async def log_request_middleware(request, call_next):
+    body = await request.body()
+    logger.info(
+        f"Incoming request: {request.method} {request.url.path} | Body: {body.decode('utf-8') if body else None}"
+    )
+    response = await call_next(request)
+    return response
+
+
 app.include_router(router)
 
 
@@ -30,6 +42,12 @@ async def general_exception_handler(request, exc: Exception):
             message=str(exc), error_code="INTERNAL_ERROR"
         ).model_dump(),
     )
+
+
+# @app.exception_handler(RequestValidationError)
+# async def log_validation_exception(request, exc: RequestValidationError):
+#     logger.error(f"Validation error: {exc.errors()} | Body: {exc.body}")
+#     raise exc
 
 
 def run_server():
