@@ -28,7 +28,6 @@ class ActualBudgetService:
         self.default_account = settings.actual_default_account
 
     def health_check(self) -> bool:
-
         with Actual(
             base_url=self.base_url, password=self.password, file=self.file
         ) as actual:
@@ -54,7 +53,6 @@ class ActualBudgetService:
             return str(t.id)
 
     def get_summary(self, month: Optional[date] = None):
-
         with Actual(
             base_url=self.base_url, password=self.password, file=self.file
         ) as actual:

@@ -47,6 +47,5 @@ async def get_summary(
     month: Optional[date] = None,
     api_key: str = Depends(verify_api_key),
 ):
-
     service = ActualBudgetService()
     return service.get_summary(month)
