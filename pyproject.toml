@@ -33,3 +33,9 @@ package = true
 [tool.ruff.lint]
 # Ignore E731 (lambda assignment)
 ignore = ["E731"]
+
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+typeCheckingMode = "standard"
