@@ -35,7 +35,7 @@ package = true
 ignore = ["E731"]
 
 
-[tool.pyright]
-venvPath = "."
-venv = ".venv"
-typeCheckingMode = "standard"
+#[tool.pyright]
+#venvPath = "."
+#venv = ".venv"
+#typeCheckingMode = "standard"
