@@ -1,0 +1,27 @@
+### Ahorratron API Example Calls
+
+# Health check
+GET http://localhost:8000/api/health
+Accept: application/json
+
+### Add a transaction (replace <API_KEY> with your key)
+POST http://localhost:8000/api/add_transaction
+Content-Type: application/json
+X-API-KEY: {{$dotenv api_key}}
+
+{
+  "amount": "$12.345",
+  "date": "2025-07-13T12:00:00",
+  "payee": "Supermercado Lider",
+  "notes": "Compra mensual"
+}
+
+### Get summary (replace <API_KEY> with your key)
+GET http://localhost:8000/api/summary
+X-API-KEY: {{$dotenv api_key}}
+Accept: application/json
+
+### Get summary for a specific month (replace <API_KEY> and <YYYY-MM-DD>)
+GET http://localhost:8000/api/summary?month=2025-07-01
+X-API-KEY: {{$dotenv api_key}}
+Accept: application/json

@@ -12,6 +12,9 @@ from ahorratron.api.models import Transaction
         (1234.0, 1234.0),
         ("$16.870", 16870.0),
         ("$1,234.56", 1234.56),
+        ("$1,234,444.56", 1234444.56),
+        ("$1.234.231", 1234231.0),
+        ("$1.234.231,56", 1234231.56),
     ],
 )
 def test_transaction_valid_amounts(amount: str | float, expected_amount: float):

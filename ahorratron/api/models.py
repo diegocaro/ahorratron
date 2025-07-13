@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from typing import Optional
 
@@ -15,12 +16,35 @@ class Transaction(BaseModel):
     @classmethod
     def parse_amount(cls, v: float | str) -> float:
         if isinstance(v, str):
-            v = v.replace("$", "").replace(".", "").replace(",", ".")
+            # Remove all non-digit, non-separator characters (e.g., currency symbols, spaces)
+            v = re.sub(r"[^\d,\.]", "", v)
+            # Case 1: Both '.' and ',' present (e.g., '1.234.567,89' or '1,234,567.89')
+            if "." in v and "," in v:
+                # If ',' is after the last '.', assume '.' is thousands and ',' is decimal (e.g., '1.234.567,89' -> 1234567.89)
+                if v.rfind(",") > v.rfind("."):
+                    v = v.replace(".", "")  # remove all thousands separators
+                    v = v.replace(",", ".")  # convert decimal separator to '.'
+                else:
+                    # If '.' is after the last ',', assume ',' is thousands and '.' is decimal (e.g., '1,234,567.89' -> 1234567.89)
+                    v = v.replace(",", "")  # remove all thousands separators
+            # Case 2: Only ',' present (e.g., '1234,56')
+            elif "," in v:
+                v = v.replace(",", ".")  # treat ',' as decimal separator
+            # Case 3: Multiple '.' present (e.g., '1.234.567')
+            elif v.count(".") > 1:
+                v = v.replace(".", "")  # treat all as thousands separators
+            # Case 4: Single '.' present (e.g., '16.870')
+            elif v.count(".") == 1:
+                parts = v.split(".")
+                # If only one dot and three digits after, treat as thousands (e.g., '16.870' -> 16870)
+                if len(parts) == 2 and len(parts[1]) == 3:
+                    v = "".join(parts)
+                # Otherwise, treat as decimal (default float conversion)
             try:
                 return float(v)
             except ValueError:
                 raise ValueError(f"Invalid amount: {v}")
-        return float(v)
+        return v
 
 
 class TransactionResponse(BaseModel):
