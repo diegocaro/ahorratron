@@ -1,15 +1,26 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class Transaction(BaseModel):
     amount: float
     date: datetime
-    payee: Optional[str] = None
+    payee: str = Field(..., min_length=1)
     notes: Optional[str] = None
     model_config = ConfigDict(extra="allow")
+
+    @field_validator("amount", mode="before")
+    @classmethod
+    def parse_amount(cls, v: float | str) -> float:
+        if isinstance(v, str):
+            v = v.replace("$", "").replace(".", "").replace(",", ".")
+            try:
+                return float(v)
+            except ValueError:
+                raise ValueError(f"Invalid amount: {v}")
+        return float(v)
 
 
 class TransactionResponse(BaseModel):
