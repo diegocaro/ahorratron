@@ -1,4 +1,3 @@
-import decimal
 from datetime import date, datetime, timedelta
 from typing import Optional
 
@@ -47,7 +46,7 @@ class ActualBudgetService:
                 account,
                 transaction.payee,
                 notes=transaction.notes,
-                amount=decimal.Decimal(transaction.amount),
+                amount=-transaction.amount,
             )
             actual.commit()
             return str(t.id)
