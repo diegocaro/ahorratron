@@ -44,7 +44,7 @@ class Transaction(BaseModel):
                 return float(v)
             except ValueError:
                 raise ValueError(f"Invalid amount: {v}")
-        return v
+        return float(v)
 
 
 class TransactionResponse(BaseModel):
