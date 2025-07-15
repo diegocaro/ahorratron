@@ -1,6 +1,8 @@
+import argparse
 import glob
 import os
 import random
+import shutil
 import tempfile
 import time
 
@@ -110,13 +112,31 @@ def download_cartola_txt() -> str:
         descargar_txt_btn.click()
         filepath = wait_for_txt_file(download_dir)
         with open(filepath, "r") as f:
-            return f.read()
+            content = f.read()
+        return content
     finally:
         driver.quit()
+        shutil.rmtree(download_dir, ignore_errors=True)
 
 
 def main():
-    print(download_cartola_txt())
+    parser = argparse.ArgumentParser(
+        description="Download Banco de Chile cartola.txt and write to file or stdout."
+    )
+    parser.add_argument(
+        "--output",
+        "-o",
+        default="-",
+        help="Output TXT file name or '-' for stdout (default: '-')",
+    )
+    args = parser.parse_args()
+
+    content = download_cartola_txt()
+    if args.output == "-":
+        print(content)
+    else:
+        with open(args.output, "w") as f:
+            f.write(content)
 
 
 if __name__ == "__main__":
