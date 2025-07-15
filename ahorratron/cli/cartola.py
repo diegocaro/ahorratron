@@ -1,4 +1,5 @@
 import os
+import random
 import tempfile
 import time
 
@@ -29,14 +30,22 @@ chrome_options.add_experimental_option(
 driver = webdriver.Chrome(options=chrome_options)
 
 
+def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
+    time.sleep(random.uniform(min_seconds, max_seconds))
+
+
 try:
     driver.get(BANK_URL)
     wait = WebDriverWait(driver, 20)
+
     # Wait for login fields to be present
     wait.until(EC.presence_of_element_located((By.ID, "ppriv_per-click-input-rut")))
+    random_wait()
     wait.until(
         EC.presence_of_element_located((By.ID, "ppriv_per-click-input-password"))
     )
+    random_wait()
+
     # Fill in RUT and password
     driver.find_element(By.ID, "ppriv_per-click-input-rut").send_keys(BANK_USER)
     driver.find_element(By.ID, "ppriv_per-click-input-password").send_keys(
@@ -46,6 +55,7 @@ try:
 
     # Wait for "Cuenta FAN" button to be clickable after login
     wait.until(EC.element_to_be_clickable((By.ID, "btn-home_CuentaFAN"))).click()
+    random_wait()
 
     # Wait for "Descargar" button (parent of span.btn-text)
     descargar_btn = wait.until(
@@ -56,6 +66,7 @@ try:
             )
         )
     )
+    random_wait()
     descargar_btn.click()
     # Wait for "Descargar Txt" button in the dropdown
     descargar_txt_btn = wait.until(
@@ -66,6 +77,7 @@ try:
             )
         )
     )
+    random_wait()
     descargar_txt_btn.click()
 
     # Wait for the file to be downloaded
