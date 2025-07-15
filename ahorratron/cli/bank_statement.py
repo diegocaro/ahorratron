@@ -112,8 +112,7 @@ def download_cartola_txt() -> str:
         descargar_txt_btn.click()
         filepath = wait_for_txt_file(download_dir)
         with open(filepath, "r") as f:
-            content = f.read()
-        return content
+            return f.read()
     finally:
         driver.quit()
         shutil.rmtree(download_dir, ignore_errors=True)
