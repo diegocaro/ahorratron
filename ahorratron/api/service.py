@@ -11,7 +11,7 @@ from actual.queries import (
     get_transactions,
 )
 
-from .config import settings
+from .config import Settings, get_settings
 from .models import Transaction
 
 
@@ -20,7 +20,7 @@ class ActualBudgetService:
     Service class for interacting with Actual Budget.
     """
 
-    def __init__(self):
+    def __init__(self, settings: Settings = get_settings()):
         self.base_url = settings.actual_url
         self.password = settings.actual_password
         self.file = settings.actual_file
