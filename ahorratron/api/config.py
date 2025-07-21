@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     actual_default_account: str
     model_config = SettingsConfigDict(env_file=".env")
 
+    payee_prefix: str = "Pago:"
+
 
 def get_settings() -> Settings:
     env_file = os.getenv("ENV_FILE")

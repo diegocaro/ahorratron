@@ -25,6 +25,7 @@ class ActualBudgetService:
         self.password = settings.actual_password
         self.file = settings.actual_file
         self.default_account = settings.actual_default_account
+        self.payee_prefix = settings.payee_prefix
 
     def health_check(self) -> bool:
         with Actual(
@@ -33,6 +34,14 @@ class ActualBudgetService:
             get_accounts(actual.session)
             return True
 
+    def _format_payee(self, payee: str) -> str:
+        if not self.payee_prefix:
+            return payee
+        has_prefix = payee.lower().strip().startswith(self.payee_prefix.lower().strip())
+        if not has_prefix:
+            return f"{self.payee_prefix}{payee}"
+        return payee
+
     def add_transaction(self, transaction: Transaction) -> str:
         with Actual(
             base_url=self.base_url, password=self.password, file=self.file
@@ -40,11 +49,14 @@ class ActualBudgetService:
             account = get_account(actual.session, self.default_account)
             if not account:
                 raise ValueError(f"Account {self.default_account} not found.")
+
+            payee = self._format_payee(transaction.payee)
+
             t = create_transaction(
                 actual.session,
-                transaction.date.date(),
-                account,
-                transaction.payee,
+                date=transaction.date.date(),
+                account=account,
+                payee=payee,
                 notes=transaction.notes,
                 amount=-transaction.amount,
             )
