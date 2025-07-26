@@ -9,6 +9,33 @@ repos:
       # Run the formatter.
       - id: ruff-format
 
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.0
+    hooks:
+      - id: mypy
+        language: system
+        exclude: ^tests/
+
+  - repo: local
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        exclude: ^tests/
+        args:
+          [
+            "--output-format=colorized",
+            "--fail-under=9.0", # Set the minimum score for passing
+            "--fail-on=E,W",  # Only fail on errors (E) and warnings (W)
+
+        #    "-rn", # Only display messages
+        #    "-sn", # Don't display the score
+        #    "--rcfile=pylintrc", # Link to your config file
+        #    "--load-plugins=pylint.extensions.docparams", # Load an extension
+          ]
+
   # - repo: https://github.com/RobertCraigie/pyright-python
   #   rev: v1.1.403
   #   hooks:

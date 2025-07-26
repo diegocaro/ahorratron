@@ -52,14 +52,14 @@ def read_fixed_width_file(
                 try:
                     value = pd.to_datetime(raw_value, format=field_def["format"])
                 except Exception:
-                    value = raw_value
+                    value = raw_value  # type: ignore
             elif field_def["type"] == "decimal" and raw_value:
                 try:
-                    value = float(raw_value.strip())
+                    value = float(raw_value.strip())  # type: ignore
                 except Exception:
-                    value = 0.0
+                    value = 0.0  # type: ignore
             else:
-                value = raw_value
+                value = raw_value  # type: ignore
             record[field_name] = value
         records.append(record)
     df = pd.DataFrame(records)

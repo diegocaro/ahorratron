@@ -42,8 +42,8 @@ class Transaction(BaseModel):
                 # Otherwise, treat as decimal (default float conversion)
             try:
                 return float(v)
-            except ValueError:
-                raise ValueError(f"Invalid amount: {v}")
+            except ValueError as exc:
+                raise ValueError(f"Invalid amount: {v}") from exc
         return float(v)
 
 

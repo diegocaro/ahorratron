@@ -50,11 +50,7 @@ def main():
 
     # Resolve field definitions path
     fields_arg = args.fields
-    if fields_arg in FIELD_DEFINITION_PATHS:
-        fields_path = FIELD_DEFINITION_PATHS[fields_arg]
-    else:
-        fields_path = Path(fields_arg)
-
+    fields_path = FIELD_DEFINITION_PATHS.get(fields_arg, Path(fields_arg))
     try:
         with open(fields_path) as f:
             field_definitions = json.load(f)

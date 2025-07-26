@@ -26,7 +26,7 @@ def wait_for_txt_file(
     download_dir: str, timeout: float = 10, poll_interval: float = 0.5
 ) -> str:
     """Wait for the first .txt file to appear in the directory and return its path."""
-    waited = 0
+    waited = 0.0
     while waited < timeout:
         txt_files = glob.glob(os.path.join(download_dir, "*.txt"))
         if txt_files:

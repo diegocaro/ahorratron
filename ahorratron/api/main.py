@@ -52,7 +52,7 @@ async def general_exception_handler(request, exc: Exception):
 
 def run_server():
     """Run the API server using uvicorn."""
-    import uvicorn
+    import uvicorn  # ignore[import-outside-toplevel]
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
 

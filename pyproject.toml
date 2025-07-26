@@ -24,6 +24,9 @@ dev = [
     "pytest>=8.4.1",
     "httpx>=0.25.0",
     "pre-commit>=4.2.0",
+    "mypy>=1.17.0",
+    "pandas-stubs>=2.3.0.250703",
+    "pylint>=3.3.7",
 ]
 
 [tool.setuptools]
@@ -36,8 +39,20 @@ package = true
 # Ignore E731 (lambda assignment)
 ignore = ["E731"]
 
-
 #[tool.pyright]
 #venvPath = "."
 #venv = ".venv"
 #typeCheckingMode = "standard"
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = false
+
+[[tool.mypy.overrides]]
+module = ["actual", "actual.queries"]
+ignore_missing_imports = true
+
+
+[tool.pylint.'MAIN']
+disable = ["C3001", # allow lambda expression
+] 
