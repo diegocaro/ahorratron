@@ -34,12 +34,11 @@ def read_fixed_width_file(
     for line in lines:
         if not line.strip():
             continue
+        new_field_definitions = field_definitions
         if len(line) > expected_length:
             new_field_definitions = fit_to_grow_definitions(
                 field_definitions, len(line)
             )
-        else:
-            new_field_definitions = field_definitions
         record = {}
         for field_name, field_def in new_field_definitions.items():
             start_idx = field_def["start"] - 1
@@ -51,12 +50,12 @@ def read_fixed_width_file(
             if field_def["type"] == "date" and raw_value:
                 try:
                     value = pd.to_datetime(raw_value, format=field_def["format"])
-                except Exception:
+                except (ValueError, TypeError):
                     value = raw_value  # type: ignore
             elif field_def["type"] == "decimal" and raw_value:
                 try:
                     value = float(raw_value.strip())  # type: ignore
-                except Exception:
+                except ValueError:
                     value = 0.0  # type: ignore
             else:
                 value = raw_value  # type: ignore

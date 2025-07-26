@@ -52,9 +52,9 @@ def main():
     fields_arg = args.fields
     fields_path = FIELD_DEFINITION_PATHS.get(fields_arg, Path(fields_arg))
     try:
-        with open(fields_path) as f:
+        with open(fields_path, encoding="utf8") as f:
             field_definitions = json.load(f)
-    except Exception as e:
+    except (OSError, json.JSONDecodeError) as e:
         print(f"Error loading field definitions: {e}", file=sys.stderr)
         sys.exit(1)
 
@@ -63,9 +63,9 @@ def main():
         if args.txt_file == "-":
             lines = sys.stdin.read().splitlines()
         else:
-            with open(args.txt_file, "rt") as f:
+            with open(args.txt_file, "rt", encoding="utf8") as f:
                 lines = f.read().splitlines()
-    except Exception as e:
+    except OSError as e:
         print(f"Error reading input: {e}", file=sys.stderr)
         sys.exit(1)
 
@@ -73,7 +73,7 @@ def main():
     try:
         df = read_fixed_width_file(lines, field_definitions)
         actual_df = convert_to_actual(df)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-exception-caught
         print(f"Error parsing or converting: {e}", file=sys.stderr)
         sys.exit(1)
 
@@ -83,7 +83,7 @@ def main():
             actual_df.to_csv(sys.stdout, index=False)
         else:
             actual_df.to_csv(args.output, index=False)
-    except Exception as e:
+    except OSError as e:
         print(f"Error writing output: {e}", file=sys.stderr)
         sys.exit(1)
 
