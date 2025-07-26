@@ -27,7 +27,11 @@ def convert_to_actual(df: pd.DataFrame) -> pd.DataFrame:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Convert a bank TXT file to actual CSV format. Reads from stdin if txt_file is '-' or omitted, writes to stdout if --output is '-' or omitted."
+        description=(
+            "Convert a bank TXT file to actual CSV format. "
+            "Reads from stdin if txt_file is '-' or omitted, "
+            "writes to stdout if --output is '-' or omitted."
+        )
     )
     parser.add_argument(
         "txt_file",

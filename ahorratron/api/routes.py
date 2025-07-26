@@ -21,20 +21,20 @@ async def health_check():
         service = ActualBudgetService()
         if not service.health_check():
             is_healty = False
-    except Exception as e:
-        logger.error(f"Health check failed: {str(e)}")
+    except Exception as e:  # pylint: disable=broad-except
+        logger.error("Health check failed: %s", str(e))
         is_healty = False
     return {"status": "healthy" if is_healty else "unhealthy"}
 
 
 @router.post("/add_transaction", response_model=TransactionResponse)
 async def add_transaction(
-    transaction: Transaction, api_key: str = Depends(verify_api_key)
+    transaction: Transaction, _api_key: str = Depends(verify_api_key)
 ) -> TransactionResponse:
-    logger.info(f"Processing transaction: {transaction}")
+    logger.info("Processing transaction: %s", transaction)
     service = ActualBudgetService()
     transaction_id = service.add_transaction(transaction)
-    logger.info(f"Successfully added transaction with ID: {transaction_id}")
+    logger.info("Successfully added transaction with ID: %s", transaction_id)
     return TransactionResponse(
         success=True,
         message="Transaction added successfully",
@@ -45,7 +45,7 @@ async def add_transaction(
 @router.get("/summary", response_model=dict)
 async def get_summary(
     month: Optional[date] = None,
-    api_key: str = Depends(verify_api_key),
+    _api_key: str = Depends(verify_api_key),
 ):
     service = ActualBudgetService()
     return service.get_summary(month)

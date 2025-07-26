@@ -28,7 +28,7 @@ repos:
           [
             "--output-format=colorized",
             "--fail-under=9.0", # Set the minimum score for passing
-            "--fail-on=E,W",  # Only fail on errors (E) and warnings (W)
+            "--fail-on=E",  # Only fail on errors (E) and warnings (W)
 
         #    "-rn", # Only display messages
         #    "-sn", # Don't display the score

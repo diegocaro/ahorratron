@@ -1,8 +1,9 @@
 from datetime import date, datetime, timedelta
-from typing import Optional
+from typing import Optional, Sequence
 
 import pandas as pd
 from actual import Actual
+from actual.database import ReflectBudgets, ZeroBudgets
 from actual.queries import (
     create_transaction,
     get_account,
@@ -63,6 +64,19 @@ class ActualBudgetService:
             actual.commit()
             return str(t.id)
 
+    def _build_categories_df(
+        self, budgets_raw: Sequence[ZeroBudgets | ReflectBudgets]
+    ) -> pd.DataFrame:
+        # Using this approach instead of `get_categories` to avoid fetching all transactions,
+        # which is unnecessary here
+        add_prefix = lambda x, prefix: {f"{prefix}_{k}": v for k, v in x.items()}  # type: ignore
+        categories_records = []
+        for b in budgets_raw:
+            category = add_prefix(b.category.model_dump(), "category")  # type: ignore
+            category_group = add_prefix(b.category.group.model_dump(), "group")  # type: ignore
+            categories_records.append({**category, **category_group})
+        return pd.DataFrame(categories_records).rename(columns={"id": "category_id"})
+
     def get_summary(self, month: Optional[date] = None):
         with Actual(
             base_url=self.base_url, password=self.password, file=self.file
@@ -76,18 +90,8 @@ class ActualBudgetService:
             budgets = to_dataframe(budgets_raw).rename(
                 columns={"id": "budget_id", "amount": "budgeted"}
             )
-            # Using this approach instead of `get_categories` to avoid fetching all transactions,
-            # which is unnecessary here
-            add_prefix = lambda x, prefix: {f"{prefix}_{k}": v for k, v in x.items()}
-            categories_records = []
-            for b in budgets_raw:
-                category = add_prefix(b.category.model_dump(), "category")
-                category_group = add_prefix(b.category.group.model_dump(), "group")
-                categories_records.append({**category, **category_group})
 
-            categories = pd.DataFrame(categories_records).rename(
-                columns={"id": "category_id"}
-            )
+            categories = self._build_categories_df(budgets_raw)
 
             transactions = to_dataframe(
                 get_transactions(
