@@ -49,20 +49,3 @@ ignore = [
 venvPath = "."
 venv = ".venv"
 typeCheckingMode = "standard"
-
-# [tool.mypy]
-# python_version = "3.12"
-# ignore_missing_imports = false
-#
-# [[tool.mypy.overrides]]
-# module = ["actual", "actual.queries"]
-# ignore_missing_imports = true
-#
-# [tool.pylint.'MAIN']
-# fail-under = 8.0
-# disable = [
-#     "C3001", # allow lambda expression
-#     "C0114", # missing-module-docstring
-#     "C0115", # missing-class-docstring
-#     "C0116", # missing-function-docstring
-# ]
