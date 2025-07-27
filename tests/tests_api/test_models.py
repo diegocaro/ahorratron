@@ -50,7 +50,7 @@ def test_transaction_invalid_amount_type():
         "notes": "Apple Pay",
     }
     with pytest.raises(ValidationError):
-        Transaction(**data)
+        Transaction(**data)  # type: ignore[arg-type]
 
 
 def test_transaction_missing_required_fields():
