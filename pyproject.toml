@@ -36,7 +36,7 @@ packages = ["ahorratron"]
 package = true
 
 [tool.ruff]
-fix = true 
+fix = true
 
 [tool.ruff.lint]
 select = [
