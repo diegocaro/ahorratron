@@ -1,9 +1,10 @@
 """FastAPI application for ahorratron"""
 
 import logging
+from collections.abc import Awaitable, Callable
 
 import uvicorn
-from fastapi import FastAPI, status
+from fastapi import FastAPI, Request, Response, status
 from fastapi.responses import JSONResponse
 
 from .models import ErrorResponse
@@ -21,15 +22,17 @@ app = FastAPI(
 
 
 @app.middleware("http")
-async def log_request_middleware(request, call_next):
-    body = await request.body()
+async def log_request_middleware(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    body: bytes = await request.body()
     logger.info(
         "Incoming request: %s %s | Body: %s",
         request.method,
         request.url.path,
         body.decode("utf-8") if body else None,
     )
-    response = await call_next(request)
+    response: Response = await call_next(request)
     return response
 
 
@@ -37,7 +40,7 @@ app.include_router(router)
 
 
 @app.exception_handler(Exception)
-async def general_exception_handler(_request, exc: Exception):
+async def general_exception_handler(_request: Request, exc: Exception) -> JSONResponse:
     """Handle general exceptions."""
     logger.error("Unexpected error: %s", str(exc))
     return JSONResponse(
