@@ -35,9 +35,16 @@ packages = ["ahorratron"]
 [tool.uv]
 package = true
 
+[tool.ruff]
+fix = true 
+
 [tool.ruff.lint]
-# Ignore E731 (lambda assignment)
-ignore = ["E731"]
+select = [
+    "UP", # modernize python
+]
+ignore = [
+    "E731" # lambda assignment
+]
 
 #[tool.pyright]
 #venvPath = "."
@@ -52,7 +59,11 @@ ignore_missing_imports = false
 module = ["actual", "actual.queries"]
 ignore_missing_imports = true
 
-
 [tool.pylint.'MAIN']
-disable = ["C3001", # allow lambda expression
-] 
+fail-under = 8.0
+disable = [
+    "C3001", # allow lambda expression
+    "C0114", # missing-module-docstring
+    "C0115", # missing-class-docstring
+    "C0116", # missing-function-docstring
+]

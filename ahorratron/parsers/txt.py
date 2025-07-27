@@ -1,17 +1,17 @@
 from copy import deepcopy
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
 
 
-def get_expected_length(field_definitions: Dict[str, Any]) -> int:
+def get_expected_length(field_definitions: dict[str, Any]) -> int:
     """Calculate the expected length of a fixed-width record based on field definitions."""
     return sum(field["length"] for field in field_definitions.values())
 
 
 def fit_to_grow_definitions(
-    field_definitions: Dict[str, Any], new_line_length: int
-) -> Dict[str, Any]:
+    field_definitions: dict[str, Any], new_line_length: int
+) -> dict[str, Any]:
     expected = get_expected_length(field_definitions)
     diff = new_line_length - expected
     ans = deepcopy(field_definitions)
@@ -27,7 +27,7 @@ def fit_to_grow_definitions(
 
 
 def read_fixed_width_file(
-    lines: List[str], field_definitions: Dict[str, Any]
+    lines: list[str], field_definitions: dict[str, Any]
 ) -> pd.DataFrame:
     records = []
     expected_length = get_expected_length(field_definitions)

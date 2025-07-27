@@ -2,6 +2,7 @@
 
 import logging
 
+import uvicorn
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 
@@ -55,7 +56,6 @@ async def general_exception_handler(_request, exc: Exception):
 
 def run_server():
     """Run the API server using uvicorn."""
-    import uvicorn  # ignore[import-outside-toplevel]
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
 

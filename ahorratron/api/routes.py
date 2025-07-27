@@ -1,6 +1,5 @@
 import logging
 from datetime import date
-from typing import Optional
 
 from fastapi import APIRouter, Depends
 
@@ -44,7 +43,7 @@ async def add_transaction(
 
 @router.get("/summary", response_model=dict)
 async def get_summary(
-    month: Optional[date] = None,
+    month: date | None = None,
     _api_key: str = Depends(verify_api_key),
 ):
     service = ActualBudgetService()

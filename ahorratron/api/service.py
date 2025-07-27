@@ -1,5 +1,5 @@
+from collections.abc import Sequence
 from datetime import date, datetime, timedelta
-from typing import Optional, Sequence
 
 import pandas as pd
 from actual import Actual
@@ -77,7 +77,7 @@ class ActualBudgetService:
             categories_records.append({**category, **category_group})
         return pd.DataFrame(categories_records).rename(columns={"id": "category_id"})
 
-    def get_summary(self, month: Optional[date] = None):
+    def get_summary(self, month: date | None = None):
         with Actual(
             base_url=self.base_url, password=self.password, file=self.file
         ) as actual:

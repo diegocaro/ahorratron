@@ -67,7 +67,7 @@ def main():
         if args.txt_file == "-":
             lines = sys.stdin.read().splitlines()
         else:
-            with open(args.txt_file, "rt", encoding="utf8") as f:
+            with open(args.txt_file, encoding="utf8") as f:
                 lines = f.read().splitlines()
     except OSError as e:
         print(f"Error reading input: {e}", file=sys.stderr)

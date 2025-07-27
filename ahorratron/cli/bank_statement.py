@@ -111,7 +111,7 @@ def download_cartola_txt() -> str:
         random_wait()
         descargar_txt_btn.click()
         filepath = wait_for_txt_file(download_dir)
-        with open(filepath, "r", encoding="utf8") as f:
+        with open(filepath, encoding="utf8") as f:
             return f.read()
     finally:
         driver.quit()
