@@ -9,3 +9,12 @@ repos:
     rev: v1.1.403
     hooks:
     - id: pyright
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: pretty-format-json
+        files: \.(json)$
+        args: [ "--autofix", "--indent", "4", "--no-sort-keys", "--no-ensure-ascii"]
+      - id: check-yaml
+        files: \.(yml|yaml)$
