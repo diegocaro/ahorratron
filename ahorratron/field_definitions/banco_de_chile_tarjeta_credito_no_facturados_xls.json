@@ -1,0 +1,33 @@
+{
+    "__config__": {
+        "skiprows": 17,
+        "reader_type": "xlsx"
+    },
+    "date": {
+        "column_name": "Fecha",
+        "type": "date",
+        "format": "%d/%m/%Y",
+        "description": "Fecha del Movimiento"
+    },
+    "account": {
+        "column_name": "Tipo de Tarjeta",
+        "type": "string",
+        "description": "Tarjeta de Crédito"
+    },
+    "city": {
+        "column_name": "Ciudad",
+        "type": "string",
+        "description": "Ciudad"
+    },
+    "description": {
+        "column_name": "Descripción",
+        "type": "string",
+        "description": "Descripción del Movimiento"
+    },
+    "amount": {
+        "column_name":"Unnamed: 10",
+        "type": "decimal",
+        "description": "Monto del Movimiento",
+        "reverse_amount": true
+    }
+}

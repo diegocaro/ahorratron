@@ -17,6 +17,13 @@ BANK_URL = os.environ["BANK_URL"]
 BANK_USER = os.environ["BANK_USER"]
 BANK_PASSWORD = os.environ["BANK_PASSWORD"]
 
+BANK_ACCOUNT_BUTTONS_ID = {
+    # These are the IDs for the account buttons on the Banco de Chile website
+    # They may change, so ensure they are correct.
+    "cte": "btn-home_CuentaCorrienteMonedaLocal",
+    "fan": "btn-home_CuentaFAN",
+}
+
 
 def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
     time.sleep(random.uniform(min_seconds, max_seconds))
@@ -49,7 +56,7 @@ def close_emergent_modal(driver: webdriver.Chrome) -> None:
         pass  # Modal did not appear, continue
 
 
-def download_cartola_txt() -> str:
+def download_cartola_txt(account_button_id: str) -> str:
     """Automate browser to download cartola.txt and return its contents."""
     download_dir = tempfile.mkdtemp()
     chrome_options = Options()
@@ -83,9 +90,9 @@ def download_cartola_txt() -> str:
         driver.find_element(By.ID, "ppriv_per-click-ingresar-login").click()
 
         # Wait for "Cuenta FAN" button to be clickable after login
-        wait.until(EC.presence_of_element_located((By.ID, "btn-home_CuentaFAN")))
+        wait.until(EC.presence_of_element_located((By.ID, account_button_id)))
         close_emergent_modal(driver)
-        wait.until(EC.element_to_be_clickable((By.ID, "btn-home_CuentaFAN"))).click()
+        wait.until(EC.element_to_be_clickable((By.ID, account_button_id))).click()
         random_wait()
 
         # Wait for "Descargar" button (parent of span.btn-text)
@@ -128,9 +135,22 @@ def main():
         default="-",
         help="Output TXT file name or '-' for stdout (default: '-')",
     )
+    parser.add_argument(
+        "--account",
+        "-a",
+        choices=BANK_ACCOUNT_BUTTONS_ID.keys(),
+        default="fan",
+        help="Select the bank account type (default: 'fan')",
+    )
     args = parser.parse_args()
 
-    content = download_cartola_txt()
+    account_id = BANK_ACCOUNT_BUTTONS_ID.get(args.account)
+    if not account_id:
+        raise ValueError(
+            f"Invalid account type: {args.account}. "
+            f"Available options: {', '.join(BANK_ACCOUNT_BUTTONS_ID.keys())}"
+        )
+    content = download_cartola_txt(account_id)
     if args.output == "-":
         print(content)
     else:

@@ -14,3 +14,7 @@ tmp
 
 # Dotenv files
 .env
+
+
+# Pytest Coverage
+.coverage

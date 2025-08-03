@@ -7,6 +7,7 @@ import pandas as pd
 
 from ahorratron.field_def_registry import FIELD_DEFINITION_PATHS
 from ahorratron.parsers.txt import read_fixed_width_file
+from ahorratron.parsers.xls import read_xls
 
 
 def convert_to_actual(df: pd.DataFrame) -> pd.DataFrame:
@@ -14,11 +15,15 @@ def convert_to_actual(df: pd.DataFrame) -> pd.DataFrame:
     Convert the DataFrame to a format suitable for actual bank transactions.
     """
     out = df.copy()
-    out["amount"] = out.apply(
-        lambda row: -row["amount"] if row["transaction_type"] == "C" else row["amount"],
-        axis=1,
-    )
-    out = out[~out["transaction_type"].isin(["S"])]  # solo abonos y cargos
+
+    if "transaction_type" in out.columns:
+        out["amount"] = out.apply(
+            lambda row: (
+                -row["amount"] if row["transaction_type"] == "C" else row["amount"]
+            ),
+            axis=1,
+        )
+        out = out[~out["transaction_type"].isin(["S"])]  # solo abonos y cargos
     out["date"] = out["date"].dt.strftime("%Y-%m-%d")
     out["notes"] = out["description"]
     out = out[["date", "amount", "description", "notes"]]
@@ -41,6 +46,7 @@ def main():
     )
     parser.add_argument(
         "--fields",
+        "-f",
         default="banco_de_chile_cuenta_corriente_txt",
         help="Field definition key or path (default: banco_de_chile_cuenta_corriente_txt)",
     )
@@ -55,6 +61,7 @@ def main():
     # Resolve field definitions path
     fields_arg = args.fields
     fields_path = FIELD_DEFINITION_PATHS.get(fields_arg, Path(fields_arg))
+
     try:
         with open(fields_path, encoding="utf8") as f:
             field_definitions = json.load(f)
@@ -62,25 +69,36 @@ def main():
         print(f"Error loading field definitions: {e}", file=sys.stderr)
         sys.exit(1)
 
-    # Read lines from TXT file or stdin
-    try:
-        if args.txt_file == "-":
-            lines = sys.stdin.read().splitlines()
-        else:
-            with open(args.txt_file, encoding="utf8") as f:
-                lines = f.read().splitlines()
-    except OSError as e:
-        print(f"Error reading input: {e}", file=sys.stderr)
+    reader_type = field_definitions.get("__config__", {}).get("reader_type", "txt")
+
+    if reader_type == "txt":
+        # Read lines from TXT file or stdin
+        try:
+            if args.txt_file == "-":
+                lines = sys.stdin.read().splitlines()
+            else:
+                with open(args.txt_file, encoding="utf8") as f:
+                    lines = f.read().splitlines()
+        except OSError as e:
+            print(f"Error reading input: {e}", file=sys.stderr)
+            sys.exit(1)
+
+        # Parse TXT file
+        try:
+            df = read_fixed_width_file(lines, field_definitions)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print(f"Error parsing or converting: {e}", file=sys.stderr)
+            sys.exit(1)
+    elif reader_type == "xlsx":
+        df = read_xls(args.txt_file, field_definitions)
+    else:
+        print(f"Unknown reader type: {reader_type}", file=sys.stderr)
         sys.exit(1)
 
-    # Parse TXT file
-    try:
-        df = read_fixed_width_file(lines, field_definitions)
-        actual_df = convert_to_actual(df)
-    except Exception as e:  # pylint: disable=broad-exception-caught
-        print(f"Error parsing or converting: {e}", file=sys.stderr)
-        sys.exit(1)
-
+    actual_df = convert_to_actual(df)
+    if actual_df.empty:
+        print("No valid transactions found in the input file.", file=sys.stderr)
+        sys.exit(0)
     # Write to output file or stdout
     try:
         if args.output == "-":
