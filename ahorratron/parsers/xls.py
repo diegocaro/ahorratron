@@ -22,7 +22,7 @@ def read_xls(file_path: str, field_definitions: dict[str, Any]) -> pd.DataFrame:
     df = df.rename(columns=mapped_columns)
     df = df[list(mapped_columns.values())]  # Keep only mapped columns
 
-    reverse_amount = field_definitions["amount"].get("reverse_amount", False)
+    reverse_amount = field_definitions.get("amount", {}).get("reverse_amount", False)
     if reverse_amount:
         df["amount"] = -df["amount"]
 
