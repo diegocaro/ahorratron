@@ -98,7 +98,7 @@ def main():
     actual_df = convert_to_actual(df)
     if actual_df.empty:
         print("No valid transactions found in the input file.", file=sys.stderr)
-        sys.exit(0)
+        sys.exit(1)
     # Write to output file or stdout
     try:
         if args.output == "-":
