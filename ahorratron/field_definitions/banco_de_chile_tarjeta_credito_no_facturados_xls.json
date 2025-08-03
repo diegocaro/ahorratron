@@ -25,7 +25,7 @@
         "description": "Descripción del Movimiento"
     },
     "amount": {
-        "column_name":"Unnamed: 10",
+        "column_name": "Unnamed: 10",
         "type": "decimal",
         "description": "Monto del Movimiento",
         "reverse_amount": true
