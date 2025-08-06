@@ -59,8 +59,10 @@ def main():
     args = parser.parse_args()
 
     # Resolve field definitions path
-    fields_arg = args.fields
-    fields_path = FIELD_DEFINITION_PATHS.get(fields_arg, Path(fields_arg))
+    fields_path = FIELD_DEFINITION_PATHS.get(args.fields)
+    if not fields_path:
+        print(f"Field definitions not found for '{args.fields}'", file=sys.stderr)
+        sys.exit(1)
 
     try:
         with open(fields_path, encoding="utf8") as f:
