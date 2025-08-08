@@ -13,6 +13,8 @@ dependencies = [
     "actualpy>=0.0.1",
     "selenium>=4.34.2",
     "xlrd>=2.0.2",
+    "httpx>=0.28.1",
+    "python-jose>=3.5.0",
 ]
 
 [project.scripts]

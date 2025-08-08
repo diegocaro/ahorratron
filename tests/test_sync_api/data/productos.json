@@ -1,0 +1,40 @@
+{
+    "rut": "12345678-9",
+    "nombre": "Usuario de Prueba",
+    "productos": [
+        {
+            "id": "1-XXXXXX",
+            "numero": "1234567890",
+            "mascara": "****7890",
+            "codigo": "CTD",
+            "codigoMoneda": "CLP",
+            "alias": null,
+            "label": "Cuenta Corriente",
+            "tipo": "cuenta",
+            "claseCuenta": "CCNMN1",
+            "subProducto": null,
+            "estado": "Vigente o Activo",
+            "detalleEstado": null,
+            "tarjetaHabiente": null,
+            "descripcionLogo": "Cuenta Corriente Moneda Local",
+            "tipoCliente": "Titular"
+        },
+        {
+            "id": "1-ZZZZZ-9",
+            "numero": "",
+            "mascara": "****3344",
+            "codigo": "TNM",
+            "codigoMoneda": "CLP",
+            "alias": null,
+            "label": "Titular Mastercard   ****3344 - EJEMPLO USUARIO",
+            "tipo": "tarjeta",
+            "claseCuenta": "",
+            "subProducto": null,
+            "estado": "Vigente o Activo",
+            "detalleEstado": "Activa",
+            "tarjetaHabiente": "EJEMPLO USUARIO",
+            "descripcionLogo": "Mastercard  ",
+            "tipoCliente": "Titular"
+        }
+    ]
+}

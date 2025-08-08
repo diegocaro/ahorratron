@@ -1,0 +1,64 @@
+{
+    "horaConsulta": "05/08/2025 18:48 Hrs.",
+    "moneda": "CLP",
+    "saldoFinal": 31144,
+    "totalCargos": 800931,
+    "totalAbonos": 829733,
+    "retencion1Dia": 0,
+    "retencionNDia": 0,
+    "montoAutorizado": 50000,
+    "montoUtilizado": 0,
+    "saldoDisponible": 31144,
+    "lineaCredito": 50000,
+    "movimientos": [
+        {
+            "estado": null,
+            "descripcion": "Pago:cineplanet Costan",
+            "monto": "16600",
+            "saldo": "281817",
+            "nombreCuenta": "Cuenta Corriente",
+            "numeroCuenta": "001234567890",
+            "idCuenta": "CTD001234567890",
+            "canal": "Concepcion O'higgins",
+            "tipo": "cargo",
+            "fecha": "20250804 15:40:35",
+            "fechaContable": "05/08/2025",
+            "id": "CTD001234567890:20250804 15:40:35:16600:cargo:1",
+            "numeroDocumento": "",
+            "fechaContableMovimiento": 1754366400000,
+            "detalleGlosa": []
+        },
+        {
+            "estado": null,
+            "descripcion": "Pago:mercadopago*valen",
+            "monto": "4500",
+            "saldo": "298417",
+            "nombreCuenta": "Cuenta Corriente",
+            "numeroCuenta": "001234567890",
+            "idCuenta": "CTD001234567890",
+            "canal": "Concepcion O'higgins",
+            "tipo": "cargo",
+            "fecha": "20250804 14:49:10",
+            "fechaContable": "05/08/2025",
+            "id": "CTD001234567890:20250804 14:49:10:4500:cargo:1",
+            "numeroDocumento": "",
+            "fechaContableMovimiento": 1754366400000,
+            "detalleGlosa": []
+        }
+    ],
+    "pagina": [
+        {
+            "idCuenta": "CTD001234567890",
+            "cantidadRegistros": "100",
+            "totalRegistros": "73",
+            "indiceInicio": "1",
+            "indiceTermino": "100",
+            "masPaginas": "N"
+        }
+    ],
+    "montoUtilizadoLinea": 0,
+    "montoAutorizadoLinea": 50000,
+    "saldoDisponibleLinea": 50000,
+    "numeroLineaCredito": "011234567890",
+    "permisoLineaCredito": true
+}
