@@ -26,7 +26,7 @@ def create_encrypted_token(data: dict) -> bytes:
     payload = data.copy()
     payload["sub"] = username
     payload["exp"] = int(
-        (datetime.datetime.now(datetime.timezone.utc) + TOKEN_DURATION).timestamp()
+        (datetime.datetime.now(datetime.UTC) + TOKEN_DURATION).timestamp()
     )
     encrypted_token = jwe.encrypt(
         json.dumps(payload), SECRET_KEY, algorithm=JWE_ALGORITHM
@@ -42,7 +42,7 @@ def get_decrypted_token(x_api_key: str = Header(..., alias="X-API-KEY")):
             raise HTTPException(status_code=401, detail="Invalid or expired token")
         payload = json.loads(decrypted.decode())
         exp = payload.get("exp")
-        if exp and datetime.datetime.now(datetime.timezone.utc).timestamp() > exp:
+        if exp and datetime.datetime.now(datetime.UTC).timestamp() > exp:
             raise HTTPException(status_code=401, detail="Token expired")
         username = payload.get("username")
         password = payload.get("password")

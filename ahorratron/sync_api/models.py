@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from pydantic import BaseModel
 
 
@@ -41,14 +39,14 @@ class Producto(BaseModel):
     mascara: str
     codigo: str
     codigoMoneda: str
-    alias: Optional[str]
+    alias: str | None
     label: str
     tipo: str
     claseCuenta: str
-    subProducto: Optional[str]
+    subProducto: str | None
     estado: str
-    detalleEstado: Optional[str]
-    tarjetaHabiente: Optional[str]
+    detalleEstado: str | None
+    tarjetaHabiente: str | None
     descripcionLogo: str
     tipoCliente: str
 
@@ -56,7 +54,7 @@ class Producto(BaseModel):
 class ObtenerProductosResponse(BaseModel):
     rut: str
     nombre: str
-    productos: List[Producto]
+    productos: list[Producto]
 
 
 class MovimientoNoFacturado(BaseModel):
@@ -84,7 +82,7 @@ class MovimientoNoFacturado(BaseModel):
     fechaAutorizacionString: str
     montoCompraString: str
     nombreTarjetaHabiente: str
-    numeroTarjetaCompleto: Optional[str]
+    numeroTarjetaCompleto: str | None
 
 
 class NoFacturadosResponse(BaseModel):
@@ -94,11 +92,11 @@ class NoFacturadosResponse(BaseModel):
     fechaFacturacionAnteriorString: str
     fechaAhoraString: str
     fechaProximaFacturacionCalendario: str
-    listaMovNoFactur: List[MovimientoNoFacturado]
+    listaMovNoFactur: list[MovimientoNoFacturado]
 
 
 class Movimiento(BaseModel):
-    estado: Optional[str]
+    estado: str | None
     descripcion: str
     monto: str
     saldo: str
@@ -112,7 +110,7 @@ class Movimiento(BaseModel):
     id: str
     numeroDocumento: str
     fechaContableMovimiento: int
-    detalleGlosa: List[str]
+    detalleGlosa: list[str]
 
 
 class GetCartolaResponse(BaseModel):
@@ -127,4 +125,4 @@ class GetCartolaResponse(BaseModel):
     montoUtilizado: int
     saldoDisponible: int
     lineaCredito: int
-    movimientos: List[Movimiento]
+    movimientos: list[Movimiento]

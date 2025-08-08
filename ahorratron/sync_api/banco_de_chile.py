@@ -147,7 +147,6 @@ class APIClient:
 
 
 def main():
-
     client = APIClient()
     client.login()
     productos = client.get_productos()
