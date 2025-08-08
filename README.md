@@ -18,18 +18,21 @@ Inspirada en los tradicionales chanchitos de ahorro, esta herramienta busca faci
 
 ## ⚙️ Instalación
 
+
 Requiere Python 3.12 o superior.
 
-Clona el repositorio e instala las dependencias:
+Clona el repositorio e instala las dependencias usando [uv](https://github.com/astral-sh/uv):
 
 ```bash
-pip install .
-````
+git clone git@github.com:diegocaro/ahorratron.git
+cd ahorratron
+uv sync
+```
 
 Para desarrollo (con herramientas de prueba):
 
 ```bash
-pip install .[dev]
+uv sync --dev
 ```
 
 ---
@@ -47,6 +50,53 @@ Ejemplo:
 ```bash
 convert-to-actual cartola.txt
 ```
+
+### 📄 Obtener cartola bancaria del Banco de Chile
+
+También puedes usar el comando `bank-statement` para obtener la cartola bancaria de cuentas corrientes y cuentas vista del Banco de Chile:
+
+```bash
+bank-statement [opciones]
+```
+
+Este comando descarga y procesa la cartola directamente desde el sitio del banco. El resultado se entrega en formato TXT.
+
+> **Nota:** Para usar este comando, debes exportar las siguientes variables de entorno antes de ejecutarlo (WIP, por ahora no es el mejor método para dejar las credenciales, se aceptan parches):
+>
+> ```bash
+> export BANK_USER=11111111-1
+> export BANK_PASSWORD=TuPassword
+> export BANK_URL=https://portalpersonas.bancochile.cl/persona/
+> ```
+
+### 🏦 Selección de cuenta bancaria
+
+El comando `bank-statement` permite elegir la cuenta desde la cual descargar la cartola, usando la opción `--account`:
+
+```bash
+bank-statement --account cte   # Para cuenta corriente
+bank-statement --account fan   # Para Cuenta FAN (por defecto)
+```
+
+El script busca las cartolas que aparecen bajo el widget que contiene los links a las cuentas bancarias en el sitio del Banco de Chile. Los identificadores de los botones están definidos en la variable `BANK_ACCOUNT_BUTTONS_ID` del script.
+
+### 🔄 Convertir cartola bancaria a formato CSV para Actual Budget
+
+Puedes ejecutar ambos comandos en conjunto para descargar la cartola en formato TXT y convertirla automáticamente al formato CSV que puede importarse en Actual Budget:
+
+```bash
+bank-statement | convert-to-actual -o cartola.csv
+```
+
+Esto permite automatizar el proceso completo: desde la obtención de la cartola bancaria hasta la generación del archivo CSV listo para importar.
+
+---
+
+## 🏦 Bancos soportados
+
+Por ahora, solo está implementado:
+
+- Banco de Chile
 
 ---
 
