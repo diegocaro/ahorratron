@@ -10,7 +10,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from ahorratron.sync_api.models import (
+from ahorratron.sync_api.institutions.banco_de_chile.models import (
     GetCartolaCuentaRequest,
     GetCartolaResponse,
     MovimientosNoFacturadosRequest,
@@ -18,9 +18,7 @@ from ahorratron.sync_api.models import (
     ObtenerProductosResponse,
 )
 
-BANK_URL = os.environ["BANK_URL"]
-BANK_USER = os.environ["BANK_USER"]
-BANK_PASSWORD = os.environ["BANK_PASSWORD"]
+BANK_LOGIN_URL = os.environ["BANK_LOGIN_URL"]
 BANK_API_BASE_URL = os.environ["BANK_API_BASE_URL"]
 
 HEADER_REFERER = os.environ["HEADER_REFERER"]
@@ -33,46 +31,10 @@ def random_wait(min_seconds: float = 1, max_seconds: float = 5) -> None:
     time.sleep(random.uniform(min_seconds, max_seconds))
 
 
-def login_to_bank(driver: webdriver.Chrome) -> list[dict[str, str]]:
-    home_button_id = "1"
-    chrome_options = Options()
-    driver = webdriver.Chrome(options=chrome_options)
-
-    try:
-        driver.get(BANK_URL)
-        wait = WebDriverWait(driver, 20)
-
-        # Wait for login fields to be present
-        wait.until(EC.presence_of_element_located((By.ID, "ppriv_per-click-input-rut")))
-        random_wait()
-        wait.until(
-            EC.presence_of_element_located((By.ID, "ppriv_per-click-input-password"))
-        )
-        random_wait()
-
-        # Fill in credentials and submit
-        driver.find_element(By.ID, "ppriv_per-click-input-rut").send_keys(BANK_USER)
-        driver.find_element(By.ID, "ppriv_per-click-input-password").send_keys(
-            BANK_PASSWORD
-        )
-        driver.find_element(By.ID, "ppriv_per-click-ingresar-login").click()
-
-        # Wait for Home button to be clickable after login
-        wait.until(EC.presence_of_element_located((By.ID, home_button_id)))
-        random_wait()
-
-        cookies = driver.get_cookies()
-    finally:
-        # driver.quit()
-        pass
-
-    # Return session cookies
-    return cookies
-
-
 class APIClient:
     SESSION_COOKIE_NAMES = ["mod_auth_openidc_session", "incap_ses_621_1747492"]
     BASE_URL = BANK_API_BASE_URL
+    LOGIN_URL = BANK_LOGIN_URL
 
     def __init__(self):
         self.session = httpx.Client(
@@ -117,10 +79,55 @@ class APIClient:
             logging.error(f"HTTP error occurred: {e}")
             raise
 
-    def login(self):
-        cookies = login_to_bank(webdriver.Chrome())
+    def login(self, username: str, password: str) -> None:
+        chrome_options = Options()
+        driver = webdriver.Chrome(options=chrome_options)
+        cookies = self._login_to_bank(driver, self.LOGIN_URL, username, password)
         logger.debug(f"Cookies from Selenium: {cookies}")
         self._set_session_cookie(cookies)
+        driver.quit()
+
+    def _login_to_bank(
+        self, driver: webdriver.Chrome, bank_url: str, username: str, password: str
+    ) -> list[dict[str, str]]:
+
+        home_button_id = "1"
+
+        try:
+            driver.get(bank_url)
+            wait = WebDriverWait(driver, 20)
+
+            # Wait for login fields to be present
+            wait.until(
+                EC.presence_of_element_located((By.ID, "ppriv_per-click-input-rut"))
+            )
+            random_wait()
+            wait.until(
+                EC.presence_of_element_located(
+                    (By.ID, "ppriv_per-click-input-password")
+                )
+            )
+            random_wait()
+
+            # Fill in credentials and submit
+            driver.find_element(By.ID, "ppriv_per-click-input-rut").send_keys(username)
+            random_wait()
+            driver.find_element(By.ID, "ppriv_per-click-input-password").send_keys(
+                password
+            )
+            driver.find_element(By.ID, "ppriv_per-click-ingresar-login").click()
+
+            # Wait for Home button to be clickable after login
+            wait.until(EC.presence_of_element_located((By.ID, home_button_id)))
+            random_wait()
+
+            cookies = driver.get_cookies()
+        finally:
+            # driver.quit()
+            pass
+
+        # Return session cookies
+        return cookies
 
     def get_productos(self, incluirTarjetas: bool = True) -> ObtenerProductosResponse:
         url = f"{self.BASE_URL}/selectorproductos/selectorProductos/obtenerProductos"
@@ -147,8 +154,11 @@ class APIClient:
 
 
 def main():
+    BANK_USER = os.environ["BANK_USER"]
+    BANK_PASSWORD = os.environ["BANK_PASSWORD"]
+
     client = APIClient()
-    client.login()
+    client.login(BANK_USER, BANK_PASSWORD)
     productos = client.get_productos()
     # open("productos.json", "w").write(json.dumps(productos, indent=4))
     # no_facturados = client.get_no_facturados()
@@ -181,7 +191,7 @@ def main():
         cartola = client.get_cartola(request)
         print(cartola)
 
-    tarjetas_de_credito = [c for c in productos.productos if c.tipo == "targeta"]
+    tarjetas_de_credito = [c for c in productos.productos if c.tipo == "tarjeta"]
     for tarjeta in tarjetas_de_credito:
         print(f"Tarjeta: {tarjeta.numero} - {tarjeta.mascara}")
         data = {

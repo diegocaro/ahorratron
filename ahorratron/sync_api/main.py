@@ -6,6 +6,9 @@ import uvicorn
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from jose import jwe
 
+from ahorratron.sync_api.connectors import get_connector
+from ahorratron.sync_api.models.account_models import AccountsResponse
+
 app = FastAPI()
 
 SECRET_KEY = bytes.fromhex(os.environ["JWE_SECRET_KEY"])  # Must be 32 bytes for A256GCM
@@ -58,6 +61,7 @@ def get_decrypted_token(x_api_key: str = Header(..., alias="X-API-KEY")):
 @app.post("/auth")
 async def auth(request: Request):
     data = await request.json()
+    data["connector_id"] = "banco_de_chile"  # fixed connector for now
     try:
         token = create_encrypted_token(data)
         return {"apiKey": token}
@@ -65,11 +69,18 @@ async def auth(request: Request):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+@app.get("/accounts", response_model=AccountsResponse)
+def get_accounts(itemId: str, user_data: dict = Depends(get_decrypted_token)):
+    connector = get_connector(**user_data)
+    response = connector.get_accounts(itemId=itemId)
+    return response
+
+
 @app.get("/protected")
-def protected_route(data: dict = Depends(get_decrypted_token)):
+def protected_route(user_data: dict = Depends(get_decrypted_token)):
     return {
-        "message": f"Hello, {data['username']}. Your password is securely encrypted in the token.",
-        "data": data,
+        "message": f"Hello, {user_data['username']}. Your password is securely encrypted in the token.",
+        "data": user_data,
     }
 
 
