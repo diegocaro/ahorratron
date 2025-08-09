@@ -9,6 +9,7 @@ from jose import jwe
 from ahorratron.sync_api.connectors import get_connector
 from ahorratron.sync_api.models.account_models import AccountsResponse
 from ahorratron.sync_api.models.core_models import SessionData, UserData
+from ahorratron.sync_api.models.transaction_models import TransactionsResponse
 
 app = FastAPI()
 
@@ -60,6 +61,15 @@ async def auth(request: UserData):
 def get_accounts(itemId: str, session_data: SessionData = Depends(get_decrypted_token)):
     connector = get_connector(session_data.user_data)
     response = connector.get_accounts(itemId=itemId)
+    return response
+
+
+@app.get("/transactions", response_model=TransactionsResponse)
+def get_transactions(
+    accountId: str, session_data: SessionData = Depends(get_decrypted_token)
+):
+    connector = get_connector(session_data.user_data)
+    response = connector.get_transactions(accountId=accountId)
     return response
 
 
