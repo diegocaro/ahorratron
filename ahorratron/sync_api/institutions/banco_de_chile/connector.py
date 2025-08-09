@@ -1,3 +1,6 @@
+import logging
+from typing import Optional
+
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
     ObtenerProductosResponse,
     Producto,
@@ -11,6 +14,16 @@ from ahorratron.sync_api.models.account_models import (
 
 from .banco_de_chile import APIClient
 
+logger = logging.getLogger(__name__)
+
+"""
+Documentation from Pluggy.ai
+- https://docs.pluggy.ai/docs/accounts
+- https://docs.pluggy.ai/reference/accounts-list
+- https://www.postman.com/pluggy-official/pluggy-public/collection/wrl8bhb/pluggy
+
+"""
+
 
 class BancoDeChileConnector:
     def __init__(self, client: APIClient):
@@ -23,6 +36,7 @@ class BancoDeChileConnector:
             self._map_account_producto(itemId, productos, c)
             for c in productos.productos
         ]
+        cuentas = [c for c in cuentas if c is not None]
         response = AccountsResponse(
             results=cuentas,
             total=len(cuentas),
@@ -31,27 +45,31 @@ class BancoDeChileConnector:
 
     def _map_account_producto(
         self, itemId: str, response: ObtenerProductosResponse, producto: Producto
-    ) -> Account:
+    ) -> Optional[Account]:
+
+        type_map = {
+            "cuenta": (AccountType.BANK, AccountSubtype.CHECKING_ACCOUNT),
+            "ahorro": (AccountType.BANK, AccountSubtype.SAVINGS_ACCOUNT),
+            "tarjeta": (AccountType.CREDIT, AccountSubtype.CREDIT_CARD),
+        }
+        tipo_info = type_map.get(producto.tipo)
+        if tipo_info is None:
+            logger.warning(
+                f"Unknown account type: '{producto.tipo} for product {producto.codigo}"
+            )
+            return None
+        account_type, account_subtype = tipo_info
+
         numero = producto.numero
-        if producto.tipo == "cuenta":
-            account_type = AccountType.BANK
-            account_subtype = AccountSubtype.CHECKING_ACCOUNT
-        elif producto.tipo == "ahorro":
-            account_type = AccountType.BANK
-            account_subtype = AccountSubtype.SAVINGS_ACCOUNT
-        elif producto.tipo == "tarjeta":
-            account_type = AccountType.CREDIT
-            account_subtype = AccountSubtype.CREDIT_CARD
+        if producto.tipo == "tarjeta":
             numero = producto.mascara
-        else:
-            raise ValueError(f"Unknown account type: {producto.tipo}")
 
         return Account(
-            id=producto.codigo,
+            id=producto.id,
             type=account_type,
             subtype=account_subtype,
             number=numero,
-            name=response.nombre,
+            name=producto.label,
             currencyCode=producto.codigoMoneda,
             itemId=itemId,
             balance=0.0,  # Balance is not provided in the response

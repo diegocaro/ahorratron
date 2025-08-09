@@ -6,8 +6,9 @@ from ahorratron.sync_api.institutions.banco_de_chile.connector import (
 CONNECTORS = {"banco_de_chile": BancoDeChileConnector}
 
 
-def get_connector(connector_id: str, **kwargs) -> BancoDeChileConnector:
+def get_connector(connector_id: str, user_data: dict) -> BancoDeChileConnector:
     if connector_id not in CONNECTORS:
         raise ValueError(f"Connector {connector_id} not found")
-    client = APIClient(**kwargs)
+    client = APIClient()
+    client.login(user_data["username"], user_data["password"])
     return CONNECTORS[connector_id](client)

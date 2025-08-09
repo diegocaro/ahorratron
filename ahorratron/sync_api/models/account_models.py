@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class BankData(BaseModel):
@@ -78,7 +78,7 @@ class Account(BaseModel):
     type: AccountType
     subtype: AccountSubtype
     number: str
-    name: str
+    name: str = Field(..., description="Name of the account")
     balance: float
     itemId: str
     currencyCode: str
@@ -86,7 +86,9 @@ class Account(BaseModel):
     availableBalance: Optional[float] = None
     creditLimit: Optional[float] = None
     taxNumber: Optional[str] = None
-    owner: Optional[str] = None
+    owner: Optional[str] = Field(
+        default=None, description="Name of the owner of the account"
+    )
     institution: Optional[str] = None
     status: Optional[str] = None
     lastUpdated: Optional[str] = None

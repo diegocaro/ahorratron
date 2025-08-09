@@ -71,7 +71,7 @@ async def auth(request: Request):
 
 @app.get("/accounts", response_model=AccountsResponse)
 def get_accounts(itemId: str, user_data: dict = Depends(get_decrypted_token)):
-    connector = get_connector(**user_data)
+    connector = get_connector(user_data["connector_id"], user_data)
     response = connector.get_accounts(itemId=itemId)
     return response
 
