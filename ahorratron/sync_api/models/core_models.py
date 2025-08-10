@@ -10,5 +10,5 @@ class UserData(BaseModel):
 
 
 class SessionData(BaseModel):
-    exp: Optional[int] = None
+    exp: int | None = None
     user_data: UserData

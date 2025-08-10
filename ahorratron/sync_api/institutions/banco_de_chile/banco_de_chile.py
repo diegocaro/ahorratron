@@ -98,9 +98,12 @@ class APIClient:
         driver.quit()
 
     def _login_to_bank(
-        self, driver: webdriver.Chrome, bank_url: str, username: str, password: str
+        self,
+        driver: webdriver.Chrome | webdriver.Remote,
+        bank_url: str,
+        username: str,
+        password: str,
     ) -> list[dict[str, str]]:
-
         home_button_id = "1"
 
         try:

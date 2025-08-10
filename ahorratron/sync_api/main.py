@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 import os
-from typing import Awaitable, Callable
+from collections.abc import Awaitable, Callable
 
 import uvicorn
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response

@@ -1,6 +1,5 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -45,30 +44,30 @@ class ConsolidationType(str, Enum):
 
 
 class CreditData(BaseModel):
-    minimumPayment: Optional[float]
-    balanceForeignCurrency: Optional[float]
-    availableCreditLimit: Optional[float]
-    creditLimit: Optional[float]
-    isLimitFlexible: Optional[bool]
-    balanceDueDate: Optional[str]
-    balanceCloseDate: Optional[str]
-    level: Optional[str]
-    brand: Optional[str]
-    status: Optional[CreditStatus]
-    holderType: Optional[HolderType]
+    minimumPayment: float | None
+    balanceForeignCurrency: float | None
+    availableCreditLimit: float | None
+    creditLimit: float | None
+    isLimitFlexible: bool | None
+    balanceDueDate: str | None
+    balanceCloseDate: str | None
+    level: str | None
+    brand: str | None
+    status: CreditStatus | None
+    holderType: HolderType | None
 
 
 class DisaggregatedCreditLimit(BaseModel):
-    creditLineLimitType: Optional[CreditLineLimitType]
-    consolidationType: Optional[ConsolidationType]
-    identificationNumber: Optional[str]
-    isLimitFlexible: Optional[bool]
-    usedAmount: Optional[float]
-    usedAmountCurrencyCode: Optional[str]
-    limitAmount: Optional[float]
-    limitAmountCurrencyCode: Optional[str]
-    availableAmount: Optional[float]
-    availableAmountCurrencyCode: Optional[str]
+    creditLineLimitType: CreditLineLimitType | None
+    consolidationType: ConsolidationType | None
+    identificationNumber: str | None
+    isLimitFlexible: bool | None
+    usedAmount: float | None
+    usedAmountCurrencyCode: str | None
+    limitAmount: float | None
+    limitAmountCurrencyCode: str | None
+    availableAmount: float | None
+    availableAmountCurrencyCode: str | None
 
 
 class Account(BaseModel):
@@ -80,34 +79,34 @@ class Account(BaseModel):
     balance: float
     itemId: str
     currencyCode: str
-    marketingName: Optional[str] = None
-    availableBalance: Optional[float] = None
-    creditLimit: Optional[float] = None
-    taxNumber: Optional[str] = None
-    owner: Optional[str] = Field(
+    marketingName: str | None = None
+    availableBalance: float | None = None
+    creditLimit: float | None = None
+    taxNumber: str | None = None
+    owner: str | None = Field(
         default=None, description="Name of the owner of the account"
     )
-    institution: Optional[str] = None
-    status: Optional[str] = None
-    lastUpdated: Optional[str] = None
-    category: Optional[str] = None
-    paymentDueDate: Optional[str] = None
-    dueAmount: Optional[float] = None
-    minimumPayment: Optional[float] = None
-    interestRate: Optional[float] = None
-    investmentType: Optional[str] = None
-    loanType: Optional[str] = None
-    bankData: Optional[BankData] = None
-    creditData: Optional[CreditData] = None
-    disaggregatedCreditLimits: Optional[List[DisaggregatedCreditLimit]] = None
+    institution: str | None = None
+    status: str | None = None
+    lastUpdated: str | None = None
+    category: str | None = None
+    paymentDueDate: str | None = None
+    dueAmount: float | None = None
+    minimumPayment: float | None = None
+    interestRate: float | None = None
+    investmentType: str | None = None
+    loanType: str | None = None
+    bankData: BankData | None = None
+    creditData: CreditData | None = None
+    disaggregatedCreditLimits: list[DisaggregatedCreditLimit] | None = None
     updatedAt: str = Field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        default_factory=lambda: datetime.now(UTC).isoformat(),
         description="Last updated timestamp in ISO 8601 format UTC",
     )
 
 
 class AccountsResponse(BaseModel):
-    results: List[Account]
+    results: list[Account]
     total: int
     page: int
     totalPages: int

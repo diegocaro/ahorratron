@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -32,49 +31,49 @@ class DocumentNumber(BaseModel):
 
 
 class Participant(BaseModel):
-    name: Optional[str]
-    branchNumber: Optional[str]
-    accountNumber: Optional[str]
-    routingNumber: Optional[str]
-    routingNumberISPB: Optional[str]
-    documentNumber: Optional[DocumentNumber]
+    name: str | None
+    branchNumber: str | None
+    accountNumber: str | None
+    routingNumber: str | None
+    routingNumberISPB: str | None
+    documentNumber: DocumentNumber | None
 
 
 class BoletoMetadata(BaseModel):
-    digitableLine: Optional[str]
-    barcode: Optional[str]
-    baseAmount: Optional[float]
-    interestAmount: Optional[float]
-    penaltyAmount: Optional[float]
-    discountAmount: Optional[float]
+    digitableLine: str | None
+    barcode: str | None
+    baseAmount: float | None
+    interestAmount: float | None
+    penaltyAmount: float | None
+    discountAmount: float | None
 
 
 class PaymentData(BaseModel):
-    payer: Optional[Participant]
-    receiver: Optional[Participant]
-    referenceNumber: Optional[str]
-    receiverReferenceId: Optional[str]
-    paymentMethod: Optional[PaymentMethod]
-    reason: Optional[str]
-    boletoMetadata: Optional[BoletoMetadata]
+    payer: Participant | None
+    receiver: Participant | None
+    referenceNumber: str | None
+    receiverReferenceId: str | None
+    paymentMethod: PaymentMethod | None
+    reason: str | None
+    boletoMetadata: BoletoMetadata | None
 
 
 class CreditCardMetadata(BaseModel):
-    installmentNumber: Optional[int]
-    totalInstallments: Optional[int]
-    totalAmount: Optional[float]
-    payeeMCC: Optional[int]
-    cardNumber: Optional[str]
-    billId: Optional[str]
-    purchaseDate: Optional[str]
+    installmentNumber: int | None
+    totalInstallments: int | None
+    totalAmount: float | None
+    payeeMCC: int | None
+    cardNumber: str | None
+    billId: str | None
+    purchaseDate: str | None
 
 
 class Merchant(BaseModel):
-    name: Optional[str]
-    businessName: Optional[str]
-    cnpj: Optional[str]
-    cnae: Optional[str]
-    category: Optional[str]
+    name: str | None
+    businessName: str | None
+    cnpj: str | None
+    cnae: str | None
+    category: str | None
 
 
 class Transaction(BaseModel):
@@ -84,27 +83,27 @@ class Transaction(BaseModel):
         description="Date of the transaction in ISO 8601 format, e.g., '2023-10-01T12:00:00Z'",
     )
     description: str
-    descriptionRaw: Optional[str] = None
+    descriptionRaw: str | None = None
     amount: float
-    amountInAccountCurrency: Optional[float] = None
-    balance: Optional[float] = None
+    amountInAccountCurrency: float | None = None
+    balance: float | None = None
     currencyCode: str
-    category: Optional[str] = None
-    categoryId: Optional[str] = None
-    accountId: Optional[str] = None
-    providerCode: Optional[str] = None
+    category: str | None = None
+    categoryId: str | None = None
+    accountId: str | None = None
+    providerCode: str | None = None
     type: TransactionType
     status: TransactionStatus
-    paymentData: Optional[PaymentData] = None
-    creditCardMetadata: Optional[CreditCardMetadata] = None
-    merchant: Optional[Merchant] = None
-    providerId: Optional[str] = None
-    operationType: Optional[str] = None
-    operationCategory: Optional[str] = None
+    paymentData: PaymentData | None = None
+    creditCardMetadata: CreditCardMetadata | None = None
+    merchant: Merchant | None = None
+    providerId: str | None = None
+    operationType: str | None = None
+    operationCategory: str | None = None
 
 
 class TransactionsResponse(BaseModel):
     total: int
     totalPages: int
     page: int
-    results: List[Transaction]
+    results: list[Transaction]

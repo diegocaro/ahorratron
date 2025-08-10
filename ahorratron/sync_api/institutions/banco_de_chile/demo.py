@@ -10,7 +10,6 @@ from ahorratron.sync_api.institutions.banco_de_chile.models import (
 
 
 class DemoAPIClient:
-
     def login(self, username: str, password: str) -> None:
         pass
 

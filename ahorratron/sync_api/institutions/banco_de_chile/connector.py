@@ -46,7 +46,6 @@ class BancoDeChileConnector:
         self._client = client
 
     def get_accounts(self, itemId: str) -> AccountsResponse:
-
         productos = self._client.get_productos()
         cuentas = [self._map_account_producto(itemId, c) for c in productos.productos]
         cuentas = [c for c in cuentas if c is not None]
@@ -122,7 +121,7 @@ class BancoDeChileConnector:
 
     def _map_transaction_movimiento(
         self, cartola: GetCartolaResponse, movimiento: Movimiento
-    ) -> Optional[Transaction]:
+    ) -> Transaction | None:
         # example: 20250730 16:44:29
         dt = datetime.strptime(movimiento.fecha, self.DATE_FORMAT_MOVIMIENTO_CARTOLA)
         dt_local = dt.replace(tzinfo=ZoneInfo(self.DEFAULT_TIMEZONE))
@@ -158,10 +157,7 @@ class BancoDeChileConnector:
             status=estado,
         )
 
-    def _map_account_producto(
-        self, itemId: str, producto: Producto
-    ) -> Optional[Account]:
-
+    def _map_account_producto(self, itemId: str, producto: Producto) -> Account | None:
         type_map = {
             "cuenta": (AccountType.BANK, AccountSubtype.CHECKING_ACCOUNT),
             "ahorro": (AccountType.BANK, AccountSubtype.SAVINGS_ACCOUNT),
