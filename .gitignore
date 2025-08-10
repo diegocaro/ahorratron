@@ -18,3 +18,8 @@ tmp
 
 # Pytest Coverage
 .coverage
+
+
+# Others
+certs/
+actual-data/

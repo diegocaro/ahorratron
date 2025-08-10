@@ -1,9 +1,11 @@
 import datetime
 import json
+import logging
 import os
+from typing import Awaitable, Callable
 
 import uvicorn
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response
 from jose import jwe
 
 from ahorratron.sync_api.connectors import get_connector
@@ -11,11 +13,28 @@ from ahorratron.sync_api.models.account_models import AccountsResponse
 from ahorratron.sync_api.models.core_models import SessionData, UserData
 from ahorratron.sync_api.models.transaction_models import TransactionsResponse
 
-app = FastAPI()
-
 SECRET_KEY = bytes.fromhex(os.environ["JWE_SECRET_KEY"])  # Must be 32 bytes for A256GCM
 TOKEN_DURATION = datetime.timedelta(hours=12)
 JWE_ALGORITHM = "A256GCM"
+
+app = FastAPI()
+
+logger = logging.getLogger(__name__)
+
+
+@app.middleware("http")
+async def log_request_middleware(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    body: bytes = await request.body()
+    logger.info(
+        "Incoming request: %s %s | Body: %s",
+        request.method,
+        request.url.path,
+        body.decode("utf-8") if body else None,
+    )
+    response: Response = await call_next(request)
+    return response
 
 
 # Generate encrypted JWT (JWE) from a dictionary
