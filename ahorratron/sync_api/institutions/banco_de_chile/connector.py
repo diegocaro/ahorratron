@@ -1,6 +1,7 @@
 import json
 import logging
 from datetime import datetime
+from functools import cached_property
 from typing import Optional
 from zoneinfo import ZoneInfo
 
@@ -41,13 +42,15 @@ Documentation from Pluggy.ai
 class BancoDeChileConnector:
     DEFAULT_TIMEZONE = "America/Santiago"
     DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
+    DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
 
     def __init__(self, client: APIClient):
         self._client = client
 
     def get_accounts(self, itemId: str) -> AccountsResponse:
-        productos = self._client.get_productos()
-        cuentas = [self._map_account_producto(itemId, c) for c in productos.productos]
+        cuentas = [
+            self._map_account_producto(itemId, c) for c in self._productos.productos
+        ]
         cuentas = [c for c in cuentas if c is not None]
         response = AccountsResponse(
             results=cuentas,
@@ -58,31 +61,28 @@ class BancoDeChileConnector:
         return response
 
     def get_account_by_id(self, accountId: str) -> Account:
-        productos = self._client.get_productos()
-        producto = next((p for p in productos.productos if p.id == accountId), None)
+        producto = next(
+            (p for p in self._productos.productos if p.id == accountId), None
+        )
         if not producto:
-            logger.warning(f"Account with id {accountId} not found in productos")
             raise ValueError(f"Account with id {accountId} not found")
 
         response = self._map_account_producto("not_needed_now", producto)
         if response is None:
-            logger.warning(f"Error mapping account with id {accountId}")
             raise ValueError(f"Error mapping account with id {accountId}")
         return response
 
     def get_transactions(self, accountId: str) -> TransactionsResponse:
-        productos = self._client.get_productos()
-        producto = next((p for p in productos.productos if p.id == accountId), None)
+        producto = next(
+            (p for p in self._productos.productos if p.id == accountId), None
+        )
         if not producto:
             logger.warning(f"Account with id {accountId} not found in productos")
             return TransactionsResponse(results=[], total=0, totalPages=0, page=0)
 
         if producto.tipo == "cuenta":
-            transactions = self._get_transactions_cartola(productos, producto)
+            transactions = self._get_transactions_cartola(producto)
         else:
-            logger.warning(
-                f"Transactions for account type '{producto.tipo}' are not supported"
-            )
             raise NotImplementedError(
                 f"Transactions for account type '{producto.tipo}' are not supported"
             )
@@ -94,13 +94,15 @@ class BancoDeChileConnector:
             page=1,  # Default to first page
         )
 
-    def _get_transactions_cartola(
-        self, productos: ObtenerProductosResponse, cuenta: Producto
-    ) -> list[Transaction]:
+    @property
+    def _productos(self) -> ObtenerProductosResponse:
+        return self._client.get_productos()
+
+    def _get_cartola_raw(self, cuenta: Producto) -> GetCartolaResponse:
         data = {
             "cuentaSeleccionada": {
-                "nombreCliente": productos.nombre,
-                "rutCliente": productos.rut,
+                "nombreCliente": self._productos.nombre,
+                "rutCliente": self._productos.rut,
                 "numero": cuenta.numero,
                 "mascara": cuenta.mascara,
                 # "selected": True, # Opcional
@@ -112,7 +114,10 @@ class BancoDeChileConnector:
         }
         request = GetCartolaCuentaRequest.model_validate(data)
         cartola = self._client.get_cartola(request)
+        return cartola
 
+    def _get_transactions_cartola(self, cuenta: Producto) -> list[Transaction]:
+        cartola = self._get_cartola_raw(cuenta)
         transactions = [
             self._map_transaction_movimiento(cartola, m) for m in cartola.movimientos
         ]
@@ -125,7 +130,6 @@ class BancoDeChileConnector:
         # example: 20250730 16:44:29
         dt = datetime.strptime(movimiento.fecha, self.DATE_FORMAT_MOVIMIENTO_CARTOLA)
         dt_local = dt.replace(tzinfo=ZoneInfo(self.DEFAULT_TIMEZONE))
-        # dt_utc_iso = dt_local.astimezone(ZoneInfo("UTC")).isoformat()
 
         # can be "cargo" or "abono"
         if movimiento.tipo == "cargo":
@@ -146,10 +150,19 @@ class BancoDeChileConnector:
             logger.error(f"Unknown transaction status: {movimiento.estado}")
             return None
 
+        balance = None
+        try:
+            balance = float(movimiento.saldo)
+        except ValueError:
+            logger.error(
+                f"Error parsing balance for transaction {movimiento.id}: {movimiento.saldo}"
+            )
+
         return Transaction(
             id=movimiento.id,
             date=dt_local.isoformat(),
             amount=monto,
+            balance=balance,
             description=movimiento.descripcion,
             accountId=movimiento.idCuenta,
             type=transaction_type,
@@ -160,8 +173,8 @@ class BancoDeChileConnector:
     def _map_account_producto(self, itemId: str, producto: Producto) -> Account | None:
         type_map = {
             "cuenta": (AccountType.BANK, AccountSubtype.CHECKING_ACCOUNT),
-            "ahorro": (AccountType.BANK, AccountSubtype.SAVINGS_ACCOUNT),
-            "tarjeta": (AccountType.CREDIT, AccountSubtype.CREDIT_CARD),
+            # "ahorro": (AccountType.BANK, AccountSubtype.SAVINGS_ACCOUNT),
+            # "tarjeta": (AccountType.CREDIT, AccountSubtype.CREDIT_CARD),
         }
         tipo_info = type_map.get(producto.tipo)
         if tipo_info is None:
@@ -175,12 +188,18 @@ class BancoDeChileConnector:
         if producto.tipo == "tarjeta":
             numero = producto.mascara
 
+        cartola = self._get_cartola_raw(producto)
+
         bank_data = BankData(
             transferNumber=numero,
-            closingBalance=0,
+            closingBalance=cartola.saldoDisponible,
             automaticallyInvestedBalance=0,
         )
-
+        updated_at = datetime.strptime(
+            cartola.horaConsulta.replace(" Hrs.", ""), self.DATE_FORMAT_HORA_CONSULTA
+        )
+        updated_at_local = updated_at.replace(tzinfo=ZoneInfo(self.DEFAULT_TIMEZONE))
+        # dt_utc_iso = dt_local.astimezone(ZoneInfo("UTC")).isoformat()
         return Account(
             id=producto.id,
             type=account_type,
@@ -189,6 +208,7 @@ class BancoDeChileConnector:
             name=producto.label,
             currencyCode=producto.codigoMoneda,
             itemId=itemId,
-            balance=0.0,  # Fix this, get the balance from the transactions or cartola
+            balance=cartola.saldoFinal,  # This can also be cartola.saldoDisponible, not sure which one is the best
             bankData=bank_data,
+            updatedAt=updated_at_local.isoformat(),
         )
