@@ -2,9 +2,13 @@ from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APICl
 from ahorratron.sync_api.institutions.banco_de_chile.connector import (
     BancoDeChileConnector,
 )
+from ahorratron.sync_api.institutions.banco_de_chile.demo import DemoAPIClient
 from ahorratron.sync_api.models.core_models import UserData
 
-CONNECTORS = {"banco_de_chile": (BancoDeChileConnector, APIClient)}
+CONNECTORS = {
+    "banco_de_chile": (BancoDeChileConnector, APIClient),
+    "demo_banco_de_chile": (BancoDeChileConnector, DemoAPIClient),
+}
 
 
 def get_connector(user_data: UserData) -> BancoDeChileConnector:

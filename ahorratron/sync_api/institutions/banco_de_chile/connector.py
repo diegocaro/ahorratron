@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 from typing import Optional
@@ -15,6 +16,7 @@ from ahorratron.sync_api.models.account_models import (
     AccountsResponse,
     AccountSubtype,
     AccountType,
+    BankData,
 )
 from ahorratron.sync_api.models.transaction_models import (
     Transaction,
@@ -51,7 +53,22 @@ class BancoDeChileConnector:
         response = AccountsResponse(
             results=cuentas,
             total=len(cuentas),
+            totalPages=1,  # Assuming all accounts fit in one page
+            page=1,  # Default to first page
         )
+        return response
+
+    def get_account_by_id(self, accountId: str) -> Account:
+        productos = self._client.get_productos()
+        producto = next((p for p in productos.productos if p.id == accountId), None)
+        if not producto:
+            logger.warning(f"Account with id {accountId} not found in productos")
+            raise ValueError(f"Account with id {accountId} not found")
+
+        response = self._map_account_producto("not_needed_now", producto)
+        if response is None:
+            logger.warning(f"Error mapping account with id {accountId}")
+            raise ValueError(f"Error mapping account with id {accountId}")
         return response
 
     def get_transactions(self, accountId: str) -> TransactionsResponse:
@@ -162,6 +179,12 @@ class BancoDeChileConnector:
         if producto.tipo == "tarjeta":
             numero = producto.mascara
 
+        bank_data = BankData(
+            transferNumber=numero,
+            closingBalance=0,
+            automaticallyInvestedBalance=0,
+        )
+
         return Account(
             id=producto.id,
             type=account_type,
@@ -170,5 +193,6 @@ class BancoDeChileConnector:
             name=producto.label,
             currencyCode=producto.codigoMoneda,
             itemId=itemId,
-            balance=0.0,  # Balance is not provided in the response
+            balance=0.0,  # Fix this, get the balance from the transactions or cartola
+            bankData=bank_data,
         )

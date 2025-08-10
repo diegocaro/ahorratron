@@ -1,5 +1,6 @@
 import logging
 import os
+import platform
 import random
 import time
 
@@ -81,7 +82,16 @@ class APIClient:
 
     def login(self, username: str, password: str) -> None:
         chrome_options = Options()
-        driver = webdriver.Chrome(options=chrome_options)
+        chrome_options.add_argument("--window-size=1920,1080")
+
+        if platform.system().lower() == "linux":
+            # Use remote Selenium server (Docker Compose service name: selenium)
+            driver = webdriver.Remote(
+                command_executor="http://selenium:4444/wd/hub", options=chrome_options
+            )
+        else:
+            # Use local Chrome WebDriver (macOS)
+            driver = webdriver.Chrome(options=chrome_options)
         cookies = self._login_to_bank(driver, self.LOGIN_URL, username, password)
         logger.debug(f"Cookies from Selenium: {cookies}")
         self._set_session_cookie(cookies)

@@ -46,23 +46,34 @@ services:
       - .env
     volumes:
       - ./certs:/certs
-    command: >
-      sh -c "
+    command: |
+      sh -c '
         if [ ! -f /certs/cert.pem ]; then
           openssl req -x509 -newkey rsa:2048 -nodes \
             -keyout /certs/key.pem \
             -out /certs/cert.pem \
             -days 365 \
-            -subj '/CN=api.pluggy.ai';
-        fi &&
-        uvicorn ahorratron.sync_api.main:app \
-          --host 0.0.0.0 --port 443 \
-          --ssl-keyfile /certs/key.pem \
-          --ssl-certfile /certs/cert.pem
-      "
+            -subj "/CN=api.pluggy.ai";
+        fi;
+        uv run uvicorn ahorratron.sync_api.main:app --host 0.0.0.0 --port 443 --ssl-keyfile /certs/key.pem --ssl-certfile /certs/cert.pem
+      '
     networks:
       custom_net:
         ipv4_address: 172.28.0.3
+
+  selenium:
+    image: selenium/standalone-chrome:latest
+    ports:
+      - "4444:4444"   # Selenium WebDriver
+      - "7900:7900"   # noVNC browser access
+      - "5900:5900"   # VNC client access
+    shm_size: 2gb
+    # environment:
+      # - SE_START_XVFB=true   # Ensures graphical mode (not headless)
+      # - SE_VNC_PASSWORD=secret  # Default VNC password
+    networks:
+      custom_net:
+        ipv4_address: 172.28.0.4
 
 networks:
   custom_net:

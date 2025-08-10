@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -5,12 +6,9 @@ from pydantic import BaseModel, Field
 
 
 class BankData(BaseModel):
-    transferNumber: Optional[str]
-    closingBalance: Optional[float]
-    automaticallyInvestedBalance: Optional[float]
-    overdraftContractedLimit: Optional[float]
-    overdraftUsedLimit: Optional[float]
-    unarrangedOverdraftAmount: Optional[float]
+    transferNumber: str
+    closingBalance: float
+    automaticallyInvestedBalance: float
 
 
 class AccountType(str, Enum):
@@ -102,10 +100,14 @@ class Account(BaseModel):
     bankData: Optional[BankData] = None
     creditData: Optional[CreditData] = None
     disaggregatedCreditLimits: Optional[List[DisaggregatedCreditLimit]] = None
+    updatedAt: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        description="Last updated timestamp in ISO 8601 format UTC",
+    )
 
 
 class AccountsResponse(BaseModel):
     results: List[Account]
     total: int
-    page: Optional[int] = None
-    totalPages: Optional[int] = None
+    page: int
+    totalPages: int
