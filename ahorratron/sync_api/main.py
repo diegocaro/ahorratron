@@ -14,7 +14,7 @@ from ahorratron.sync_api.service import (
 )
 from ahorratron.sync_api.utils.token import create_encrypted_token, get_decrypted_token
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

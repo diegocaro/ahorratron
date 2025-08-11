@@ -28,7 +28,7 @@ HEADER_ORIGIN = os.environ["HEADER_ORIGIN"]
 logger = logging.getLogger(__name__)
 
 
-def random_wait(min_seconds: float = 1, max_seconds: float = 5) -> None:
+def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
     time.sleep(random.uniform(min_seconds, max_seconds))
 
 
