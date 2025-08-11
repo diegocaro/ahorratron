@@ -4,10 +4,11 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 
+# Source: https://github.com/pluggyai/pluggy-node/blob/cc904e65641759a90959c7b9263c900295c8e7c7/src/types/account.ts
 class BankData(BaseModel):
-    transferNumber: str
-    closingBalance: float
-    automaticallyInvestedBalance: float
+    transferNumber: str  # Primary identifier of the account to make bank transfers
+    closingBalance: float  # Available balance of the account
+    automaticallyInvestedBalance: float  # Automatically invested balance
 
 
 class AccountType(str, Enum):
@@ -44,17 +45,17 @@ class ConsolidationType(str, Enum):
 
 
 class CreditData(BaseModel):
-    minimumPayment: float | None
-    balanceForeignCurrency: float | None
-    availableCreditLimit: float | None
-    creditLimit: float | None
-    isLimitFlexible: bool | None
-    balanceDueDate: str | None
-    balanceCloseDate: str | None
-    level: str | None
-    brand: str | None
-    status: CreditStatus | None
-    holderType: HolderType | None
+    minimumPayment: float | None  # Minimum payment required for the credit account
+    balanceForeignCurrency: float | None  # Balance in foreign currency
+    availableCreditLimit: float | None  # Available credit limit
+    creditLimit: float | None  # Total credit limit
+    isLimitFlexible: bool | None  # Indicates if the credit limit is flexible
+    balanceDueDate: str | None  # Due date for the balance
+    balanceCloseDate: str | None  # Date when the balance was closed
+    level: str | None  # Account level (e.g., Gold, Platinum)
+    brand: str | None  # Brand of the credit card
+    status: CreditStatus | None  # Status of the credit account
+    holderType: HolderType | None  # Type of account holder
 
 
 class DisaggregatedCreditLimit(BaseModel):
@@ -71,34 +72,34 @@ class DisaggregatedCreditLimit(BaseModel):
 
 
 class Account(BaseModel):
-    id: str
-    type: AccountType
-    subtype: AccountSubtype
-    number: str
-    name: str = Field(..., description="Name of the account")
-    balance: float
-    itemId: str
-    currencyCode: str
-    marketingName: str | None = None
-    availableBalance: float | None = None
-    creditLimit: float | None = None
-    taxNumber: str | None = None
-    owner: str | None = Field(
-        default=None, description="Name of the owner of the account"
+    id: str  # Primary identifier of the account
+    type: AccountType  # Type of the account (e.g., BANK, CREDIT)
+    subtype: AccountSubtype  # Subtype of the account (e.g., CHECKING_ACCOUNT)
+    number: str  # Account's financial institution number
+    name: str = Field(..., description="Account's name or description")
+    balance: float  # Current balance of the account
+    itemId: str  # Primary identifier of the Item
+    currencyCode: str  # ISO Currency code of the account's amounts
+    marketingName: str | None = None  # Account's name provided by the institution
+    availableBalance: float | None = None  # Available balance of the account
+    creditLimit: float | None = None  # Credit limit of the account
+    taxNumber: str | None = None  # Account owner's tax number
+    owner: str | None = Field(default=None, description="Account owner's full name")
+    institution: str | None = None  # Financial institution name
+    status: str | None = None  # Status of the account
+    lastUpdated: str | None = None  # Last update timestamp
+    category: str | None = None  # Category of the account
+    paymentDueDate: str | None = None  # Payment due date for credit accounts
+    dueAmount: float | None = None  # Due amount for credit accounts
+    minimumPayment: float | None = None  # Minimum payment required
+    interestRate: float | None = None  # Interest rate for loans or credit
+    investmentType: str | None = None  # Type of investment account
+    loanType: str | None = None  # Type of loan account
+    bankData: BankData | None = None  # Account related bank data (if BANK type)
+    creditData: CreditData | None = None  # Account related credit data (if CREDIT type)
+    disaggregatedCreditLimits: list[DisaggregatedCreditLimit] | None = (
+        None  # Disaggregated credit limits
     )
-    institution: str | None = None
-    status: str | None = None
-    lastUpdated: str | None = None
-    category: str | None = None
-    paymentDueDate: str | None = None
-    dueAmount: float | None = None
-    minimumPayment: float | None = None
-    interestRate: float | None = None
-    investmentType: str | None = None
-    loanType: str | None = None
-    bankData: BankData | None = None
-    creditData: CreditData | None = None
-    disaggregatedCreditLimits: list[DisaggregatedCreditLimit] | None = None
     updatedAt: str = Field(
         default_factory=lambda: datetime.now(UTC).isoformat(),
         description="Last updated timestamp in ISO 8601 format UTC",

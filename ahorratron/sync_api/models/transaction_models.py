@@ -2,6 +2,8 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
+# Source: https://github.com/pluggyai/pluggy-node/blob/cc904e65641759a90959c7b9263c900295c8e7c7/src/types/transaction.ts
+
 
 class TransactionStatus(str, Enum):
     POSTED = "POSTED"
@@ -77,29 +79,35 @@ class Merchant(BaseModel):
 
 
 class Transaction(BaseModel):
-    id: str
+    id: str  # Primary identifier of the transaction
     date: str = Field(
         ...,
-        description="Date of the transaction in ISO 8601 format, e.g., '2023-10-01T12:00:00Z'",
+        description="Date the transaction was made in ISO 8601 format, e.g., '2023-10-01T12:00:00Z'",  # Date the transaction was made
     )
-    description: str
-    descriptionRaw: str | None = None
-    amount: float
-    amountInAccountCurrency: float | None = None
-    balance: float | None = None
-    currencyCode: str
-    category: str | None = None
-    categoryId: str | None = None
-    accountId: str | None = None
-    providerCode: str | None = None
-    type: TransactionType
-    status: TransactionStatus
-    paymentData: PaymentData | None = None
-    creditCardMetadata: CreditCardMetadata | None = None
-    merchant: Merchant | None = None
-    providerId: str | None = None
-    operationType: str | None = None
-    operationCategory: str | None = None
+    description: str  # Transaction original description
+    descriptionRaw: str | None = (
+        None  # Raw description provided by the financial institution
+    )
+    amount: float  # Amount of the transaction
+    amountInAccountCurrency: float | None = None  # Amount in account's currency
+    balance: float | None = None  # Current balance after transaction
+    currencyCode: str  # ISO Currency code of the transaction
+    category: str | None = None  # Category name of the transaction
+    categoryId: str | None = None  # Category ID of the transaction
+    accountId: str | None = None  # Primary identifier of the account
+    providerCode: str | None = None  # Unique code provided by the institution
+    type: TransactionType  # Direction of the transaction (DEBIT/CREDIT)
+    status: TransactionStatus  # Status of the transaction (POSTED/PENDING)
+    paymentData: PaymentData | None = (
+        None  # Additional data related to payment or transfers
+    )
+    creditCardMetadata: CreditCardMetadata | None = (
+        None  # Additional data for credit card transactions
+    )
+    merchant: Merchant | None = None  # Merchant associated with the transaction
+    providerId: str | None = None  # Provider ID (for Open Finance connectors)
+    operationType: str | None = None  # Operation type of the transaction
+    operationCategory: str | None = None  # Operation category of the transaction
 
 
 class TransactionsResponse(BaseModel):

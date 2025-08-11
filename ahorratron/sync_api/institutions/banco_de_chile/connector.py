@@ -1,8 +1,6 @@
-import json
 import logging
 from datetime import datetime
 from functools import cached_property
-from typing import Optional
 from zoneinfo import ZoneInfo
 
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
@@ -46,6 +44,8 @@ class BancoDeChileConnector:
 
     def __init__(self, client: APIClient):
         self._client = client
+
+        self._cache = {}
 
     def get_accounts(self, itemId: str) -> AccountsResponse:
         cuentas = [
@@ -94,7 +94,7 @@ class BancoDeChileConnector:
             page=1,  # Default to first page
         )
 
-    @property
+    @cached_property
     def _productos(self) -> ObtenerProductosResponse:
         return self._client.get_productos()
 
@@ -113,7 +113,11 @@ class BancoDeChileConnector:
             "cabecera": {"statusGenerico": True, "paginacionDesde": 1},
         }
         request = GetCartolaCuentaRequest.model_validate(data)
+
+        if self._cache.get(cuenta.id):
+            return self._cache[cuenta.id]
         cartola = self._client.get_cartola(request)
+        self._cache[cuenta.id] = cartola
         return cartola
 
     def _get_transactions_cartola(self, cuenta: Producto) -> list[Transaction]:
@@ -150,19 +154,19 @@ class BancoDeChileConnector:
             logger.error(f"Unknown transaction status: {movimiento.estado}")
             return None
 
-        balance = None
-        try:
-            balance = float(movimiento.saldo)
-        except ValueError:
-            logger.error(
-                f"Error parsing balance for transaction {movimiento.id}: {movimiento.saldo}"
-            )
+        # balance = None
+        # try:
+        #     balance = float(movimiento.saldo)
+        # except ValueError:
+        #     logger.error(
+        #         f"Error parsing balance for transaction {movimiento.id}: {movimiento.saldo}"
+        #     )
 
         return Transaction(
             id=movimiento.id,
             date=dt_local.isoformat(),
             amount=monto,
-            balance=balance,
+            # balance=balance,
             description=movimiento.descripcion,
             accountId=movimiento.idCuenta,
             type=transaction_type,
