@@ -39,7 +39,7 @@ services:
     restart: unless-stopped
 
   ahorratron-sync-api:
-    image: ahorratron:latest
+    image: ahorratron-sync:latest
     ports:
       - '9443:443'
     env_file:
