@@ -13,7 +13,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-BANK_URL = os.environ["BANK_URL"]
+BANK_URL = os.environ["BANK_LOGIN_URL"]
 BANK_USER = os.environ["BANK_USER"]
 BANK_PASSWORD = os.environ["BANK_PASSWORD"]
 
