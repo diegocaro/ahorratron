@@ -13,7 +13,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-BANK_URL = os.environ["BANK_LOGIN_URL"]
+BANK_LOGIN_URL = os.environ["BANK_LOGIN_URL"]
 BANK_USER = os.environ["BANK_USER"]
 BANK_PASSWORD = os.environ["BANK_PASSWORD"]
 
@@ -71,7 +71,7 @@ def download_cartola_txt(account_button_id: str) -> str:
     )
     driver = webdriver.Chrome(options=chrome_options)
     try:
-        driver.get(BANK_URL)
+        driver.get(BANK_LOGIN_URL)
         wait = WebDriverWait(driver, 20)
 
         # Wait for login fields to be present

@@ -2,16 +2,12 @@ import logging
 from collections.abc import Awaitable, Callable
 
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException, Request, Response
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request, Response
 
 from ahorratron.sync_api.models.account_models import Account, AccountsResponse
 from ahorratron.sync_api.models.core_models import SessionData, UserData
 from ahorratron.sync_api.models.transaction_models import TransactionsResponse
-from ahorratron.sync_api.service import (
-    get_account_by_id_cached,
-    get_accounts_cached,
-    get_transactions_cached,
-)
+from ahorratron.sync_api.service import Service
 from ahorratron.sync_api.utils.token import create_encrypted_token, get_decrypted_token
 
 logging.basicConfig(level=logging.INFO)
@@ -49,27 +45,39 @@ async def auth(request: UserData):
 
 
 @app.get("/accounts", response_model=AccountsResponse)
-def get_accounts(itemId: str, session_data: SessionData = Depends(get_decrypted_token)):
+def get_accounts(
+    itemId: str,
+    background_tasks: BackgroundTasks,
+    session_data: SessionData = Depends(get_decrypted_token),
+):
     logger.debug(f"Session data: {session_data}")
-    response = get_accounts_cached(session_data.user_data, itemId)
+    response = Service(background_tasks).get_accounts(session_data.user_data, itemId)
     logger.debug(f"Accounts response: {response}")
     return response
 
 
 @app.get("/accounts/{accountId}", response_model=Account)
 def get_account_by_id(
-    accountId: str, session_data: SessionData = Depends(get_decrypted_token)
+    accountId: str,
+    background_tasks: BackgroundTasks,
+    session_data: SessionData = Depends(get_decrypted_token),
 ):
-    response = get_account_by_id_cached(session_data.user_data, accountId)
+    response = Service(background_tasks).get_account_by_id(
+        session_data.user_data, accountId
+    )
     logger.debug(f"Account detail response: {response}")
     return response
 
 
 @app.get("/transactions", response_model=TransactionsResponse)
 def get_transactions(
-    accountId: str, session_data: SessionData = Depends(get_decrypted_token)
+    accountId: str,
+    background_tasks: BackgroundTasks,
+    session_data: SessionData = Depends(get_decrypted_token),
 ):
-    response = get_transactions_cached(session_data.user_data, accountId)
+    response = Service(background_tasks).get_transactions(
+        session_data.user_data, accountId
+    )
     logger.info(f"Transactions response: {response}")
     return response
 

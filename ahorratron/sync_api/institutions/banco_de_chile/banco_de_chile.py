@@ -33,7 +33,7 @@ def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
 
 
 class APIClient:
-    SESSION_COOKIE_NAMES = ["mod_auth_openidc_session", "incap_ses_621_1747492"]
+    SESSION_COOKIE_NAMES = ["mod_auth_openidc_session"]
     BASE_URL = BANK_API_BASE_URL
     LOGIN_URL = BANK_LOGIN_URL
 

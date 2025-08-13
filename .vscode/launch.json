@@ -23,6 +23,21 @@
                 "--reload"
             ],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Debug: Sync API Uvicorn Reload",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "ahorratron.sync_api.main:app",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "8000",
+                "--reload"
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }
