@@ -50,7 +50,6 @@ def get_accounts(
     background_tasks: BackgroundTasks,
     session_data: SessionData = Depends(get_decrypted_token),
 ):
-    logger.debug(f"Session data: {session_data}")
     response = Service(background_tasks).get_accounts(session_data.user_data, itemId)
     logger.debug(f"Accounts response: {response}")
     return response
@@ -78,7 +77,7 @@ def get_transactions(
     response = Service(background_tasks).get_transactions(
         session_data.user_data, accountId
     )
-    logger.info(f"Transactions response: {response}")
+    logger.debug(f"Transactions response: {response}")
     return response
 
 
