@@ -37,6 +37,11 @@ class APIClient:
     BASE_URL = BANK_API_BASE_URL
     LOGIN_URL = BANK_LOGIN_URL
 
+    INPUT_RUT_ID = "ppriv_per-login-click-input-rut"
+    INPUT_PASSWORD_ID = "ppriv_per-login-click-input-password"
+    BUTTON_LOGIN_ID = "ppriv_per-login-click-ingresar-login"
+    TIMEOUT_SECONDS = 30
+
     def __init__(self):
         self.session = httpx.Client(
             headers={
@@ -92,10 +97,13 @@ class APIClient:
         else:
             # Use local Chrome WebDriver (macOS)
             driver = webdriver.Chrome(options=chrome_options)
-        cookies = self._login_to_bank(driver, self.LOGIN_URL, username, password)
-        logger.debug(f"Cookies from Selenium: {cookies}")
-        self._set_session_cookie(cookies)
-        driver.quit()
+
+        try:
+            cookies = self._login_to_bank(driver, self.LOGIN_URL, username, password)
+            logger.debug(f"Cookies from Selenium: {cookies}")
+            self._set_session_cookie(cookies)
+        finally:
+            driver.quit()
 
     def _login_to_bank(
         self,
@@ -108,36 +116,26 @@ class APIClient:
 
         try:
             driver.get(bank_url)
-            wait = WebDriverWait(driver, 20)
+            wait = WebDriverWait(driver, self.TIMEOUT_SECONDS)
 
             # Wait for login fields to be present
-            wait.until(
-                EC.presence_of_element_located((By.ID, "ppriv_per-click-input-rut"))
-            )
-            random_wait()
-            wait.until(
-                EC.presence_of_element_located(
-                    (By.ID, "ppriv_per-click-input-password")
-                )
-            )
-            random_wait()
+            wait.until(EC.presence_of_element_located((By.ID, self.INPUT_RUT_ID)))
+            wait.until(EC.presence_of_element_located((By.ID, self.INPUT_PASSWORD_ID)))
 
             # Fill in credentials and submit
-            driver.find_element(By.ID, "ppriv_per-click-input-rut").send_keys(username)
+            driver.find_element(By.ID, self.INPUT_RUT_ID).send_keys(username)
             random_wait()
-            driver.find_element(By.ID, "ppriv_per-click-input-password").send_keys(
-                password
-            )
-            driver.find_element(By.ID, "ppriv_per-click-ingresar-login").click()
+            driver.find_element(By.ID, self.INPUT_PASSWORD_ID).send_keys(password)
+            random_wait()
+            driver.find_element(By.ID, self.BUTTON_LOGIN_ID).click()
 
             # Wait for Home button to be clickable after login
             wait.until(EC.presence_of_element_located((By.ID, home_button_id)))
             random_wait()
 
             cookies = driver.get_cookies()
-        finally:
-            # driver.quit()
-            pass
+        except Exception as e:
+            raise ValueError(f"Login failed: {e}") from e
 
         # Return session cookies
         return cookies

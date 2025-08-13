@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Callable
+from typing import Any, Callable, Type
 
+from cachetools import Cache, LRUCache
 from fastapi import BackgroundTasks
 
 
@@ -13,9 +14,15 @@ class _Entry:
 
 class BackgroundRefreshCache:
     # TODO: add a max size limit
-    def __init__(self, ttl_seconds: int = 300):
+    def __init__(
+        self,
+        ttl_seconds: int = 300,
+        maxsize: int = 1024,
+        cache_class: Type[Cache] = LRUCache,
+        **cache_kwargs,
+    ):
         self.ttl_seconds = ttl_seconds
-        self._cache: dict[Any, _Entry] = {}
+        self._cache: Cache = cache_class(maxsize, **cache_kwargs)
 
     def _now(self) -> datetime:
         return datetime.now()
@@ -76,6 +83,10 @@ def cache_with_background(cache: BackgroundRefreshCache):
                 background_tasks=self.background_tasks,
             )
 
+        # Preserve introspection basics
+        wrapper.__name__ = func.__name__  # type: ignore[attr-defined]
+        wrapper.__doc__ = func.__doc__
+        wrapper.__module__ = func.__module__
         return wrapper
 
     return decorator
