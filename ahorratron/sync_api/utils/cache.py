@@ -1,6 +1,7 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Callable, Type
+from typing import Any
 
 from cachetools import Cache, LRUCache
 from fastapi import BackgroundTasks
@@ -18,7 +19,7 @@ class BackgroundRefreshCache:
         self,
         ttl_seconds: int = 300,
         maxsize: int = 1024,
-        cache_class: Type[Cache] = LRUCache,
+        cache_class: type[Cache] = LRUCache,
         **cache_kwargs,
     ):
         self.ttl_seconds = ttl_seconds
