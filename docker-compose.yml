@@ -62,7 +62,7 @@ services:
         ipv4_address: 172.28.0.3
 
   selenium:
-    image: selenium/standalone-chrome:latest
+    image: selenium/standalone-chromium:latest
     ports:
       - "4444:4444"   # Selenium WebDriver
       - "7900:7900"   # noVNC browser access
