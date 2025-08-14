@@ -54,7 +54,7 @@ def test_validate_cartola_data(cartola_data):
 
 @pytest.fixture
 def api_client():
-    client = APIClient()
+    client = APIClient("username", "password")
     return client
 
 
@@ -63,7 +63,7 @@ def test_get_productos(api_client, productos_data):
         return httpx.Response(200, json=productos_data)
 
     transport = httpx.MockTransport(mock_send)
-    api_client.session = httpx.Client(transport=transport)
+    api_client._session = httpx.Client(transport=transport)
 
     productos = api_client.get_productos(incluirTarjetas=True)
     assert isinstance(productos, ObtenerProductosResponse)
@@ -75,7 +75,7 @@ def test_get_no_facturados(api_client, no_facturados_data, productos_data):
         return httpx.Response(200, json=no_facturados_data)
 
     transport = httpx.MockTransport(mock_send)
-    api_client.session = httpx.Client(transport=transport)
+    api_client._session = httpx.Client(transport=transport)
 
     productos = ObtenerProductosResponse.model_validate(productos_data)
     tarjeta = next(p for p in productos.productos if p.tipo == "tarjeta")
@@ -99,7 +99,7 @@ def test_get_cartola(api_client, cartola_data, productos_data):
         return httpx.Response(200, json=cartola_data)
 
     transport = httpx.MockTransport(mock_send)
-    api_client.session = httpx.Client(transport=transport)
+    api_client._session = httpx.Client(transport=transport)
 
     productos = ObtenerProductosResponse.model_validate(productos_data)
     cuenta = next(p for p in productos.productos if p.tipo == "cuenta")

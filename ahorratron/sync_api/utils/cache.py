@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -5,6 +6,8 @@ from typing import Any
 
 from cachetools import Cache, LRUCache
 from fastapi import BackgroundTasks
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -14,7 +17,6 @@ class _Entry:
 
 
 class BackgroundRefreshCache:
-    # TODO: add a max size limit
     def __init__(
         self,
         ttl_seconds: int = 300,
@@ -50,9 +52,13 @@ class BackgroundRefreshCache:
         """
         entry = self._cache.get(key)
         if entry is not None:
+            logger.debug(f"Cache hit for key: {key}")
             if self._is_stale(entry):
+                logger.debug(f"Cache miss for key: {key}, refreshing in background")
                 background_tasks.add_task(self._refresh, key, fetch_fn, *args, **kwargs)
+            logger.debug(f"Returning cached value for key: {key}")
             return self._cache[key].value
+        logger.debug(f"Cache miss for key: {key}, fetching value")
         return self._refresh(key, fetch_fn, *args, **kwargs)
 
     def _refresh(self, key: Any, fetch_fn: Callable, *args, **kwargs):

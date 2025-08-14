@@ -18,6 +18,5 @@ def get_connector(user_data: UserData) -> BancoDeChileConnector:
     except KeyError:
         raise ValueError(f"Connector '{connector_id}' not found.")
 
-    client = client_class()
-    client.login(user_data.clientId, user_data.clientSecret)
+    client = client_class(user_data.clientId, user_data.clientSecret)
     return connector_class(client)

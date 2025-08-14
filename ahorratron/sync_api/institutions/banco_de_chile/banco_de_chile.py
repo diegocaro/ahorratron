@@ -3,6 +3,7 @@ import os
 import platform
 import random
 import time
+from typing import Any
 
 import httpx
 from selenium import webdriver
@@ -27,6 +28,8 @@ HEADER_ORIGIN = os.environ["HEADER_ORIGIN"]
 
 logger = logging.getLogger(__name__)
 
+type CookieDict = dict[str, str]
+
 
 def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
     time.sleep(random.uniform(min_seconds, max_seconds))
@@ -42,24 +45,14 @@ class APIClient:
     BUTTON_LOGIN_ID = "ppriv_per-login-click-ingresar-login"
     TIMEOUT_SECONDS = 30
 
-    def __init__(self):
-        self.session = httpx.Client(
-            headers={
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:141.0) Gecko/20100101 Firefox/141.0",
-                "Accept": "application/json, text/plain, */*",
-                "Accept-Language": "en-US,en;q=0.5",
-                "Accept-Encoding": "gzip, deflate, br, zstd",
-                "Referer": HEADER_REFERER,
-                "Content-Type": "application/json",
-                "Origin": HEADER_ORIGIN,
-                "DNT": "1",
-                "Connection": "keep-alive",
-            }
-        )
-        # This will be used to get the session cookie after login
-        # self.session.headers["Cookie"] = self._get_session_cookie(cookies)
+    def __init__(self, username: str, password: str, cookie_headers: str | None = None):
+        self._username = username
+        self._password = password
 
-    def _get_session_cookie(self, cookies: list[dict[str, str]]) -> str:
+        self._session = None
+        self._cookie = cookie_headers
+
+    def _parse_session_cookies(self, cookies: list[CookieDict]) -> str:
         session_cookie = {
             c["name"]: c["value"]
             for c in cookies
@@ -72,12 +65,35 @@ class APIClient:
         pairs = [f"{name}={value};" for name, value in session_cookie.items()]
         return " ".join(pairs)
 
-    def _set_session_cookie(self, cookies: list[dict[str, str]]) -> None:
-        session_cookie = self._get_session_cookie(cookies)
-        self.session.headers["Cookie"] = session_cookie
-        logger.debug(f"Session cookie set: {session_cookie}")
+    @property
+    def session(self) -> httpx.Client:
+        if self._session is None:
+            s = httpx.Client(
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:141.0) Gecko/20100101 Firefox/141.0",
+                    "Accept": "application/json, text/plain, */*",
+                    "Accept-Language": "en-US,en;q=0.5",
+                    "Accept-Encoding": "gzip, deflate, br, zstd",
+                    "Referer": HEADER_REFERER,
+                    "Content-Type": "application/json",
+                    "Origin": HEADER_ORIGIN,
+                    "DNT": "1",
+                    "Connection": "keep-alive",
+                    "Cookie": self.cookie,
+                }
+            )
+            self._session = s
+        return self._session
 
-    def _handle_response(self, response: httpx.Response) -> dict:
+    @property
+    def cookie(self) -> str:
+        if not self._cookie:
+            logger.info("Logging in to Banco de Chile to get session cookies")
+            cookie_raw = self._login()
+            self._cookie = self._parse_session_cookies(cookie_raw)
+        return self._cookie
+
+    def _handle_response(self, response: httpx.Response) -> Any:
         try:
             response.raise_for_status()
             return response.json()
@@ -85,7 +101,8 @@ class APIClient:
             logging.error(f"HTTP error occurred: {e}")
             raise
 
-    def login(self, username: str, password: str) -> None:
+    def _login(self) -> list[CookieDict]:
+        """Automate browser to log in and return session cookies."""
         chrome_options = Options()
         # chrome_options.add_argument("--window-size=1920,1080")
 
@@ -99,11 +116,15 @@ class APIClient:
             driver = webdriver.Chrome(options=chrome_options)
 
         try:
-            cookies = self._login_to_bank(driver, self.LOGIN_URL, username, password)
+            cookies = self._login_to_bank(
+                driver, self.LOGIN_URL, self._username, self._password
+            )
             logger.debug(f"Cookies from Selenium: {cookies}")
-            self._set_session_cookie(cookies)
+        except Exception as e:
+            raise ValueError(f"Login failed: {e}") from e
         finally:
             driver.quit()
+        return cookies
 
     def _login_to_bank(
         self,
@@ -111,7 +132,7 @@ class APIClient:
         bank_url: str,
         username: str,
         password: str,
-    ) -> list[dict[str, str]]:
+    ) -> list[CookieDict]:
         home_button_id = "1"
 
         try:
@@ -168,8 +189,7 @@ def main():
     BANK_USER = os.environ["BANK_USER"]
     BANK_PASSWORD = os.environ["BANK_PASSWORD"]
 
-    client = APIClient()
-    client.login(BANK_USER, BANK_PASSWORD)
+    client = APIClient(BANK_USER, BANK_PASSWORD)
     productos = client.get_productos()
     # open("productos.json", "w").write(json.dumps(productos, indent=4))
     # no_facturados = client.get_no_facturados()
@@ -219,6 +239,16 @@ def main():
     # random_wait()
     # no_facturados = client.get_no_facturados()
     # print(no_facturados)
+    start_time = time.time()
+    for i in range(10):
+        time_to_wait = i**2
+        print(f"Waiting for {time_to_wait} seconds...")
+        time.sleep(time_to_wait)
+        try:
+            print(client.get_productos())
+        except Exception as e:
+            print(f"Error fetching productos at time {time.time() - start_time}: {e}")
+            break
 
 
 if __name__ == "__main__":
