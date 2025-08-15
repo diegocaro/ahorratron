@@ -1,4 +1,5 @@
 import hashlib
+import logging
 
 from ahorratron.sync_api.core.connector import ConnectorBase
 from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APIClient
@@ -16,6 +17,8 @@ CONNECTORS = {
 # Simple in-memory cache for connectors per user and institution
 # You really need to use something like Redis or Memcached for production
 _CONNECTOR_CACHE: dict[str, ConnectorBase] = {}
+
+logger = logging.getLogger(__name__)
 
 
 def _make_key(user_data: UserData) -> str:
@@ -45,6 +48,9 @@ def get_connector(user_data: UserData) -> ConnectorBase:
     # Always create a new connector if credentials changed (i.e., key not in cache)
     key = _make_key(user_data)
     if key not in _CONNECTOR_CACHE:
+        logger.debug(
+            f"Creating new connector for user {user_data.clientId} with key {key}"
+        )
         client = client_class(user_data.clientId, user_data.clientSecret)
         _CONNECTOR_CACHE[key] = connector_class(client)
     return _CONNECTOR_CACHE[key]
