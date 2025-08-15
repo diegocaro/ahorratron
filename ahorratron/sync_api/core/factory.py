@@ -38,7 +38,6 @@ def get_connector_no_cache(user_data: UserData) -> ConnectorBase:
 
 
 def get_connector(user_data: UserData) -> ConnectorBase:
-
     connector_id = user_data.connector_id
     try:
         connector_class, client_class = CONNECTORS[connector_id]
