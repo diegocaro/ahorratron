@@ -19,7 +19,6 @@ from ahorratron.sync_api.models.account_models import (
     AccountType,
     BankData,
 )
-from ahorratron.sync_api.models.core_models import UserData
 from ahorratron.sync_api.models.transaction_models import (
     Merchant,
     Transaction,
@@ -50,11 +49,6 @@ class BancoDeChileConnector(ConnectorBase):
         self._client = client
 
         self._cache = TTLCache(maxsize=100, ttl=60)
-
-    @classmethod
-    def from_user_data(cls, user_data: UserData) -> "BancoDeChileConnector":
-        client = APIClient(user_data.clientId, user_data.clientSecret)
-        return cls(client)
 
     def get_accounts(self, itemId: str) -> AccountsResponse:
         cuentas = [
