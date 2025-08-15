@@ -2,16 +2,17 @@ import hashlib
 import logging
 
 from ahorratron.sync_api.core.connector import ConnectorBase
-from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APIClient
 from ahorratron.sync_api.institutions.banco_de_chile.connector import (
     BancoDeChileConnector,
 )
-from ahorratron.sync_api.institutions.banco_de_chile.demo import DemoAPIClient
+from ahorratron.sync_api.institutions.banco_de_chile.demo import (
+    BancoDeChileDemoConnector,
+)
 from ahorratron.sync_api.models.core_models import UserData
 
 CONNECTORS = {
-    "banco_de_chile": (BancoDeChileConnector, APIClient),
-    "demo_banco_de_chile": (BancoDeChileConnector, DemoAPIClient),
+    "banco_de_chile": BancoDeChileConnector,
+    "demo_banco_de_chile": BancoDeChileDemoConnector,
 }
 
 # Simple in-memory cache for connectors per user and institution
@@ -29,18 +30,17 @@ def _make_key(user_data: UserData) -> str:
 def get_connector_no_cache(user_data: UserData) -> ConnectorBase:
     connector_id = user_data.connector_id
     try:
-        connector_class, client_class = CONNECTORS[connector_id]
+        connector_class = CONNECTORS[connector_id]
     except KeyError:
         raise ValueError(f"Connector '{connector_id}' not found.")
 
-    client = client_class(user_data.clientId, user_data.clientSecret)
-    return connector_class(client)
+    return connector_class.from_user_data(user_data)
 
 
 def get_connector(user_data: UserData) -> ConnectorBase:
     connector_id = user_data.connector_id
     try:
-        connector_class, client_class = CONNECTORS[connector_id]
+        connector_class = CONNECTORS[connector_id]
     except KeyError:
         raise ValueError(f"Connector '{connector_id}' not found.")
 
@@ -50,6 +50,5 @@ def get_connector(user_data: UserData) -> ConnectorBase:
         logger.debug(
             f"Creating new connector for user {user_data.clientId} with key {key}"
         )
-        client = client_class(user_data.clientId, user_data.clientSecret)
-        _CONNECTOR_CACHE[key] = connector_class(client)
+        _CONNECTOR_CACHE[key] = connector_class.from_user_data(user_data)
     return _CONNECTOR_CACHE[key]

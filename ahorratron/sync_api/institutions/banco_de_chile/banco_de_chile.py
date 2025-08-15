@@ -67,7 +67,6 @@ class APIClient:
         self._password = password
 
         self._session = None
-        self._cookie = None
 
     def _parse_session_cookies(self, cookies: list[CookieDict]) -> str:
         session_cookie = {
@@ -85,6 +84,10 @@ class APIClient:
     @property
     def session(self) -> httpx.Client:
         if self._session is None:
+            logger.info("Logging in to Banco de Chile to get session cookies")
+            cookie_raw = self._login_and_cookies()
+            cookie = self._parse_session_cookies(cookie_raw)
+
             s = httpx.Client(
                 headers={
                     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:141.0) Gecko/20100101 Firefox/141.0",
@@ -96,19 +99,11 @@ class APIClient:
                     "Origin": HEADER_ORIGIN,
                     "DNT": "1",
                     "Connection": "keep-alive",
-                    "Cookie": self.cookie,
+                    "Cookie": cookie,
                 }
             )
             self._session = s
         return self._session
-
-    @property
-    def cookie(self) -> str:
-        if not self._cookie:
-            logger.info("Logging in to Banco de Chile to get session cookies")
-            cookie_raw = self._login_and_cookies()
-            self._cookie = self._parse_session_cookies(cookie_raw)
-        return self._cookie
 
     def _handle_response(self, response: httpx.Response) -> Any:
         try:
@@ -116,7 +111,6 @@ class APIClient:
             return response.json()
         except httpx.HTTPStatusError as e:
             if response.status_code == 302:
-                self._cookie = None
                 self._session = None
                 logger.info("Session expired, re-logging in")
                 raise ValueError("Session expired, please re-login") from e

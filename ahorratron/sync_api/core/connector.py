@@ -14,3 +14,9 @@ class ConnectorBase(ABC):
 
     @abstractmethod
     def get_transactions(self, accountId: str) -> TransactionsResponse: ...
+
+    @classmethod
+    @abstractmethod
+    def from_user_data(cls, user_data: UserData) -> "ConnectorBase":
+        """Create a connector instance from user data."""
+        ...

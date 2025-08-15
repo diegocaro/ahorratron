@@ -1,5 +1,9 @@
 import json
 
+from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APIClient
+from ahorratron.sync_api.institutions.banco_de_chile.connector import (
+    BancoDeChileConnector,
+)
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
     GetCartolaCuentaRequest,
     GetCartolaResponse,
@@ -7,12 +11,17 @@ from ahorratron.sync_api.institutions.banco_de_chile.models import (
     NoFacturadosResponse,
     ObtenerProductosResponse,
 )
+from ahorratron.sync_api.models.core_models import UserData
 
 
-class DemoAPIClient:
-    def login(self, username: str, password: str) -> None:
-        pass
+class BancoDeChileDemoConnector(BancoDeChileConnector):
+    @classmethod
+    def from_user_data(cls, user_data: UserData) -> "BancoDeChileDemoConnector":
+        client = DemoAPIClient("", "")
+        return cls(client)
 
+
+class DemoAPIClient(APIClient):
     def get_productos(self, incluirTarjetas: bool = True) -> ObtenerProductosResponse:
         parsed = json.load(
             open("tests/test_sync_api/test_institutions/data/productos.json")
