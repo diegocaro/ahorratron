@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime
-from functools import cached_property
 from zoneinfo import ZoneInfo
+
+from cachetools import TTLCache, cachedmethod
 
 from ahorratron.sync_api.core.connector import ConnectorBase
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
@@ -47,7 +48,7 @@ class BancoDeChileConnector(ConnectorBase):
     def __init__(self, client: APIClient):
         self._client = client
 
-        self._cache = {}
+        self._cache = TTLCache(maxsize=100, ttl=60)
 
     def get_accounts(self, itemId: str) -> AccountsResponse:
         cuentas = [
@@ -96,9 +97,15 @@ class BancoDeChileConnector(ConnectorBase):
             page=1,  # Default to first page
         )
 
-    @cached_property
+    @property
     def _productos(self) -> ObtenerProductosResponse:
-        return self._client.get_productos()
+        key = "productos"
+        if key not in self._cache:
+            logger.info("Fetching productos from API")
+            self._cache[key] = self._client.get_productos()
+        else:
+            logger.info("Using cached productos")
+        return self._cache[key]
 
     def _get_cartola_raw(self, cuenta: Producto) -> GetCartolaResponse:
         data = {
@@ -115,11 +122,7 @@ class BancoDeChileConnector(ConnectorBase):
             "cabecera": {"statusGenerico": True, "paginacionDesde": 1},
         }
         request = GetCartolaCuentaRequest.model_validate(data)
-
-        if self._cache.get(cuenta.id):
-            return self._cache[cuenta.id]
         cartola = self._client.get_cartola(request)
-        self._cache[cuenta.id] = cartola
         return cartola
 
     def _get_transactions_cartola(self, cuenta: Producto) -> list[Transaction]:
