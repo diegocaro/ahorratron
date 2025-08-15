@@ -50,7 +50,7 @@ class APIClient:
     INPUT_RUT_ID = "ppriv_per-login-click-input-rut"
     INPUT_PASSWORD_ID = "ppriv_per-login-click-input-password"
     BUTTON_LOGIN_ID = "ppriv_per-login-click-ingresar-login"
-    TIMEOUT_SECONDS = 10
+    TIMEOUT_SECONDS = 30
 
     def __init__(self, username: str, password: str, cookie_headers: str | None = None):
         self._username = username

@@ -8,6 +8,9 @@ class UserData(BaseModel, frozen=True):
     clientSecret: str
     connector_id: str = "banco_de_chile"
 
+    def __str__(self) -> str:
+        return f"UserData(clientId={self.clientId}, connector_id={self.connector_id})"
+
 
 class SessionData(BaseModel, frozen=True):
     exp: int | None = None

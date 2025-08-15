@@ -21,11 +21,8 @@ services:
       - certs_data:/certs
     environment:
       NODE_EXTRA_CA_CERTS: /certs/cert.pem
-    extra_hosts:
-      - "api.pluggy.ai:172.29.0.3"
     networks:
-      custom_net:
-        ipv4_address: 172.29.0.2
+      ahorratron_net:
     depends_on:
       - ahorratron-sync-api
     healthcheck:
@@ -57,8 +54,11 @@ services:
         uv run uvicorn ahorratron.sync_api.main:app --host 0.0.0.0 --port 443 --ssl-keyfile /certs/key.pem --ssl-certfile /certs/cert.pem
       '
     networks:
-      custom_net:
-        ipv4_address: 172.29.0.3
+      ahorratron_net:
+        aliases:
+        # this is the magic sauce that allows the API to be accessed via from Actual Budget
+        # We are impersonating api.pluggy.ai :)
+          - api.pluggy.ai
 
   selenium:
     image: selenium/standalone-chromium:latest
@@ -71,16 +71,11 @@ services:
       # - SE_START_XVFB=true   # Ensures graphical mode (not headless)
       # - SE_VNC_PASSWORD=secret  # Default VNC password
     networks:
-      custom_net:
-        ipv4_address: 172.29.0.4
+      ahorratron_net:
 
 networks:
-  custom_net:
+  ahorratron_net:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.29.0.0/16
-
 
 volumes:
   actual_data:
