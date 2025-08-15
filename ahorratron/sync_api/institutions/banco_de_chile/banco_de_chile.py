@@ -62,12 +62,12 @@ class APIClient:
     BUTTON_LOGIN_ID = "ppriv_per-login-click-ingresar-login"
     TIMEOUT_SECONDS = 30
 
-    def __init__(self, username: str, password: str, cookie_headers: str | None = None):
+    def __init__(self, username: str, password: str):
         self._username = username
         self._password = password
 
         self._session = None
-        self._cookie = cookie_headers
+        self._cookie = None
 
     def _parse_session_cookies(self, cookies: list[CookieDict]) -> str:
         session_cookie = {
@@ -117,6 +117,7 @@ class APIClient:
         except httpx.HTTPStatusError as e:
             if response.status_code == 302:
                 self._cookie = None
+                self._session = None
                 logger.info("Session expired, re-logging in")
                 raise ValueError("Session expired, please re-login") from e
             logger.error(f"HTTP error occurred: {e}")

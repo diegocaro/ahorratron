@@ -10,7 +10,11 @@ from ahorratron.sync_api.models.transaction_models import TransactionsResponse
 from ahorratron.sync_api.service import Service
 from ahorratron.sync_api.utils.token import create_encrypted_token, get_decrypted_token
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -22,10 +26,9 @@ async def log_request_middleware(
     request: Request, call_next: Callable[[Request], Awaitable[Response]]
 ) -> Response:
     body: bytes = await request.body()
-    logger.info(
-        "Incoming request: %s %s | Headers: %s | Body: %s",
-        request.method,
-        request.url.path,
+    logger.info("Incoming request: %s %s", request.method, request.url.path)
+    logger.debug(
+        "Headers: %s | Body: %s",
         dict(request.headers),
         body.decode("utf-8") if body else None,
     )
