@@ -1,5 +1,6 @@
 import hashlib
 
+from ahorratron.sync_api.core.connector import ConnectorBase
 from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APIClient
 from ahorratron.sync_api.institutions.banco_de_chile.connector import (
     BancoDeChileConnector,
@@ -12,8 +13,9 @@ CONNECTORS = {
     "demo_banco_de_chile": (BancoDeChileConnector, DemoAPIClient),
 }
 
-
-_CONNECTOR_CACHE = {}
+# Simple in-memory cache for connectors per user and institution
+# You really need to use something like Redis or Memcached for production
+_CONNECTOR_CACHE: dict[str, ConnectorBase] = {}
 
 
 def _make_key(user_data: UserData) -> str:
@@ -21,7 +23,7 @@ def _make_key(user_data: UserData) -> str:
     return hashlib.sha256(raw.encode()).hexdigest()
 
 
-def get_connector_no_cache(user_data: UserData) -> BancoDeChileConnector:
+def get_connector_no_cache(user_data: UserData) -> ConnectorBase:
     connector_id = user_data.connector_id
     try:
         connector_class, client_class = CONNECTORS[connector_id]
@@ -32,7 +34,7 @@ def get_connector_no_cache(user_data: UserData) -> BancoDeChileConnector:
     return connector_class(client)
 
 
-def get_connector(user_data: UserData) -> BancoDeChileConnector:
+def get_connector(user_data: UserData) -> ConnectorBase:
 
     connector_id = user_data.connector_id
     try:

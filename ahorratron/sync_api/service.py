@@ -1,6 +1,6 @@
 from fastapi import BackgroundTasks
 
-from .factory import get_connector
+from .core.factory import get_connector
 from .models.account_models import Account, AccountsResponse
 from .models.core_models import UserData
 from .models.transaction_models import TransactionsResponse

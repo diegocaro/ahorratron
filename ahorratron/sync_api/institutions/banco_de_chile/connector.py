@@ -3,6 +3,7 @@ from datetime import datetime
 from functools import cached_property
 from zoneinfo import ZoneInfo
 
+from ahorratron.sync_api.core.connector import ConnectorBase
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
     GetCartolaCuentaRequest,
     GetCartolaResponse,
@@ -38,7 +39,7 @@ Documentation from Pluggy.ai
 """
 
 
-class BancoDeChileConnector:
+class BancoDeChileConnector(ConnectorBase):
     DEFAULT_TIMEZONE = "America/Santiago"
     DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
     DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
