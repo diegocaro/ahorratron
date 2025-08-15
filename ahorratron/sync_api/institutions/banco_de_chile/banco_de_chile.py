@@ -43,6 +43,16 @@ class LoginError(Exception):
 
 
 class APIClient:
+    """
+    Note: if you ever use this class in a thread, or update the code to be async,
+    make sure to handle the creation of the browser - selenium driver - properly.
+
+    Otherwise, you might end up with multiple browser instances running in parallel,
+    which can lead to unexpected behavior and resource exhaustion.
+
+
+    """
+
     SESSION_COOKIE_NAMES = ["mod_auth_openidc_session"]
     BASE_URL = BANK_API_BASE_URL
     LOGIN_URL = BANK_LOGIN_URL
@@ -113,7 +123,12 @@ class APIClient:
             raise
 
     def _login_and_cookies(self) -> list[CookieDict]:
-        """Automate browser to log in and return session cookies."""
+        """
+        Automate browser to log in and return session cookies.
+
+        Note: you can end up with multiple browser instances running in parallel
+            if you use this class in a thread or async context.
+        """
         chrome_options = Options()
         # chrome_options.add_argument("--window-size=1920,1080")
 

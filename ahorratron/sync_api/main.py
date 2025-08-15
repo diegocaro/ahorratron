@@ -1,9 +1,8 @@
-import asyncio
 import logging
 from collections.abc import Awaitable, Callable
 
 import uvicorn
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 
 from ahorratron.sync_api.models.account_models import Account, AccountsResponse
 from ahorratron.sync_api.models.core_models import SessionData, UserData
@@ -16,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 app = FastAPI()
-slow_lock = asyncio.Lock()
 
 
 @app.middleware("http")
@@ -49,52 +47,31 @@ async def auth(request: UserData):
 @app.get("/accounts", response_model=AccountsResponse)
 async def get_accounts(
     itemId: str,
-    background_tasks: BackgroundTasks,
     session_data: SessionData = Depends(get_decrypted_token),
 ):
-    if slow_lock.locked():
-        logger.error("Slow request already in progress")
-        raise HTTPException(status_code=429, detail="Slow request already in progress")
-    async with slow_lock:
-        response = Service(background_tasks).get_accounts(
-            session_data.user_data, itemId
-        )
-        logger.debug(f"Accounts response: {response}")
-        return response
+    response = Service().get_accounts(session_data.user_data, itemId)
+    logger.debug(f"Accounts response: {response}")
+    return response
 
 
 @app.get("/accounts/{accountId}", response_model=Account)
 async def get_account_by_id(
     accountId: str,
-    background_tasks: BackgroundTasks,
     session_data: SessionData = Depends(get_decrypted_token),
 ):
-    if slow_lock.locked():
-        logger.error("Slow request already in progress")
-        raise HTTPException(status_code=429, detail="Slow request already in progress")
-    async with slow_lock:
-        response = Service(background_tasks).get_account_by_id(
-            session_data.user_data, accountId
-        )
-        logger.debug(f"Account detail response: {response}")
-        return response
+    response = Service().get_account_by_id(session_data.user_data, accountId)
+    logger.debug(f"Account detail response: {response}")
+    return response
 
 
 @app.get("/transactions", response_model=TransactionsResponse)
 async def get_transactions(
     accountId: str,
-    background_tasks: BackgroundTasks,
     session_data: SessionData = Depends(get_decrypted_token),
 ):
-    if slow_lock.locked():
-        logger.error("Slow request already in progress")
-        raise HTTPException(status_code=429, detail="Slow request already in progress")
-    async with slow_lock:
-        response = Service(background_tasks).get_transactions(
-            session_data.user_data, accountId
-        )
-        logger.debug(f"Transactions response: {response}")
-        return response
+    response = Service().get_transactions(session_data.user_data, accountId)
+    logger.debug(f"Transactions response: {response}")
+    return response
 
 
 @app.get("/protected")

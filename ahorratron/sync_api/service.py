@@ -1,5 +1,3 @@
-from fastapi import BackgroundTasks
-
 from .core.factory import get_connector
 from .models.account_models import Account, AccountsResponse
 from .models.core_models import UserData
@@ -7,9 +5,6 @@ from .models.transaction_models import TransactionsResponse
 
 
 class Service:
-    def __init__(self, background_tasks: BackgroundTasks):
-        self.background_tasks = background_tasks
-
     def get_account_by_id(self, user_data: UserData, accountId: str) -> Account:
         connector = get_connector(user_data)
         return connector.get_account_by_id(accountId=accountId)
