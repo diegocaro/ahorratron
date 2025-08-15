@@ -6,6 +6,7 @@ import time
 from typing import Any
 
 import httpx
+import selenium.common.exceptions as selenium_exceptions
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -35,6 +36,12 @@ def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
     time.sleep(random.uniform(min_seconds, max_seconds))
 
 
+class LoginError(Exception):
+    """Custom exception for login errors. You should not retry if this is raised."""
+
+    pass
+
+
 class APIClient:
     SESSION_COOKIE_NAMES = ["mod_auth_openidc_session"]
     BASE_URL = BANK_API_BASE_URL
@@ -43,7 +50,7 @@ class APIClient:
     INPUT_RUT_ID = "ppriv_per-login-click-input-rut"
     INPUT_PASSWORD_ID = "ppriv_per-login-click-input-password"
     BUTTON_LOGIN_ID = "ppriv_per-login-click-ingresar-login"
-    TIMEOUT_SECONDS = 30
+    TIMEOUT_SECONDS = 10
 
     def __init__(self, username: str, password: str, cookie_headers: str | None = None):
         self._username = username
@@ -89,7 +96,7 @@ class APIClient:
     def cookie(self) -> str:
         if not self._cookie:
             logger.info("Logging in to Banco de Chile to get session cookies")
-            cookie_raw = self._login()
+            cookie_raw = self._login_and_cookies()
             self._cookie = self._parse_session_cookies(cookie_raw)
         return self._cookie
 
@@ -98,10 +105,14 @@ class APIClient:
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:
-            logging.error(f"HTTP error occurred: {e}")
+            if response.status_code == 302:
+                self._cookie = None
+                logger.info("Session expired, re-logging in")
+                raise ValueError("Session expired, please re-login") from e
+            logger.error(f"HTTP error occurred: {e}")
             raise
 
-    def _login(self) -> list[CookieDict]:
+    def _login_and_cookies(self) -> list[CookieDict]:
         """Automate browser to log in and return session cookies."""
         chrome_options = Options()
         # chrome_options.add_argument("--window-size=1920,1080")
@@ -116,7 +127,7 @@ class APIClient:
             driver = webdriver.Chrome(options=chrome_options)
 
         try:
-            cookies = self._login_to_bank(
+            cookies = self._login_via_browser(
                 driver, self.LOGIN_URL, self._username, self._password
             )
             logger.debug(f"Cookies from Selenium: {cookies}")
@@ -126,7 +137,7 @@ class APIClient:
             driver.quit()
         return cookies
 
-    def _login_to_bank(
+    def _login_via_browser(
         self,
         driver: webdriver.Chrome | webdriver.Remote,
         bank_url: str,
@@ -142,7 +153,10 @@ class APIClient:
             # Wait for login fields to be present
             wait.until(EC.presence_of_element_located((By.ID, self.INPUT_RUT_ID)))
             wait.until(EC.presence_of_element_located((By.ID, self.INPUT_PASSWORD_ID)))
+        except Exception as e:
+            raise ValueError(f"Error loading login page: {e}") from e
 
+        try:
             # Fill in credentials and submit
             driver.find_element(By.ID, self.INPUT_RUT_ID).send_keys(username)
             random_wait()
@@ -155,6 +169,10 @@ class APIClient:
             random_wait()
 
             cookies = driver.get_cookies()
+        except selenium_exceptions.TimeoutException:
+            raise LoginError(
+                "Login timed out, check your credentials or network connection"
+            )
         except Exception as e:
             raise ValueError(f"Login failed: {e}") from e
 

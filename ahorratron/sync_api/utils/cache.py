@@ -17,6 +17,44 @@ class _Entry:
 
 
 class BackgroundRefreshCache:
+    """
+    This is one attempt to handle the slow login process in the Banco de Chile connector.
+    It caches the result of the login and refreshes it in the background if it is stale, and
+    returns the cached value immediately.
+
+    This is no longer needed as we are now persisting the client session in the factory.py file
+    that handles the creation of the connectors.
+
+    Example usage:
+
+        from fastapi import BackgroundTasks
+        from .utils.cache import BackgroundRefreshCache, cache_with_background
+
+        CACHE_SIZE = 1000
+        CACHE_TTL_SECONDS = 300
+        CACHE = BackgroundRefreshCache(ttl_seconds=CACHE_TTL_SECONDS, maxsize=CACHE_SIZE)
+
+        class Service:
+            def __init__(self, background_tasks: BackgroundTasks):
+                self.background_tasks = background_tasks
+
+            @cache_with_background(CACHE)
+            def get_account_by_id(self, user_data, accountId):
+                connector = get_connector(user_data)
+                return connector.get_account_by_id(accountId=accountId)
+
+            @cache_with_background(CACHE)
+            def get_accounts(self, user_data, itemId):
+                connector = get_connector(user_data)
+                return connector.get_accounts(itemId=itemId)
+
+            @cache_with_background(CACHE)
+            def get_transactions(self, user_data, accountId):
+                connector = get_connector(user_data)
+                return connector.get_transactions(accountId=accountId)
+
+    """
+
     def __init__(
         self,
         ttl_seconds: int = 300,

@@ -24,6 +24,10 @@ BANK_ACCOUNT_BUTTONS_ID = {
     "fan": "btn-home_CuentaFAN",
 }
 
+INPUT_RUT_ID = "ppriv_per-login-click-input-rut"
+INPUT_PASSWORD_ID = "ppriv_per-login-click-input-password"
+BUTTON_LOGIN_ID = "ppriv_per-login-click-ingresar-login"
+
 
 def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
     time.sleep(random.uniform(min_seconds, max_seconds))
@@ -75,19 +79,15 @@ def download_cartola_txt(account_button_id: str) -> str:
         wait = WebDriverWait(driver, 20)
 
         # Wait for login fields to be present
-        wait.until(EC.presence_of_element_located((By.ID, "ppriv_per-click-input-rut")))
+        wait.until(EC.presence_of_element_located((By.ID, INPUT_RUT_ID)))
         random_wait()
-        wait.until(
-            EC.presence_of_element_located((By.ID, "ppriv_per-click-input-password"))
-        )
+        wait.until(EC.presence_of_element_located((By.ID, INPUT_PASSWORD_ID)))
         random_wait()
 
         # Fill in RUT and password
-        driver.find_element(By.ID, "ppriv_per-click-input-rut").send_keys(BANK_USER)
-        driver.find_element(By.ID, "ppriv_per-click-input-password").send_keys(
-            BANK_PASSWORD
-        )
-        driver.find_element(By.ID, "ppriv_per-click-ingresar-login").click()
+        driver.find_element(By.ID, INPUT_RUT_ID).send_keys(BANK_USER)
+        driver.find_element(By.ID, INPUT_PASSWORD_ID).send_keys(BANK_PASSWORD)
+        driver.find_element(By.ID, BUTTON_LOGIN_ID).click()
 
         # Wait for "Cuenta FAN" button to be clickable after login
         wait.until(EC.presence_of_element_located((By.ID, account_button_id)))

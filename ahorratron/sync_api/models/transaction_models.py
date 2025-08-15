@@ -72,10 +72,10 @@ class CreditCardMetadata(BaseModel):
 
 class Merchant(BaseModel):
     name: str | None
-    businessName: str | None
-    cnpj: str | None
-    cnae: str | None
-    category: str | None
+    businessName: str | None = None
+    cnpj: str | None = None
+    cnae: str | None = None
+    category: str | None = None
 
 
 class Transaction(BaseModel):

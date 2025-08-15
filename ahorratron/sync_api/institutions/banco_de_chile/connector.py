@@ -18,6 +18,7 @@ from ahorratron.sync_api.models.account_models import (
     BankData,
 )
 from ahorratron.sync_api.models.transaction_models import (
+    Merchant,
     Transaction,
     TransactionsResponse,
     TransactionStatus,
@@ -172,6 +173,9 @@ class BancoDeChileConnector:
             type=transaction_type,
             currencyCode=cartola.moneda,
             status=estado,
+            merchant=Merchant(
+                name=movimiento.descripcion,
+            ),
         )
 
     def _map_account_producto(self, itemId: str, producto: Producto) -> Account | None:
