@@ -1,0 +1,19 @@
+{
+    "mensaje": "",
+    "existenEstadosDeCuenta": true,
+    "listaNacional": [
+        {
+            "fechaFacturacion": "2025-07-23",
+            "existeEstadoCuentaNacional": "1",
+            "existeEstadoCuentaInternacional": "S"
+        }
+    ],
+    "numeroCuenta": "123456789",
+    "listaInternacional": [
+        {
+            "fechaFacturacion": "2025-07-23",
+            "existeEstadoCuentaNacional": "1",
+            "existeEstadoCuentaInternacional": "S"
+        }
+    ]
+}

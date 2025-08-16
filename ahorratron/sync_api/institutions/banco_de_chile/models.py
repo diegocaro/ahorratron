@@ -215,7 +215,7 @@ class SeccionOperaciones(BaseModel):
     transaccionesTarjetas: list[TransaccionTarjeta]
 
 
-class ResumenPorFechaNacionalResponse(BaseModel):
+class ResumenNacionalResponse(BaseModel):
     existeEstadoCuenta: bool
     resumen: Resumen
     proximosPeriodos: ProximosPeriodos
@@ -223,3 +223,17 @@ class ResumenPorFechaNacionalResponse(BaseModel):
     seccionProductosServiciosVoluntarios: dict | None
     seccionCargosImpuestosAbonos: SeccionOperaciones
     seccionComprasEnCuotas: dict | None
+
+
+class ItemFechaFacturacion(BaseModel):
+    fechaFacturacion: str
+    existeEstadoCuentaNacional: str
+    existeEstadoCuentaInternacional: str
+
+
+class FechasFacturacionResponse(BaseModel):
+    mensaje: str
+    existenEstadosDeCuenta: bool
+    listaNacional: list[ItemFechaFacturacion]
+    numeroCuenta: str
+    listaInternacional: list[ItemFechaFacturacion]

@@ -12,7 +12,7 @@ from ahorratron.sync_api.institutions.banco_de_chile.models import (
     MovimientosNoFacturadosRequest,
     NoFacturadosResponse,
     ObtenerProductosResponse,
-    ResumenPorFechaNacionalResponse,
+    ResumenNacionalResponse,
 )
 
 TEST_DATA_DIR = Path(__file__).parent / "data"
@@ -43,8 +43,8 @@ def saldo_data():
 
 
 @pytest.fixture
-def resumen_por_fecha_nacional_data():
-    with open(TEST_DATA_DIR / "resumen-por-fecha-nacional.json") as f:
+def resumen_nacional_data():
+    with open(TEST_DATA_DIR / "resumen_nacional.json") as f:
         return json.load(f)
 
 
@@ -72,10 +72,8 @@ def test_validate_saldo_data(saldo_data):
     assert saldo.cupoUtilizadoNacional >= 0
 
 
-def test_validate_resumen_por_fecha_nacional_data(resumen_por_fecha_nacional_data):
-    resumen = ResumenPorFechaNacionalResponse.model_validate(
-        resumen_por_fecha_nacional_data
-    )
+def test_validate_resumen_nacional_data(resumen_nacional_data):
+    resumen = ResumenNacionalResponse.model_validate(resumen_nacional_data)
     assert isinstance(resumen.seccionOperaciones.transaccionesTarjetas, list)
 
 
