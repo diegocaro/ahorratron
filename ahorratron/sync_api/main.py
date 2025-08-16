@@ -4,11 +4,11 @@ from collections.abc import Awaitable, Callable
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 
-from sync_api.models.account_models import Account, AccountsResponse
-from sync_api.models.core_models import SessionData, UserData
-from sync_api.models.transaction_models import TransactionsResponse
-from sync_api.service import Service
-from sync_api.utils.token import create_encrypted_token, get_decrypted_token
+from ahorratron.sync_api.models.account_models import Account, AccountsResponse
+from ahorratron.sync_api.models.core_models import SessionData, UserData
+from ahorratron.sync_api.models.transaction_models import TransactionsResponse
+from ahorratron.sync_api.service import Service
+from ahorratron.sync_api.utils.token import create_encrypted_token, get_decrypted_token
 
 logging.basicConfig(
     level=logging.INFO,

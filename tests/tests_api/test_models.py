@@ -3,7 +3,7 @@ from datetime import datetime
 import pytest
 from pydantic import ValidationError
 
-from actual_api.models import Transaction
+from ahorratron.api.models import Transaction
 
 
 @pytest.mark.parametrize(

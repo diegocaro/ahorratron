@@ -1,11 +1,13 @@
 import hashlib
 import logging
 
-from sync_api.core.connector import ConnectorBase
-from sync_api.institutions.banco_de_chile.banco_de_chile import APIClient
-from sync_api.institutions.banco_de_chile.connector import BancoDeChileConnector
-from sync_api.institutions.banco_de_chile.demo import DemoAPIClient
-from sync_api.models.core_models import UserData
+from ahorratron.sync_api.core.connector import ConnectorBase
+from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APIClient
+from ahorratron.sync_api.institutions.banco_de_chile.connector import (
+    BancoDeChileConnector,
+)
+from ahorratron.sync_api.institutions.banco_de_chile.demo import DemoAPIClient
+from ahorratron.sync_api.models.core_models import UserData
 
 CONNECTORS = {
     "banco_de_chile": (BancoDeChileConnector, APIClient),

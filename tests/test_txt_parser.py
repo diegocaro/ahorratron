@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from conversor.field_def_registry import FIELD_DEFINITION_PATHS
-from conversor.parsers.txt import read_fixed_width_file
+from ahorratron.field_def_registry import FIELD_DEFINITION_PATHS
+from ahorratron.parsers.txt import read_fixed_width_file
 
 
 @pytest.fixture(scope="module")

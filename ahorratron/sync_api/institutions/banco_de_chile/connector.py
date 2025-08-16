@@ -4,25 +4,9 @@ from zoneinfo import ZoneInfo
 
 from cachetools import TTLCache
 
-import sync_api.utils.constants as c
-from sync_api.core.connector import ConnectorBase
-from sync_api.models.account_models import (
-    Account,
-    AccountsResponse,
-    AccountSubtype,
-    AccountType,
-    BankData,
-)
-from sync_api.models.transaction_models import (
-    Merchant,
-    Transaction,
-    TransactionsResponse,
-    TransactionStatus,
-    TransactionType,
-)
-
-from .banco_de_chile import APIClient
-from .models import (
+import ahorratron.sync_api.utils.constants as c
+from ahorratron.sync_api.core.connector import ConnectorBase
+from ahorratron.sync_api.institutions.banco_de_chile.models import (
     GetCartolaCuentaRequest,
     GetCartolaResponse,
     GetSaldoResponse,
@@ -40,6 +24,22 @@ from .models import (
     ResumenPorFechaRequest,
     TransaccionTarjeta,
 )
+from ahorratron.sync_api.models.account_models import (
+    Account,
+    AccountsResponse,
+    AccountSubtype,
+    AccountType,
+    BankData,
+)
+from ahorratron.sync_api.models.transaction_models import (
+    Merchant,
+    Transaction,
+    TransactionsResponse,
+    TransactionStatus,
+    TransactionType,
+)
+
+from .banco_de_chile import APIClient
 
 logger = logging.getLogger(__name__)
 
