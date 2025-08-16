@@ -1,4 +1,5 @@
 from datetime import date
+from enum import Enum
 
 from pydantic import BaseModel
 
@@ -45,6 +46,16 @@ class ResumenPorFechaRequest(BaseModel):
 
 
 #### RESPONSES MODELS ####
+class ProductoTipo(str, Enum):
+    CUENTA = "cuenta"
+    CUENTA_CORRIENTE_MONEDA_LOCAL = "cuentaCorrienteMonedaLocal"
+    AHORRO = "ahorro"
+    LINEA = "linea"
+    TARJETA = "tarjeta"
+    SEGURO = "seguro"
+    PAGO_AUTOMATICO = "pagoAutomatico"
+
+
 class Producto(BaseModel):
     id: str
     numero: str
@@ -53,7 +64,7 @@ class Producto(BaseModel):
     codigoMoneda: str
     alias: str | None
     label: str
-    tipo: str
+    tipo: ProductoTipo
     claseCuenta: str
     subProducto: str | None
     estado: str
@@ -69,8 +80,13 @@ class ObtenerProductosResponse(BaseModel):
     productos: list[Producto]
 
 
+class OrigenTransaccionTipo(str, Enum):
+    NAC = "NAC"
+    INT = "INT"
+
+
 class MovimientoNoFacturado(BaseModel):
-    origenTransaccion: str
+    origenTransaccion: OrigenTransaccionTipo
     fechaTransaccion: int
     fechaTransaccionString: str
     montoCompra: float
@@ -107,6 +123,11 @@ class NoFacturadosResponse(BaseModel):
     listaMovNoFactur: list[MovimientoNoFacturado]
 
 
+class MovimientoTipo(str, Enum):
+    CARGO = "cargo"
+    ABONO = "abono"
+
+
 class Movimiento(BaseModel):
     estado: str | None
     descripcion: str
@@ -116,7 +137,7 @@ class Movimiento(BaseModel):
     numeroCuenta: str
     idCuenta: str
     canal: str
-    tipo: str
+    tipo: MovimientoTipo
     fecha: str
     fechaContable: str
     id: str
@@ -162,6 +183,12 @@ class GetSaldoResponse(BaseModel):
     facturadoAl: str
 
 
+class GrupoTipo(str, Enum):
+    PAGOS = "pagos"
+    AVANCES_COMPRAS = "avancesCompras"
+    GENERICO = "generico"
+
+
 class TransaccionTarjeta(BaseModel):
     numReferencia: str
     nombreTarjeta: str
@@ -175,7 +202,7 @@ class TransaccionTarjeta(BaseModel):
     # comercio: Any
     # rubro: Any
     totales: bool
-    grupo: str
+    grupo: GrupoTipo
     tituloTotales: str | None
     cambioTarjeta: bool
     aclaracion: dict

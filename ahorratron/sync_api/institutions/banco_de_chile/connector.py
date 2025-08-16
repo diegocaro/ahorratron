@@ -4,17 +4,22 @@ from zoneinfo import ZoneInfo
 
 from cachetools import TTLCache
 
+import ahorratron.sync_api.utils.constants as c
 from ahorratron.sync_api.core.connector import ConnectorBase
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
     GetCartolaCuentaRequest,
     GetCartolaResponse,
     GetSaldoResponse,
+    GrupoTipo,
     Movimiento,
     MovimientoNoFacturado,
     MovimientosNoFacturadosRequest,
+    MovimientoTipo,
     NoFacturadosResponse,
     ObtenerProductosResponse,
+    OrigenTransaccionTipo,
     Producto,
+    ProductoTipo,
     ResumenNacionalResponse,
     ResumenPorFechaRequest,
     TransaccionTarjeta,
@@ -53,6 +58,8 @@ class BancoDeChileConnector(ConnectorBase):
     DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
 
     DATE_FORMAT_NO_FACTURADO = "%d/%m/%Y %H:%M:%S"
+
+    DATE_REPLACE_STRING = " Hrs."
 
     def __init__(self, client: APIClient):
         self._client = client
@@ -206,16 +213,16 @@ class BancoDeChileConnector(ConnectorBase):
         dt_local = dt.replace(tzinfo=ZoneInfo(self.DEFAULT_TIMEZONE))
 
         # can be "cargo" or "abono"
-        if movimiento.tipo == "cargo":
+        if movimiento.tipo == MovimientoTipo.CARGO:
             transaction_type = TransactionType.DEBIT
-        elif movimiento.tipo == "abono":
+        elif movimiento.tipo == MovimientoTipo.ABONO:
             transaction_type = TransactionType.CREDIT
         else:
             logger.error(f"Unknown transaction type: {movimiento.tipo}")
             return None
 
         monto = abs(float(movimiento.monto))
-        if movimiento.tipo == "cargo":
+        if movimiento.tipo == MovimientoTipo.CARGO:
             monto = -monto
 
         if movimiento.estado is None:
@@ -248,9 +255,9 @@ class BancoDeChileConnector(ConnectorBase):
         )
 
     def _map_account_producto(self, itemId: str, producto: Producto) -> Account | None:
-        if producto.tipo == "cuenta":
+        if producto.tipo == ProductoTipo.CUENTA:
             return self._map_account_producto_cuenta(itemId, producto)
-        elif producto.tipo == "tarjeta":
+        elif producto.tipo == ProductoTipo.TARJETA:
             return self._map_account_producto_tarjeta_credito(itemId, producto)
         else:
             logger.warning(
@@ -267,7 +274,8 @@ class BancoDeChileConnector(ConnectorBase):
             automaticallyInvestedBalance=0,
         )
         updated_at = datetime.strptime(
-            cartola.horaConsulta.replace(" Hrs.", ""), self.DATE_FORMAT_HORA_CONSULTA
+            cartola.horaConsulta.replace(self.DATE_REPLACE_STRING, ""),
+            self.DATE_FORMAT_HORA_CONSULTA,
         )
         updated_at_local = updated_at.replace(tzinfo=ZoneInfo(self.DEFAULT_TIMEZONE))
         # dt_utc_iso = dt_local.astimezone(ZoneInfo("UTC")).isoformat()
@@ -325,7 +333,7 @@ class BancoDeChileConnector(ConnectorBase):
     def _map_transaction_no_facturado(
         self, movimiento: MovimientoNoFacturado, tarjeta: Producto
     ) -> Transaction | None:
-        if movimiento.origenTransaccion.upper() == "INT":
+        if movimiento.origenTransaccion != OrigenTransaccionTipo.NAC:
             # Skipping international transactions for now
             # Y manejar bien las divisas! Estamos hardcodeando CLP
             return None
@@ -350,7 +358,7 @@ class BancoDeChileConnector(ConnectorBase):
             description=movimiento.glosaTransaccion,
             accountId=movimiento.numeroTarjeta,
             type=transaction_type,
-            currencyCode="CLP" if movimiento.origenTransaccion == "NAC" else "USD",
+            currencyCode=c.CLP,
             status=TransactionStatus.PENDING,
             merchant=Merchant(name=movimiento.glosaTransaccion),
         )
@@ -359,7 +367,7 @@ class BancoDeChileConnector(ConnectorBase):
         self,
         facturado: ResumenNacionalResponse,
         movimiento: TransaccionTarjeta,
-        currency_code: str = "CLP",
+        currency_code: str = c.CLP,
     ) -> Transaction | None:
         if movimiento.totales or not movimiento.idMovimiento:
             logger.warning(
@@ -374,10 +382,10 @@ class BancoDeChileConnector(ConnectorBase):
             movimiento.fechaTransaccion / 1000, ZoneInfo(self.DEFAULT_TIMEZONE)
         )
 
-        if movimiento.grupo in ["avancesCompras", "generico"]:
+        if movimiento.grupo in [GrupoTipo.AVANCES_COMPRAS, GrupoTipo.GENERICO]:
             transaction_type = TransactionType.DEBIT
             monto = movimiento.montoTransaccion
-        elif movimiento.grupo == "pagos":
+        elif movimiento.grupo == GrupoTipo.PAGOS:
             transaction_type = TransactionType.CREDIT
             monto = -abs(movimiento.montoTransaccion)
         else:

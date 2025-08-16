@@ -1,0 +1,2 @@
+CLP = "CLP"
+USD = "USD"
