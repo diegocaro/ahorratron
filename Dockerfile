@@ -18,6 +18,6 @@ EXPOSE 8000
 
 # Run the application.
 #CMD ["uv", "run", "ahorratron-api"]
-CMD ["uv", "run", "uvicorn", "ahorratron.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "actual_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
 # Use this for the sync API instead.
-# CMD ["uv", "run", "uvicorn", "ahorratron.sync_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# CMD ["uv", "run", "uvicorn", "sync_api.main:app", "--host", "0.0.0.0", "--port", "8000"]

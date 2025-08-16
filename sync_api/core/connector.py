@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
-from ahorratron.sync_api.models.account_models import Account, AccountsResponse
-from ahorratron.sync_api.models.core_models import UserData
-from ahorratron.sync_api.models.transaction_models import TransactionsResponse
+from sync_api.models.account_models import Account, AccountsResponse
+from sync_api.models.core_models import UserData
+from sync_api.models.transaction_models import TransactionsResponse
 
 
 class ConnectorBase(ABC):

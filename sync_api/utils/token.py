@@ -5,7 +5,7 @@ import os
 from fastapi import Header, HTTPException
 from jose import jwe, jwt
 
-from ahorratron.sync_api.models.core_models import SessionData
+from sync_api.models.core_models import SessionData
 
 SECRET_KEY = bytes.fromhex(os.environ["JWE_SECRET_KEY"])  # Must be 32 bytes for A256GCM
 TOKEN_DURATION = datetime.timedelta(hours=12)

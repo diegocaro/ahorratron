@@ -5,7 +5,7 @@
             "name": "Debug: Ahorratron API",
             "type": "debugpy",
             "request": "launch",
-            "module": "ahorratron.api.main",
+            "module": "actual_api.main",
             "args": [],
             "console": "integratedTerminal"
         },
@@ -15,7 +15,7 @@
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "ahorratron.api.main:app",
+                "actual_api.main:app",
                 "--host",
                 "0.0.0.0",
                 "--port",
@@ -30,7 +30,7 @@
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "ahorratron.sync_api.main:app",
+                "sync_api.main:app",
                 "--host",
                 "0.0.0.0",
                 "--port",
@@ -44,7 +44,7 @@
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "ahorratron.sync_api.main:app",
+                "sync_api.main:app",
                 "--host",
                 "0.0.0.0",
                 "--port",

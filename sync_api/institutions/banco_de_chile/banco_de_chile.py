@@ -13,7 +13,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from ahorratron.sync_api.institutions.banco_de_chile.models import (
+from .models import (
     FechasFacturacionResponse,
     GetCartolaCuentaRequest,
     GetCartolaResponse,

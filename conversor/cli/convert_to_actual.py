@@ -1,13 +1,12 @@
 import argparse
 import json
 import sys
-from pathlib import Path
 
 import pandas as pd
 
-from ahorratron.field_def_registry import FIELD_DEFINITION_PATHS
-from ahorratron.parsers.txt import read_fixed_width_file
-from ahorratron.parsers.xls import read_xls
+from conversor.field_def_registry import FIELD_DEFINITION_PATHS
+from conversor.parsers.txt import read_fixed_width_file
+from conversor.parsers.xls import read_xls
 
 
 def convert_to_actual(df: pd.DataFrame) -> pd.DataFrame:

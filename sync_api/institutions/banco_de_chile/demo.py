@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from ahorratron.sync_api.institutions.banco_de_chile.models import (
+from .models import (
     GetCartolaCuentaRequest,
     GetCartolaResponse,
     GetSaldoResponse,
