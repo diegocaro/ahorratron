@@ -1,0 +1,151 @@
+{
+    "existeEstadoCuenta": true,
+    "resumen": {
+        "cupo": 50000.0,
+        "cupoUtilizado": 9285.0,
+        "cupoDisponible": 49071.0,
+        "montoFacturado": 9285.0,
+        "pagoMinimo": 0.0,
+        "fechaFacturacionActual": "23/07/2025",
+        "fechaVencimientoFacturacion": "07/08/2025",
+        "fechaProximaFacturacion": "22/08/2025",
+        "totalPagos": -22158.0,
+        "totalCargosAutomaticos": 3221.0,
+        "totalComprasCuotasAvances": 38105.0,
+        "totalCargosAbonosCta": 235.0,
+        "tasaProxPerCredRot": 2.560000000000000053290705182007513940334320068359375,
+        "traspasoMonedaNac": null,
+        "saldoAnteriorFacturado": 189311.0
+    },
+    "proximosPeriodos": {
+        "saldoCapitalCuotas": 0.0,
+        "vencimientoCuotas1": 0.0,
+        "vencimientoCuotas2": 0.0,
+        "vencimientoCuotas3": 0.0,
+        "vencimientoCuotas4": 0.0,
+        "mesVencimientoCuotas1": "Agosto",
+        "mesVencimientoCuotas2": "Septiembre",
+        "mesVencimientoCuotas3": "Octubre",
+        "mesVencimientoCuotas4": "Noviembre",
+        "tasaInteresCreditoRotativo": "2,56 %",
+        "tasaInteresCreditoCuotas": "2,56 %"
+    },
+    "seccionOperaciones": {
+        "totalTransacciones": -180261.0,
+        "numeroDeTransacciones": 38,
+        "mensajeSinTransacciones": null,
+        "fechaDesde": "23/06/2025",
+        "fechaHasta": "11/07/2025",
+        "transaccionesTarjetas": [
+            {
+                "numReferencia": "3006 00000000",
+                "nombreTarjeta": "****8888",
+                "fechaTransaccion": 1751083200000,
+                "fechaTransaccionString": "28/06/2025",
+                "montoTransaccion": 23412.0,
+                "descripcion": "Pago Pesos TEF",
+                "ciudad": "",
+                "cuotas": "01/01",
+                "nombreTitular": "John Doe",
+                "comercio": null,
+                "rubro": null,
+                "totales": false,
+                "grupo": "pagos",
+                "tituloTotales": "Total Pagos",
+                "cambioTarjeta": false,
+                "aclaracion": {
+                    "fecha": null,
+                    "fechaString": null,
+                    "codigo": null,
+                    "estado": false
+                },
+                "idMovimiento": "idm1",
+                "estado": null,
+                "comprobanteSiebel": null,
+                "fechaComprobanteSiebel": null,
+                "idComprobante": "idc1"
+            },
+            {
+                "numReferencia": "2406 00040841",
+                "nombreTarjeta": "****8888",
+                "fechaTransaccion": 1750651200000,
+                "fechaTransaccionString": "23/06/2025",
+                "montoTransaccion": 8500.0,
+                "descripcion": "TUU*HAULMER AGREGADOR CURICO",
+                "ciudad": "CURICO",
+                "cuotas": "01/01",
+                "nombreTitular": "Juan Pérez",
+                "comercio": null,
+                "rubro": null,
+                "totales": false,
+                "grupo": "avancesCompras",
+                "tituloTotales": "TOTAL TARJETA",
+                "cambioTarjeta": false,
+                "aclaracion": {
+                    "fecha": null,
+                    "fechaString": null,
+                    "codigo": null,
+                    "estado": false
+                },
+                "idMovimiento": "idm4",
+                "estado": null,
+                "comprobanteSiebel": null,
+                "fechaComprobanteSiebel": null,
+                "idComprobante": "idc4"
+            }
+        ]
+    },
+    "seccionProductosServiciosVoluntarios": {
+        "totalTransacciones": 0,
+        "numeroDeTransacciones": 0,
+        "mensajeSinTransacciones": "SIN MOVIMIENTOS",
+        "fechaDesde": null,
+        "fechaHasta": null,
+        "transaccionesTarjetas": null
+    },
+    "seccionCargosImpuestosAbonos": {
+        "totalTransacciones": 23.0,
+        "numeroDeTransacciones": 1,
+        "mensajeSinTransacciones": null,
+        "fechaDesde": "23/07/2025",
+        "fechaHasta": "23/07/2025",
+        "transaccionesTarjetas": [
+            {
+                "numReferencia": "2307 00000000",
+                "nombreTarjeta": "****8888",
+                "fechaTransaccion": 1753243200000,
+                "fechaTransaccionString": "23/07/2025",
+                "montoTransaccion": 23.0,
+                "descripcion": "COMISION MENSUAL POR MANTENCION",
+                "ciudad": "",
+                "cuotas": "01/01",
+                "nombreTitular": "Juan Pérez",
+                "comercio": null,
+                "rubro": null,
+                "totales": false,
+                "grupo": "generico",
+                "tituloTotales": null,
+                "cambioTarjeta": false,
+                "aclaracion": {
+                    "fecha": null,
+                    "fechaString": null,
+                    "codigo": null,
+                    "estado": false
+                },
+                "idMovimiento": "idm5",
+                "estado": null,
+                "comprobanteSiebel": null,
+                "fechaComprobanteSiebel": null,
+                "idComprobante": "idc5"
+            }
+        ]
+    },
+    "seccionComprasEnCuotas": {
+        "totalTransacciones": 0,
+        "numeroDeTransacciones": -1,
+        "mensajeSinTransacciones": null,
+        "fechaDesde": null,
+        "fechaHasta": null,
+        "transaccionesTarjetas": []
+    }
+}

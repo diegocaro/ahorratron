@@ -148,3 +148,78 @@ class GetSaldoResponse(BaseModel):
     existeEECC: bool
     pagarHasta: str
     facturadoAl: str
+
+
+class TransaccionTarjeta(BaseModel):
+    numReferencia: str
+    nombreTarjeta: str
+    fechaTransaccion: int
+    fechaTransaccionString: str
+    montoTransaccion: float
+    descripcion: str
+    ciudad: str
+    cuotas: str
+    nombreTitular: str
+    # comercio: Any
+    # rubro: Any
+    totales: bool
+    grupo: str
+    tituloTotales: str | None
+    cambioTarjeta: bool
+    aclaracion: dict
+    idMovimiento: str
+    # estado: Any
+    # comprobanteSiebel: Any
+    # fechaComprobanteSiebel: Any
+    idComprobante: str
+
+
+class Resumen(BaseModel):
+    cupo: float
+    cupoUtilizado: float
+    cupoDisponible: float
+    montoFacturado: float
+    pagoMinimo: float
+    fechaFacturacionActual: str
+    fechaVencimientoFacturacion: str
+    fechaProximaFacturacion: str
+    totalPagos: float
+    totalCargosAutomaticos: float
+    totalComprasCuotasAvances: float
+    totalCargosAbonosCta: float
+    tasaProxPerCredRot: float | None
+    # traspasoMonedaNac: Any
+    saldoAnteriorFacturado: float
+
+
+class ProximosPeriodos(BaseModel):
+    saldoCapitalCuotas: float
+    vencimientoCuotas1: float
+    vencimientoCuotas2: float
+    vencimientoCuotas3: float
+    vencimientoCuotas4: float
+    mesVencimientoCuotas1: str
+    mesVencimientoCuotas2: str
+    mesVencimientoCuotas3: str
+    mesVencimientoCuotas4: str
+    tasaInteresCreditoRotativo: str
+    tasaInteresCreditoCuotas: str
+
+
+class SeccionOperaciones(BaseModel):
+    totalTransacciones: float
+    numeroDeTransacciones: int
+    mensajeSinTransacciones: str | None
+    fechaDesde: str
+    fechaHasta: str
+    transaccionesTarjetas: list[TransaccionTarjeta]
+
+
+class ResumenPorFechaNacionalResponse(BaseModel):
+    existeEstadoCuenta: bool
+    resumen: Resumen
+    proximosPeriodos: ProximosPeriodos
+    seccionOperaciones: SeccionOperaciones
+    seccionProductosServiciosVoluntarios: dict | None
+    seccionCargosImpuestosAbonos: SeccionOperaciones
+    seccionComprasEnCuotas: dict | None
