@@ -1,6 +1,6 @@
 # Ahorratrón
 
-<img src="images/ahorratron.png" alt="Ahorratrón - El chanchito que automatiza tus finanzas" width="200" align="right">
+<img src="images/ahorratron.png" alt="Ahorratrón - El chanchito que automatiza tus finanzas" width="300" align="right">
 
 > 🐷💾 El chanchito que automatiza tus finanzas
 
