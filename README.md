@@ -1,27 +1,87 @@
 # Ahorratrón
+
+<div align="center">
+  <img src="images/ahorratron.png" alt="Ahorratrón - El chanchito que automatiza tus finanzas" width="300">
+</div>
+
 > 🐷💾 El chanchito que automatiza tus finanzas
 
 **Ahorratrón** es una herramienta en Python para ayudarte a organizar, convertir y analizar tus datos financieros, especialmente diseñada para procesar cartolas bancarias y de tarjetas de crédito de forma eficiente.
 
 Inspirada en los tradicionales chanchitos de ahorro, esta herramienta busca facilitar el control de gastos, fomentar el ahorro y ayudarte a tomar el control de tus finanzas personales (o familiares).
 
----
-
-## ✨ Características
-
-- Analiza y convierte cartolas bancarias o de tarjetas (TXT, CSV, XLS).
-- Interfaz de línea de comandos (CLI) para exportar datos al formato de [Actual Budget](https://actualbudget.com/).
-- Definiciones de campos extensibles para soportar distintos bancos.
-- Pensado para facilitar el ahorro, saldar deudas y alcanzar metas financieras.
+La herramienta combina tres componentes principales:
+- 🔗 **[API de Sincronización](ahorratron/sync_api/README.md)**: Conecta en tiempo real con tu banco 
+- 🏦 **[Integración con Actual Budget](ahorratron/actual_api/README.md)**: Se conecta directamente con tu aplicación de presupuesto favorita
+- 🔄 **[Conversor](ahorratron/conversor/README.md)**: Transforma cartolas bancarias a formatos compatibles (solo Banco de Chile)
 
 ---
 
-## ⚙️ Instalación
+## 🏦 Bancos Soportados
 
+Actualmente, Ahorratrón está optimizado para el **Banco de Chile**, incluyendo:
+
+- ✅ **Cuentas Corrientes**
+- ✅ **Cuentas Vista (FAN)**  
+- ✅ **Tarjetas de Crédito** (movimientos facturados y no facturados)
+
+---
+
+## 🚀 Inicio Rápido con Docker
+
+La forma más sencilla de usar Ahorratrón es con Docker Compose, que lanza automáticamente:
+- Un servidor de Actual Budget (clon local de Actual Budget)
+- La API de sincronización bancaria de Ahorratrón
+- Todos los servicios necesarios para la conexión
+
+
+### Configuración
+
+1. **Clona el repositorio:**
+   ```bash
+   git clone https://github.com/diegocaro/ahorratron.git
+   cd ahorratron
+   ```
+
+2. **Crea el archivo de configuración:**
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Configura tus credenciales bancarias** en el archivo `.env`:
+   ```bash
+BANK_LOGIN_URL=https://banco.cl/login
+BANK_API_BASE_URL=https://banco.cl/api
+HEADER_REFERER=https://banco.cl/index.html
+HEADER_ORIGIN=https://banco.cl
+JWE_SECRET_KEY="llave_secreta_para_encriptar"
+JWT_SECRET_KEY="llave_secreta_para_firmar"
+   ```
+
+4. **Inicia los servicios:**
+   ```bash
+   docker-compose up
+   ```
+
+### Acceso a la Aplicación
+
+Una vez iniciados los servicios, podrás acceder a:
+
+- **Actual Budget**: http://localhost:5006
+- **API de Ahorratrón**: https://localhost:8443
+
+En Actual Budget, podrás configurar la sincronización bancaria usando Pluggy.ai, que se conectará automáticamente con tu servidor local de Ahorratrón.
+
+
+
+---
+
+## 💻 Uso Avanzado (Línea de Comandos)
+
+Si prefieres usar Ahorratrón directamente desde la línea de comandos:
+### Instalación de Dependencias
 
 Requiere Python 3.12 o superior.
-
-Clona el repositorio e instala las dependencias usando [uv](https://github.com/astral-sh/uv):
 
 ```bash
 git clone git@github.com:diegocaro/ahorratron.git
@@ -29,100 +89,44 @@ cd ahorratron
 uv sync
 ```
 
-Para desarrollo (con herramientas de prueba):
+### Herramientas de Conversión
 
+**Convertir cartolas existentes:**
 ```bash
-uv sync --dev
+convert-to-actual cartola.txt -o datos.csv
+```
+
+**Descargar cartola del banco y convertir directamente:**
+```bash
+# Configurar credenciales
+export BANK_USER=11111111-1
+export BANK_PASSWORD=TuPassword
+export BANK_URL=https://banco.cl
+
+# Descargar y convertir
+bank-statement --account cte | convert-to-actual -o cartola.csv
 ```
 
 ---
 
-## 🚀 Uso
+## 🛡️ Seguridad y Privacidad
 
-La herramienta principal es `convert-to-actual`, que convierte tus cartolas al formato compatible con Actual Budget:
-
-```bash
-convert-to-actual <archivo_entrada> [opciones]
-```
-
-Ejemplo:
-
-```bash
-convert-to-actual cartola.txt
-```
-
-### 📄 Obtener cartola bancaria del Banco de Chile
-
-También puedes usar el comando `bank-statement` para obtener la cartola bancaria de cuentas corrientes y cuentas vista del Banco de Chile:
-
-```bash
-bank-statement [opciones]
-```
-
-Este comando descarga y procesa la cartola directamente desde el sitio del banco. El resultado se entrega en formato TXT.
-
-> **Nota:** Para usar este comando, debes exportar las siguientes variables de entorno antes de ejecutarlo (WIP, por ahora no es el mejor método para dejar las credenciales, se aceptan parches):
->
-> ```bash
-> export BANK_USER=11111111-1
-> export BANK_PASSWORD=TuPassword
-> export BANK_URL=https://portalpersonas.bancochile.cl/persona/
-> ```
-
-### 🏦 Selección de cuenta bancaria
-
-El comando `bank-statement` permite elegir la cuenta desde la cual descargar la cartola, usando la opción `--account`:
-
-```bash
-bank-statement --account cte   # Para cuenta corriente
-bank-statement --account fan   # Para Cuenta FAN (por defecto)
-```
-
-El script busca las cartolas que aparecen bajo el widget que contiene los links a las cuentas bancarias en el sitio del Banco de Chile. Los identificadores de los botones están definidos en la variable `BANK_ACCOUNT_BUTTONS_ID` del script.
-
-### 🔄 Convertir cartola bancaria a formato CSV para Actual Budget
-
-Puedes ejecutar ambos comandos en conjunto para descargar la cartola en formato TXT y convertirla automáticamente al formato CSV que puede importarse en Actual Budget:
-
-```bash
-bank-statement | convert-to-actual -o cartola.csv
-```
-
-Esto permite automatizar el proceso completo: desde la obtención de la cartola bancaria hasta la generación del archivo CSV listo para importar.
+- **Datos locales**: Todas tus credenciales y datos financieros permanecen en tu servidor
+- **Sin terceros**: No dependes de servicios externos como Pluggy.ai  
+- **Código abierto**: Puedes auditar y modificar el código según tus necesidades
+- **Comunicación encriptada**: Todas las conexiones usan HTTPS/SSL
 
 ---
 
-## 🏦 Bancos soportados
+## Contribuciones
 
-Por ahora, solo está implementado:
-
-- Banco de Chile
-
----
-
-## 🗂️ Estructura del proyecto
-
-* `ahorratron/` – Paquete principal
-  * `cli/convert_to_actual.py` – Punto de entrada CLI
-  * `parsers/` – Parsers para distintos formatos de archivo
-  * `field_definitions/` – Definiciones de campos por banco
-* `tests/` – Pruebas unitarias
-
----
-
-## 🧪 Desarrollo
-
-Para ejecutar los tests:
-
-```bash
-pytest
-```
+¡Las contribuciones son bienvenidas! Si tienes ideas para mejorar Ahorratrón o quieres agregar soporte para otros bancos, no dudes en crear un issue o enviar un pull request.
 
 ---
 
 ## 📝 Licencia
 
-Licencia MIT. (Agrega aquí tus datos de autoría o archivo LICENSE si corresponde)
+Licencia MIT.
 
 ---
 
