@@ -19,9 +19,9 @@ dependencies = [
 ]
 
 [project.scripts]
-bank-statement = "ahorratron.cli.bank_statement:main"
-convert-to-actual = "ahorratron.cli.convert_to_actual:main"
-ahorratron-api = "ahorratron.api.main:run_server"
+bank-statement = "ahorratron.conversor.cli.bank_statement:main"
+convert-to-actual = "ahorratron.conversor.cli.convert_to_actual:main"
+ahorratron-api = "ahorratron.actual_api.main:run_server"
 
 [dependency-groups]
 dev = [

@@ -5,7 +5,7 @@
             "name": "Debug: Ahorratron API",
             "type": "debugpy",
             "request": "launch",
-            "module": "ahorratron.api.main",
+            "module": "ahorratron.actual_api.main",
             "args": [],
             "console": "integratedTerminal"
         },
@@ -15,7 +15,7 @@
             "request": "launch",
             "module": "uvicorn",
             "args": [
-                "ahorratron.api.main:app",
+                "ahorratron.actual_api.main:app",
                 "--host",
                 "0.0.0.0",
                 "--port",

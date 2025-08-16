@@ -3,7 +3,7 @@
 from fastapi import HTTPException, Security, status
 from fastapi.security.api_key import APIKeyHeader
 
-from ahorratron.api.config import get_settings
+from ahorratron.actual_api.config import get_settings
 
 api_key_header = APIKeyHeader(name="X-API-KEY", auto_error=True)
 

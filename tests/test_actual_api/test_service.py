@@ -3,8 +3,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from ahorratron.api.models import Transaction
-from ahorratron.api.service import ActualBudgetService
+from ahorratron.actual_api.models import Transaction
+from ahorratron.actual_api.service import ActualBudgetService
 
 
 def test_add_transaction_with_autospec(monkeypatch: pytest.MonkeyPatch):
@@ -12,16 +12,16 @@ def test_add_transaction_with_autospec(monkeypatch: pytest.MonkeyPatch):
     mock_actual = MagicMock()
     mock_actual.return_value.__enter__.return_value.session = MagicMock()
     mock_actual.return_value.__enter__.return_value.commit = MagicMock()
-    monkeypatch.setattr("ahorratron.api.service.Actual", mock_actual)
+    monkeypatch.setattr("ahorratron.actual_api.service.Actual", mock_actual)
 
     mock_create_transaction = MagicMock()
     mock_create_transaction.return_value.id = "1234"
     monkeypatch.setattr(
-        "ahorratron.api.service.create_transaction", mock_create_transaction
+        "ahorratron.actual_api.service.create_transaction", mock_create_transaction
     )
 
     mock_get_account = MagicMock()
-    monkeypatch.setattr("ahorratron.api.service.get_account", mock_get_account)
+    monkeypatch.setattr("ahorratron.actual_api.service.get_account", mock_get_account)
 
     service = ActualBudgetService()
     transaction = Transaction(
