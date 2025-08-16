@@ -104,6 +104,20 @@ export BANK_URL=https://banco.cl
 # Descargar y convertir
 bank-statement --account cte | convert-to-actual -o cartola.csv
 ```
+---
+
+## 🏦 Bancos e Instituciones Soportadas
+
+| Institución | Cuentas Corrientes | Cuentas Vista | Cuentas de Ahorro | TC Facturados | TC No Facturados | Estado |
+|-------------|:------------------:|:-------------:|:-----------------:|:-------------:|:----------------:|:------:|
+| **Banco de Chile** | ✅ | ✅ | - | ✅ | ✅ | **Implementado** |
+
+
+**Leyenda:**
+- ✅ **Implementado**: Funciona completamente  
+- **-** Pull requests bienvenidos: ¡Contribuciones de la comunidad son bienvenidas!
+- **TC**: Tarjetas de Crédito
+- **N/A**: No aplica para este tipo de institución
 
 ---
 
