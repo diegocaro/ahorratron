@@ -8,7 +8,11 @@ from ahorratron.sync_api.core.connector import ConnectorBase
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
     GetCartolaCuentaRequest,
     GetCartolaResponse,
+    GetSaldoResponse,
     Movimiento,
+    MovimientoNoFacturado,
+    MovimientosNoFacturadosRequest,
+    NoFacturadosResponse,
     ObtenerProductosResponse,
     Producto,
 )
@@ -44,6 +48,8 @@ class BancoDeChileConnector(ConnectorBase):
     DEFAULT_TIMEZONE = "America/Santiago"
     DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
     DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
+
+    DATE_FORMAT_NO_FACTURADO = "%d/%m/%Y %H:%M:%S"
 
     def __init__(self, client: APIClient):
         self._client = client
@@ -85,6 +91,9 @@ class BancoDeChileConnector(ConnectorBase):
 
         if producto.tipo == "cuenta":
             transactions = self._get_transactions_cartola(producto)
+        elif producto.tipo == "tarjeta":
+            transactions = self._get_transactions_tarjeta_credito(producto)
+
         else:
             raise NotImplementedError(
                 f"Transactions for account type '{producto.tipo}' are not supported"
@@ -124,6 +133,32 @@ class BancoDeChileConnector(ConnectorBase):
         request = GetCartolaCuentaRequest.model_validate(data)
         cartola = self._client.get_cartola(request)
         return cartola
+
+    def _get_no_facturados_raw(self, tarjeta: Producto) -> NoFacturadosResponse:
+        data = {
+            "idTarjeta": tarjeta.id,
+            "codigoProducto": tarjeta.codigo,
+            "tipoTarjeta": tarjeta.descripcionLogo,
+            "mascara": tarjeta.mascara,
+            "nombreTitular": tarjeta.tarjetaHabiente,
+            "tipoCliente": tarjeta.tipoCliente,
+        }
+        request = MovimientosNoFacturadosRequest.model_validate(data)
+        no_facturados = self._client.get_no_facturados(request)
+        return no_facturados
+
+    def _get_saldo_raw(self, tarjeta: Producto) -> GetSaldoResponse:
+        data = {
+            "idTarjeta": tarjeta.id,
+            "codigoProducto": tarjeta.codigo,
+            "tipoTarjeta": tarjeta.descripcionLogo,
+            "mascara": tarjeta.mascara,
+            "nombreTitular": tarjeta.tarjetaHabiente,
+            "tipoCliente": tarjeta.tipoCliente,
+        }
+        request = MovimientosNoFacturadosRequest.model_validate(data)
+        saldo = self._client.get_saldo(request)
+        return saldo
 
     def _get_transactions_cartola(self, cuenta: Producto) -> list[Transaction]:
         cartola = self._get_cartola_raw(cuenta)
@@ -183,27 +218,21 @@ class BancoDeChileConnector(ConnectorBase):
         )
 
     def _map_account_producto(self, itemId: str, producto: Producto) -> Account | None:
-        type_map = {
-            "cuenta": (AccountType.BANK, AccountSubtype.CHECKING_ACCOUNT),
-            # "ahorro": (AccountType.BANK, AccountSubtype.SAVINGS_ACCOUNT),
-            # "tarjeta": (AccountType.CREDIT, AccountSubtype.CREDIT_CARD),
-        }
-        tipo_info = type_map.get(producto.tipo)
-        if tipo_info is None:
+        if producto.tipo == "cuenta":
+            return self._map_account_producto_cuenta(itemId, producto)
+        elif producto.tipo == "tarjeta":
+            return self._map_account_producto_tarjeta_credito(itemId, producto)
+        else:
             logger.warning(
                 f"Unknown account type: '{producto.tipo} for product {producto.codigo}"
             )
             return None
-        account_type, account_subtype = tipo_info
 
-        numero = producto.numero
-        if producto.tipo == "tarjeta":
-            numero = producto.mascara
-
+    def _map_account_producto_cuenta(self, itemId: str, producto: Producto) -> Account:
         cartola = self._get_cartola_raw(producto)
 
         bank_data = BankData(
-            transferNumber=numero,
+            transferNumber=producto.numero,
             closingBalance=cartola.saldoDisponible,
             automaticallyInvestedBalance=0,
         )
@@ -214,13 +243,76 @@ class BancoDeChileConnector(ConnectorBase):
         # dt_utc_iso = dt_local.astimezone(ZoneInfo("UTC")).isoformat()
         return Account(
             id=producto.id,
-            type=account_type,
-            subtype=account_subtype,
-            number=numero,
+            type=AccountType.BANK,
+            subtype=AccountSubtype.CHECKING_ACCOUNT,
+            number=producto.numero,
             name=producto.label,
             currencyCode=producto.codigoMoneda,
             itemId=itemId,
             balance=cartola.saldoFinal,  # This can also be cartola.saldoDisponible, not sure which one is the best
             bankData=bank_data,
             updatedAt=updated_at_local.isoformat(),
+        )
+
+    def _map_account_producto_tarjeta_credito(
+        self, itemId: str, producto: Producto
+    ) -> Account:
+        saldo = self._get_saldo_raw(producto)
+        dt = datetime.fromtimestamp(
+            saldo.fechaConsulta / 1000, ZoneInfo(self.DEFAULT_TIMEZONE)
+        )
+
+        return Account(
+            id=producto.id,
+            type=AccountType.CREDIT,
+            subtype=AccountSubtype.CREDIT_CARD,
+            number=producto.mascara,
+            name=producto.label,
+            currencyCode=producto.codigoMoneda,
+            itemId=itemId,
+            balance=saldo.cupoUtilizadoNacional,  # Actual will automatically set this as negative for credit cards
+            bankData=None,  # No bank data for credit cards
+            updatedAt=dt.isoformat(),
+        )
+
+    def _get_transactions_tarjeta_credito(self, tarjeta: Producto) -> list[Transaction]:
+        no_facturados = self._get_no_facturados_raw(tarjeta)
+        transactions = [
+            self._map_transaction_no_facturado(movimiento, tarjeta)
+            for movimiento in no_facturados.listaMovNoFactur
+        ]
+        transactions = [t for t in transactions if t is not None]
+        return transactions
+
+    def _map_transaction_no_facturado(
+        self, movimiento: MovimientoNoFacturado, tarjeta: Producto
+    ) -> Transaction | None:
+        if movimiento.origenTransaccion.upper() == "INT":
+            # Skipping international transactions for now
+            # Y manejar bien las divisas! Estamos hardcodeando CLP
+            return None
+
+        # example: 30/07/2025 16:44:29
+        fecha = f"{movimiento.fechaTransaccionString} {movimiento.horaAutorizacion}"
+        dt = datetime.strptime(fecha, self.DATE_FORMAT_NO_FACTURADO)
+        dt_local = dt.replace(tzinfo=ZoneInfo(self.DEFAULT_TIMEZONE))
+
+        mov_id = f"{movimiento.numeroTarjeta}-{movimiento.codigoComercioTBK}-{movimiento.fechaTransaccion}-{movimiento.horaAutorizacion}-{movimiento.montoCompra}"
+
+        if movimiento.montoCompra > 0:
+            transaction_type = TransactionType.DEBIT
+        else:
+            transaction_type = TransactionType.CREDIT
+
+        return Transaction(
+            id=mov_id,
+            date=dt_local.isoformat(),
+            amount=movimiento.montoCompra,
+            # balance=balance,
+            description=movimiento.glosaTransaccion,
+            accountId=movimiento.numeroTarjeta,
+            type=transaction_type,
+            currencyCode="CLP" if movimiento.origenTransaccion == "NAC" else "USD",
+            status=TransactionStatus.PENDING,
+            merchant=Merchant(name=movimiento.glosaTransaccion),
         )

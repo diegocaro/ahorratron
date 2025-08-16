@@ -1,0 +1,21 @@
+{
+    "cupoTotalNacional": 500000,
+    "cupoUtilizadoNacional": 13470,
+    "cupoDisponibleNacional": 486529,
+    "disponibleAvanceNacional": 486529,
+    "porcentajeDisponibleNacional": 97,
+    "cupoTotalInternacional": 1000.00,
+    "cupoUtilizadoInternacional": 26.05,
+    "cupoDisponibleInternacional": 973.95,
+    "disponibleAvanceInternacional": 973.95,
+    "porcentajeDisponibleInternacional": 100,
+    "fechaConsulta": 1755303022900,
+    "saldoCreditoCuotaCapital": 0,
+    "pagoMinimo": 0,
+    "montoFacturado": 92853,
+    "pagarHastaFecha": "07/08/2025",
+    "facturadoAlFecha": "23/07/2025",
+    "existeEECC": true,
+    "pagarHasta": "07 de agosto",
+    "facturadoAl": "23 de julio"
+}

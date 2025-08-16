@@ -16,6 +16,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
     GetCartolaCuentaRequest,
     GetCartolaResponse,
+    GetSaldoResponse,
     MovimientosNoFacturadosRequest,
     NoFacturadosResponse,
     ObtenerProductosResponse,
@@ -211,6 +212,12 @@ class APIClient:
         response = self.session.post(url, json=data.model_dump())
         parsed = self._handle_response(response)
         return GetCartolaResponse.model_validate(parsed)
+
+    def get_saldo(self, data: MovimientosNoFacturadosRequest) -> GetSaldoResponse:
+        url = f"{self.BASE_URL}/tarjeta-credito-digital/saldo/obtener-saldo"
+        response = self.session.post(url, json=data.model_dump())
+        parsed = self._handle_response(response)
+        return GetSaldoResponse.model_validate(parsed)
 
 
 def main():

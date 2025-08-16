@@ -8,6 +8,7 @@ from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APICl
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
     GetCartolaCuentaRequest,
     GetCartolaResponse,
+    GetSaldoResponse,
     MovimientosNoFacturadosRequest,
     NoFacturadosResponse,
     ObtenerProductosResponse,
@@ -34,6 +35,12 @@ def cartola_data():
         return json.load(f)
 
 
+@pytest.fixture
+def saldo_data():
+    with open(TEST_DATA_DIR / "saldo.json") as f:
+        return json.load(f)
+
+
 def test_validate_productos_data(productos_data):
     productos = ObtenerProductosResponse.model_validate(productos_data)
     assert productos.rut
@@ -50,6 +57,12 @@ def test_validate_cartola_data(cartola_data):
     cartola = GetCartolaResponse.model_validate(cartola_data)
     assert cartola.horaConsulta
     assert isinstance(cartola.movimientos, list)
+
+
+def test_validate_saldo_data(saldo_data):
+    saldo = GetSaldoResponse.model_validate(saldo_data)
+    assert saldo.cupoTotalNacional >= 0
+    assert saldo.cupoUtilizadoNacional >= 0
 
 
 @pytest.fixture

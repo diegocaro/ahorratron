@@ -126,3 +126,25 @@ class GetCartolaResponse(BaseModel):
     saldoDisponible: int
     lineaCredito: int
     movimientos: list[Movimiento]
+
+
+class GetSaldoResponse(BaseModel):
+    cupoTotalNacional: int
+    cupoUtilizadoNacional: int
+    cupoDisponibleNacional: int
+    disponibleAvanceNacional: int
+    porcentajeDisponibleNacional: int
+    cupoTotalInternacional: float
+    cupoUtilizadoInternacional: float
+    cupoDisponibleInternacional: float
+    disponibleAvanceInternacional: float
+    porcentajeDisponibleInternacional: int
+    fechaConsulta: int
+    saldoCreditoCuotaCapital: int
+    pagoMinimo: int
+    montoFacturado: int
+    pagarHastaFecha: str
+    facturadoAlFecha: str
+    existeEECC: bool
+    pagarHasta: str
+    facturadoAl: str
