@@ -48,12 +48,12 @@ La forma más sencilla de usar Ahorratrón es con Docker Compose, que lanza auto
 
 3. **Configura tus credenciales bancarias** en el archivo `.env`:
    ```bash
-BANK_LOGIN_URL=https://banco.cl/login
-BANK_API_BASE_URL=https://banco.cl/api
-HEADER_REFERER=https://banco.cl/index.html
-HEADER_ORIGIN=https://banco.cl
-JWE_SECRET_KEY="llave_secreta_para_encriptar"
-JWT_SECRET_KEY="llave_secreta_para_firmar"
+   BANK_LOGIN_URL=https://banco.cl/login
+   BANK_API_BASE_URL=https://banco.cl/api
+   HEADER_REFERER=https://banco.cl/index.html
+   HEADER_ORIGIN=https://banco.cl
+   JWE_SECRET_KEY="llave_secreta_para_encriptar"
+   JWT_SECRET_KEY="llave_secreta_para_firmar"
    ```
 
 4. **Inicia los servicios:**
@@ -120,13 +120,11 @@ bank-statement --account cte | convert-to-actual -o cartola.csv
 
 ¡Las contribuciones son bienvenidas! Si tienes ideas para mejorar Ahorratrón o quieres agregar soporte para otros bancos, no dudes en crear un issue o enviar un pull request.
 
----
 
 ## 📝 Licencia
 
 Licencia MIT.
 
----
 
 > *Hecho con cariño, Python y ganas de ahorrar 🇨🇱*
 
