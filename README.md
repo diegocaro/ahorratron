@@ -111,11 +111,20 @@ bank-statement --account cte | convert-to-actual -o cartola.csv
 | Institución | Cuentas Corrientes | Cuentas Vista | Cuentas de Ahorro | TC Facturados | TC No Facturados | Estado |
 |-------------|:------------------:|:-------------:|:-----------------:|:-------------:|:----------------:|:------:|
 | **Banco de Chile** | ✅ | ✅ | - | ✅ | ✅ | **Implementado** |
+| **Banco Santander** | - | - | - | - | - |  |
+| **Banco Estado** | - | - | - | - | - |  |
+| **Banco Security** | - | - | - | - | - |  |
+| **Banco Falabella** | - | - | - | - | - |  |
+| **Scotiabank** | - | - | - | - | - |  |
+| **Banco BCI** | - | - | - | - | - |  |
+| **Banco Itaú** | - | - | - | - | - |  |
+| **Coopeuch** | - | - | - | - | - |  |
+| **Fintual** | - | - | - | - | - |  |
 
 
 **Leyenda:**
 - ✅ **Implementado**: Funciona completamente  
-- **-** Pull requests bienvenidos: ¡Contribuciones de la comunidad son bienvenidas!
+- **-** : Pull requests bienvenidos: ¡Contribuciones de la comunidad son bienvenidas!
 - **TC**: Tarjetas de Crédito
 - **N/A**: No aplica para este tipo de institución
 
