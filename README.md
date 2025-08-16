@@ -108,7 +108,7 @@ bank-statement --account cte | convert-to-actual -o cartola.csv
 
 ## 🏦 Bancos e Instituciones Soportadas
 
-| Institución | Cuentas Corrientes | Cuentas Vista | Cuentas de Ahorro | TC Facturados | TC No Facturados | Estado |
+| Institución | Cuentas Corrientes | Cuentas Vista | Cuentas de Ahorro | Tarjetas de Crédito Facturados | Tarjetas de Crédito No Facturados | Estado |
 |-------------|:------------------:|:-------------:|:-----------------:|:-------------:|:----------------:|:------:|
 | **Banco de Chile** | ✅ | ✅ | - | ✅ | ✅ | **Implementado** |
 | **Banco Santander** | - | - | - | - | - |  |
@@ -125,7 +125,6 @@ bank-statement --account cte | convert-to-actual -o cartola.csv
 **Leyenda:**
 - ✅ **Implementado**: Funciona completamente  
 - **-** : Pull requests bienvenidos: ¡Contribuciones de la comunidad son bienvenidas!
-- **TC**: Tarjetas de Crédito
 - **N/A**: No aplica para este tipo de institución
 
 ---
