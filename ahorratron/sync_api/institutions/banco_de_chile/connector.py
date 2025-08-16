@@ -15,6 +15,9 @@ from ahorratron.sync_api.institutions.banco_de_chile.models import (
     NoFacturadosResponse,
     ObtenerProductosResponse,
     Producto,
+    ResumenNacionalResponse,
+    ResumenPorFechaRequest,
+    TransaccionTarjeta,
 )
 from ahorratron.sync_api.models.account_models import (
     Account,
@@ -160,6 +163,33 @@ class BancoDeChileConnector(ConnectorBase):
         saldo = self._client.get_saldo(request)
         return saldo
 
+    def _get_facturados_raw(self, tarjeta: Producto) -> ResumenNacionalResponse:
+        data_fechas = {
+            "idTarjeta": tarjeta.id,
+            "codigoProducto": tarjeta.codigo,
+            "tipoTarjeta": tarjeta.descripcionLogo,
+            "mascara": tarjeta.mascara,
+            "nombreTitular": tarjeta.tarjetaHabiente,
+            "tipoCliente": tarjeta.tipoCliente,
+        }
+        request = MovimientosNoFacturadosRequest.model_validate(data_fechas)
+        fechas_facturacion = self._client.get_fechas_facturacion(request)
+        mes_mas_reciente = max(
+            e.fechaFacturacion for e in fechas_facturacion.listaNacional
+        ).isoformat()
+        data = {
+            "idTarjeta": tarjeta.id,
+            "codigoProducto": tarjeta.codigo,
+            "tipoTarjeta": tarjeta.descripcionLogo,
+            "mascara": tarjeta.mascara,
+            "nombreTitular": tarjeta.tarjetaHabiente,
+            # "tipoCliente": tarjeta.tipoCliente,
+            "fechaFacturacion": mes_mas_reciente,
+            "numeroCuenta": fechas_facturacion.numeroCuenta,
+        }
+        request = ResumenPorFechaRequest.model_validate(data)
+        return self._client.get_resumen_nacional(request)
+
     def _get_transactions_cartola(self, cuenta: Producto) -> list[Transaction]:
         cartola = self._get_cartola_raw(cuenta)
         transactions = [
@@ -281,7 +311,15 @@ class BancoDeChileConnector(ConnectorBase):
             self._map_transaction_no_facturado(movimiento, tarjeta)
             for movimiento in no_facturados.listaMovNoFactur
         ]
+
+        facturados = self._get_facturados_raw(tarjeta)
+        transactions += [
+            self._map_transaction_facturado(facturados, movimiento)
+            for movimiento in facturados.seccionOperaciones.transaccionesTarjetas
+            + facturados.seccionCargosImpuestosAbonos.transaccionesTarjetas
+        ]
         transactions = [t for t in transactions if t is not None]
+
         return transactions
 
     def _map_transaction_no_facturado(
@@ -315,4 +353,46 @@ class BancoDeChileConnector(ConnectorBase):
             currencyCode="CLP" if movimiento.origenTransaccion == "NAC" else "USD",
             status=TransactionStatus.PENDING,
             merchant=Merchant(name=movimiento.glosaTransaccion),
+        )
+
+    def _map_transaction_facturado(
+        self,
+        facturado: ResumenNacionalResponse,
+        movimiento: TransaccionTarjeta,
+        currency_code: str = "CLP",
+    ) -> Transaction | None:
+        if movimiento.totales or not movimiento.idMovimiento:
+            logger.warning(
+                f"Skipping totals or invalid transaction {movimiento.descripcion} {movimiento.montoTransaccion}"
+            )
+            return None
+        if not movimiento.fechaTransaccion:
+            logger.error(f"Transaction has no date")
+            return None
+
+        dt = datetime.fromtimestamp(
+            movimiento.fechaTransaccion / 1000, ZoneInfo(self.DEFAULT_TIMEZONE)
+        )
+
+        if movimiento.grupo in ["avancesCompras", "generico"]:
+            transaction_type = TransactionType.DEBIT
+            monto = movimiento.montoTransaccion
+        elif movimiento.grupo == "pagos":
+            transaction_type = TransactionType.CREDIT
+            monto = -abs(movimiento.montoTransaccion)
+        else:
+            logger.error(f"Unknown transaction type: {movimiento.grupo}")
+            return None
+
+        return Transaction(
+            id=movimiento.idMovimiento,
+            date=dt.isoformat(),
+            amount=monto,
+            # balance=balance,
+            description=movimiento.descripcion,
+            accountId=movimiento.nombreTarjeta,
+            type=transaction_type,
+            currencyCode=currency_code,
+            status=TransactionStatus.POSTED,
+            merchant=Merchant(name=movimiento.descripcion),
         )

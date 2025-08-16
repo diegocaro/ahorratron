@@ -6,6 +6,7 @@ import pytest
 
 from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APIClient
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
+    FechasFacturacionResponse,
     GetCartolaCuentaRequest,
     GetCartolaResponse,
     GetSaldoResponse,
@@ -48,6 +49,12 @@ def resumen_nacional_data():
         return json.load(f)
 
 
+@pytest.fixture
+def fechas_facturacion_data():
+    with open(TEST_DATA_DIR / "fechas_facturacion.json") as f:
+        return json.load(f)
+
+
 def test_validate_productos_data(productos_data):
     productos = ObtenerProductosResponse.model_validate(productos_data)
     assert productos.rut
@@ -75,6 +82,12 @@ def test_validate_saldo_data(saldo_data):
 def test_validate_resumen_nacional_data(resumen_nacional_data):
     resumen = ResumenNacionalResponse.model_validate(resumen_nacional_data)
     assert isinstance(resumen.seccionOperaciones.transaccionesTarjetas, list)
+
+
+def test_validate_fechas_facturacion_data(fechas_facturacion_data):
+    fechas = FechasFacturacionResponse.model_validate(fechas_facturacion_data)
+    assert fechas.numeroCuenta
+    assert len(fechas.listaNacional) > 0
 
 
 @pytest.fixture

@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel
 
 
@@ -30,6 +32,16 @@ class Cabecera(BaseModel):
 class GetCartolaCuentaRequest(BaseModel):
     cuentaSeleccionada: CuentaSeleccionada
     cabecera: Cabecera
+
+
+class ResumenPorFechaRequest(BaseModel):
+    idTarjeta: str
+    codigoProducto: str
+    tipoTarjeta: str
+    mascara: str
+    nombreTitular: str
+    fechaFacturacion: str
+    numeroCuenta: str
 
 
 #### RESPONSES MODELS ####
@@ -153,8 +165,8 @@ class GetSaldoResponse(BaseModel):
 class TransaccionTarjeta(BaseModel):
     numReferencia: str
     nombreTarjeta: str
-    fechaTransaccion: int
-    fechaTransaccionString: str
+    fechaTransaccion: int | None
+    fechaTransaccionString: str | None
     montoTransaccion: float
     descripcion: str
     ciudad: str
@@ -167,7 +179,7 @@ class TransaccionTarjeta(BaseModel):
     tituloTotales: str | None
     cambioTarjeta: bool
     aclaracion: dict
-    idMovimiento: str
+    idMovimiento: str | None
     # estado: Any
     # comprobanteSiebel: Any
     # fechaComprobanteSiebel: Any
@@ -226,7 +238,7 @@ class ResumenNacionalResponse(BaseModel):
 
 
 class ItemFechaFacturacion(BaseModel):
-    fechaFacturacion: str
+    fechaFacturacion: date  # es un string con formato %Y-%m-%d
     existeEstadoCuentaNacional: str
     existeEstadoCuentaInternacional: str
 

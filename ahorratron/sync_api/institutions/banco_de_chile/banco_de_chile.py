@@ -14,12 +14,15 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
+    FechasFacturacionResponse,
     GetCartolaCuentaRequest,
     GetCartolaResponse,
     GetSaldoResponse,
     MovimientosNoFacturadosRequest,
     NoFacturadosResponse,
     ObtenerProductosResponse,
+    ResumenNacionalResponse,
+    ResumenPorFechaRequest,
 )
 
 BANK_LOGIN_URL = os.environ["BANK_LOGIN_URL"]
@@ -219,6 +222,22 @@ class APIClient:
         parsed = self._handle_response(response)
         return GetSaldoResponse.model_validate(parsed)
 
+    def get_fechas_facturacion(
+        self, data: MovimientosNoFacturadosRequest
+    ) -> FechasFacturacionResponse:
+        url = f"{self.BASE_URL}/tarjetas/estadocuenta/fechas-facturacion"
+        response = self.session.post(url, json=data.model_dump())
+        parsed = self._handle_response(response)
+        return FechasFacturacionResponse.model_validate(parsed)
+
+    def get_resumen_nacional(
+        self, data: ResumenPorFechaRequest
+    ) -> ResumenNacionalResponse:
+        url = f"{self.BASE_URL}/tarjetas/estadocuenta/nacional/resumen-por-fecha"
+        response = self.session.post(url, json=data.model_dump())
+        parsed = self._handle_response(response)
+        return ResumenNacionalResponse.model_validate(parsed)
+
 
 def main():
     BANK_USER = os.environ["BANK_USER"]
@@ -271,19 +290,47 @@ def main():
         request = MovimientosNoFacturadosRequest.model_validate(data)
         no_facturados = client.get_no_facturados(request)
         print(no_facturados)
+
+    tarjeta = tarjetas_de_credito[0]
+    print(f"Tarjeta: {tarjeta.numero} - {tarjeta.mascara}")
+    data = {
+        "idTarjeta": tarjeta.id,
+        "codigoProducto": tarjeta.codigo,
+        "tipoTarjeta": tarjeta.descripcionLogo,
+        "mascara": tarjeta.mascara,
+        "nombreTitular": tarjeta.tarjetaHabiente,
+        "tipoCliente": tarjeta.tipoCliente,
+    }
+    request = MovimientosNoFacturadosRequest.model_validate(data)
+    fechas_facturacion = client.get_fechas_facturacion(request)
+    print(fechas_facturacion)
+
+    data = {
+        "idTarjeta": tarjeta.id,
+        "codigoProducto": tarjeta.codigo,
+        "tipoTarjeta": tarjeta.descripcionLogo,
+        "mascara": tarjeta.mascara,
+        "nombreTitular": tarjeta.tarjetaHabiente,
+        # "tipoCliente": tarjeta.tipoCliente,
+        "fechaFacturacion": fechas_facturacion.listaNacional[0].fechaFacturacion,
+        "numeroCuenta": fechas_facturacion.numeroCuenta,
+    }
+    request = ResumenPorFechaRequest.model_validate(data)
+    resumen_nacional_data = client.get_resumen_nacional(request)
+    print(resumen_nacional_data)
     # random_wait()
     # no_facturados = client.get_no_facturados()
     # print(no_facturados)
-    start_time = time.time()
-    for i in range(10):
-        time_to_wait = i**2
-        print(f"Waiting for {time_to_wait} seconds...")
-        time.sleep(time_to_wait)
-        try:
-            print(client.get_productos())
-        except Exception as e:
-            print(f"Error fetching productos at time {time.time() - start_time}: {e}")
-            break
+    # start_time = time.time()
+    # for i in range(10):
+    #     time_to_wait = i**2
+    #     print(f"Waiting for {time_to_wait} seconds...")
+    #     time.sleep(time_to_wait)
+    #     try:
+    #         print(client.get_productos())
+    #     except Exception as e:
+    #         print(f"Error fetching productos at time {time.time() - start_time}: {e}")
+    #         break
 
 
 if __name__ == "__main__":
