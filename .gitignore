@@ -19,3 +19,5 @@ tmp
 # Pytest Coverage
 .coverage
 
+# macOS files
+.DS_Store

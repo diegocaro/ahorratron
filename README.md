@@ -13,6 +13,9 @@ La herramienta combina tres componentes principales:
 - 🏦 **[Integración con Actual Budget](ahorratron/actual_api/README.md)**: Se conecta directamente con tu aplicación de presupuesto favorita
 - 🔄 **[Conversor](ahorratron/conversor/README.md)**: Transforma cartolas bancarias a formatos compatibles (solo Banco de Chile)
 
+
+![Demo Sync](images/actual-budget-sync.gif)
+
 ---
 
 ## 🏦 Bancos Soportados
@@ -68,7 +71,34 @@ Una vez iniciados los servicios, podrás acceder a:
 - **Actual Budget**: http://localhost:5006
 - **API de Ahorratrón**: https://localhost:8443
 
-En Actual Budget, podrás configurar la sincronización bancaria usando Pluggy.ai, que se conectará automáticamente con tu servidor local de Ahorratrón.
+### Configuración de Actual Budget
+
+![Configuración de Actual Budget](images/actual-budget-config.gif)
+
+Para conectar tu banco con Actual Budget a través de Ahorratrón:
+
+1. **Crea una cuenta en Actual Budget:**
+   - Ve a http://localhost:5006
+   - Crea un nuevo presupuesto o selecciona uno existente
+
+2. **Activa la funcionalidad experimental de Pluggy.ai:**
+   - En Actual Budget, ve a **Settings** (Configuración)
+   - Busca la opción **Experimental Features** (Funcionalidades Experimentales)
+   - Activa la opción **Pluggy.ai Integration** (Experimental)
+
+3. **Configura la conexión bancaria:**
+   - Ve a la sección de **Accounts** (Cuentas) en Actual Budget
+   - Busca la opción **Set up Pluggy.ai for bank sync**
+   - Ingresa los siguientes datos:
+     - **Client ID**: Tu RUT (ej: 12345678-9)
+     - **Client Secret**: Tu clave del banco
+     - **Items ID**: `chile`
+
+4. **Vincula tu cuenta bancaria:**
+   - Elige las cuentas que deseas sincronizar
+   - Confirma la vinculación
+
+Una vez completado, tus transacciones bancarias se sincronizarán automáticamente con tu presupuesto en Actual Budget.
 
 
 
