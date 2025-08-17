@@ -15,7 +15,7 @@ La herramienta combina tres componentes principales:
 
 ## 🎬 Demo en Acción
 
-La siguiente demo muestra [Actual Budget](https://actualbudget.org/) sincronizando automáticamente las transacciones de una cuenta vita del Banco de Chile:
+La siguiente demo muestra [Actual Budget](https://actualbudget.org/) sincronizando automáticamente las transacciones de una cuenta corriente del Banco de Chile:
 
 ![Demo Sync](images/actual-budget-sync.gif)
 
