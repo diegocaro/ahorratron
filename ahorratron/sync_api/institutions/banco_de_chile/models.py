@@ -1,3 +1,4 @@
+import zoneinfo
 from datetime import date, datetime
 from enum import Enum
 
@@ -7,6 +8,9 @@ DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
 DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
 DATE_FORMAT_NO_FACTURADO = "%d/%m/%Y %H:%M:%S"
 DATE_REPLACE_STRING = " Hrs."
+
+
+CHILE_TZ = zoneinfo.ZoneInfo("America/Santiago")
 
 
 ### REQUEST MODELS ###
@@ -220,7 +224,9 @@ class GetSaldoResponse(BaseModel):
 
     @property
     def fecha_consulta_iso(self) -> str:
-        return datetime.fromtimestamp(self.fechaConsulta // 1000).isoformat()
+        # There is a bug in Actual Budget where it mishandles timezones
+        dt = datetime.fromtimestamp(self.fechaConsulta // 1000)
+        return dt.replace(tzinfo=None).isoformat()
 
 
 class GrupoTipo(str, Enum):
@@ -256,7 +262,9 @@ class TransaccionTarjeta(BaseModel):
     def fecha_transaccion_iso(self) -> str | None:
         if self.fechaTransaccion is None:
             return None
-        return datetime.fromtimestamp(self.fechaTransaccion // 1000).isoformat()
+        # There is a bug in Actual Budget where it mishandles timezones
+        dt = datetime.fromtimestamp(self.fechaTransaccion // 1000)
+        return dt.replace(tzinfo=None).isoformat()
 
 
 class Resumen(BaseModel):
