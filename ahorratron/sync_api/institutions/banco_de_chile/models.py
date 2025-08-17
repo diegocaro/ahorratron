@@ -4,6 +4,8 @@ from enum import Enum
 
 from pydantic import BaseModel
 
+import ahorratron.sync_api.utils.constants as c
+
 DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
 DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
 DATE_FORMAT_NO_FACTURADO = "%d/%m/%Y %H:%M:%S"
@@ -226,7 +228,7 @@ class GetSaldoResponse(BaseModel):
     def fecha_consulta_iso(self) -> str:
         # There is a bug in Actual Budget where it mishandles timezones
         dt = datetime.fromtimestamp(self.fechaConsulta // 1000)
-        return dt.replace(tzinfo=None).isoformat()
+        return dt.strftime(c.DATE_FORMAT_ISO_LOCAL)
 
 
 class GrupoTipo(str, Enum):
@@ -264,7 +266,7 @@ class TransaccionTarjeta(BaseModel):
             return None
         # There is a bug in Actual Budget where it mishandles timezones
         dt = datetime.fromtimestamp(self.fechaTransaccion // 1000)
-        return dt.replace(tzinfo=None).isoformat()
+        return dt.strftime(c.DATE_FORMAT_ISO_LOCAL)
 
 
 class Resumen(BaseModel):
