@@ -66,11 +66,27 @@ def test_validate_no_facturados_data(no_facturados_data):
     assert no_facturados.tarjetaHabiente
     assert isinstance(no_facturados.listaMovNoFactur, list)
 
+    assert len(no_facturados.listaMovNoFactur) > 0
+    m = no_facturados.listaMovNoFactur[0]
+    expected_date = "2025-08-04T10:05:21"
+    assert expected_date == m.fecha_transaccion_iso
+
+    expected_fake_id = "3344-0-04/08/2025-10:05:21-12.45"
+    assert expected_fake_id == m.id_fake
+
 
 def test_validate_cartola_data(cartola_data):
     cartola = GetCartolaResponse.model_validate(cartola_data)
     assert cartola.horaConsulta
     assert isinstance(cartola.movimientos, list)
+
+    expected_date = "2025-08-05T18:48:00"
+    assert expected_date == cartola.hora_consulta_iso
+
+    assert len(cartola.movimientos) > 0
+    m = cartola.movimientos[0]
+    expected_date = "2025-08-04T15:40:35"
+    assert expected_date == m.fecha_isoformat
 
 
 def test_validate_saldo_data(saldo_data):
@@ -78,10 +94,19 @@ def test_validate_saldo_data(saldo_data):
     assert saldo.cupoTotalNacional >= 0
     assert saldo.cupoUtilizadoNacional >= 0
 
+    expected_date = "2025-08-15T20:10:22"
+    assert expected_date == saldo.fecha_consulta_iso
+
 
 def test_validate_resumen_nacional_data(resumen_nacional_data):
     resumen = ResumenNacionalResponse.model_validate(resumen_nacional_data)
     assert isinstance(resumen.seccionOperaciones.transaccionesTarjetas, list)
+    transacciones = resumen.seccionOperaciones.transaccionesTarjetas
+    assert len(transacciones) > 0
+
+    t = transacciones[0]
+    expected_date = "2025-06-28T00:00:00"
+    assert expected_date == t.fecha_transaccion_iso
 
 
 def test_validate_fechas_facturacion_data(fechas_facturacion_data):

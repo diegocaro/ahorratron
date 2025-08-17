@@ -220,7 +220,7 @@ class GetSaldoResponse(BaseModel):
 
     @property
     def fecha_consulta_iso(self) -> str:
-        return datetime.fromtimestamp(self.fechaConsulta / 1000).isoformat()
+        return datetime.fromtimestamp(self.fechaConsulta // 1000).isoformat()
 
 
 class GrupoTipo(str, Enum):
@@ -256,7 +256,7 @@ class TransaccionTarjeta(BaseModel):
     def fecha_transaccion_iso(self) -> str | None:
         if self.fechaTransaccion is None:
             return None
-        return datetime.fromtimestamp(self.fechaTransaccion).isoformat()
+        return datetime.fromtimestamp(self.fechaTransaccion // 1000).isoformat()
 
 
 class Resumen(BaseModel):
