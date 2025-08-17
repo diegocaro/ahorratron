@@ -227,8 +227,8 @@ class GetSaldoResponse(BaseModel):
     @property
     def fecha_consulta_iso(self) -> str:
         # There is a bug in Actual Budget where it mishandles timezones
-        dt = datetime.fromtimestamp(self.fechaConsulta // 1000)
-        return dt.strftime(c.DATE_FORMAT_ISO_LOCAL)
+        dt = datetime.fromtimestamp(self.fechaConsulta // 1000, tz=CHILE_TZ)
+        return dt.replace(tzinfo=None).isoformat()
 
 
 class GrupoTipo(str, Enum):
@@ -265,8 +265,8 @@ class TransaccionTarjeta(BaseModel):
         if self.fechaTransaccion is None:
             return None
         # There is a bug in Actual Budget where it mishandles timezones
-        dt = datetime.fromtimestamp(self.fechaTransaccion // 1000)
-        return dt.strftime(c.DATE_FORMAT_ISO_LOCAL)
+        dt = datetime.fromtimestamp(self.fechaTransaccion // 1000, tz=CHILE_TZ)
+        return dt.replace(tzinfo=None).isoformat()
 
 
 class Resumen(BaseModel):
