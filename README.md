@@ -10,11 +10,16 @@ Inspirada en los tradicionales chanchitos de ahorro, esta herramienta busca faci
 
 La herramienta combina tres componentes principales:
 - 🔗 **[API de Sincronización](ahorratron/sync_api/README.md)**: Conecta en tiempo real con tu banco 
-- 🏦 **[Integración con Actual Budget](ahorratron/actual_api/README.md)**: Se conecta directamente con tu aplicación de presupuesto favorita
+- 🏦 **[Integración con Actual Budget](ahorratron/actual_api/README.md)**: Se conecta directamente con tu aplicación de presupuesto favorita [Actual Budget](https://actualbudget.org/)
 - 🔄 **[Conversor](ahorratron/conversor/README.md)**: Transforma cartolas bancarias a formatos compatibles (solo Banco de Chile)
 
+## 🎬 Demo en Acción
+
+La siguiente demo muestra [Actual Budget](https://actualbudget.org/) sincronizando automáticamente las transacciones de una cuenta vita del Banco de Chile:
 
 ![Demo Sync](images/actual-budget-sync.gif)
+
+> **Nota:** Esta demo utiliza datos en caché para mostrar el proceso de forma rápida. En un entorno real, la sincronización completa toma ~30 segundos (incluye el inicio de sesión bancario y la obtención de transacciones).
 
 ---
 
@@ -149,7 +154,7 @@ bank-statement --account cte | convert-to-actual -o cartola.csv
 | **Banco BCI** | - | - | - | - | - |  |
 | **Banco Itaú** | - | - | - | - | - |  |
 | **Coopeuch** | - | - | - | - | - |  |
-| **Fintual** | - | - | - | - | - |  |
+| **Fintual** | - | - | - | - | - | Coming soon? |
 
 
 **Leyenda:**

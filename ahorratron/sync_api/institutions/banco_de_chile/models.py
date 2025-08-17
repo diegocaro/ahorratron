@@ -1,7 +1,12 @@
-from datetime import date
+from datetime import date, datetime
 from enum import Enum
 
 from pydantic import BaseModel
+
+DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
+DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
+DATE_FORMAT_NO_FACTURADO = "%d/%m/%Y %H:%M:%S"
+DATE_REPLACE_STRING = " Hrs."
 
 
 ### REQUEST MODELS ###
@@ -112,6 +117,25 @@ class MovimientoNoFacturado(BaseModel):
     nombreTarjetaHabiente: str
     numeroTarjetaCompleto: str | None
 
+    @property
+    def fecha_transaccion_iso(self) -> str:
+        # example: 30/07/2025 16:44:29
+        return datetime.strptime(
+            f"{self.fechaTransaccionString} {self.horaAutorizacion}",
+            DATE_FORMAT_NO_FACTURADO,
+        ).isoformat()
+
+    @property
+    def id_fake(self) -> str:
+        fields = [
+            self.numeroTarjeta,
+            str(self.codigoComercioTBK),
+            self.fechaTransaccionString,
+            self.horaAutorizacion,
+            str(self.montoCompra),
+        ]
+        return "-".join(fields)
+
 
 class NoFacturadosResponse(BaseModel):
     tarjetaHabiente: str
@@ -145,6 +169,11 @@ class Movimiento(BaseModel):
     fechaContableMovimiento: int
     detalleGlosa: list[str]
 
+    @property
+    def fecha_isoformat(self) -> str:
+        # example: 20250730 16:44:29
+        return datetime.strptime(self.fecha, DATE_FORMAT_MOVIMIENTO_CARTOLA).isoformat()
+
 
 class GetCartolaResponse(BaseModel):
     horaConsulta: str
@@ -159,6 +188,13 @@ class GetCartolaResponse(BaseModel):
     saldoDisponible: int
     lineaCredito: int
     movimientos: list[Movimiento]
+
+    @property
+    def hora_consulta_iso(self) -> str:
+        return datetime.strptime(
+            self.horaConsulta.replace(DATE_REPLACE_STRING, ""),
+            DATE_FORMAT_HORA_CONSULTA,
+        ).isoformat()
 
 
 class GetSaldoResponse(BaseModel):
@@ -181,6 +217,10 @@ class GetSaldoResponse(BaseModel):
     existeEECC: bool
     pagarHasta: str
     facturadoAl: str
+
+    @property
+    def fecha_consulta_iso(self) -> str:
+        return datetime.fromtimestamp(self.fechaConsulta / 1000).isoformat()
 
 
 class GrupoTipo(str, Enum):
@@ -211,6 +251,12 @@ class TransaccionTarjeta(BaseModel):
     # comprobanteSiebel: Any
     # fechaComprobanteSiebel: Any
     idComprobante: str
+
+    @property
+    def fecha_transaccion_iso(self) -> str | None:
+        if self.fechaTransaccion is None:
+            return None
+        return datetime.fromtimestamp(self.fechaTransaccion).isoformat()
 
 
 class Resumen(BaseModel):

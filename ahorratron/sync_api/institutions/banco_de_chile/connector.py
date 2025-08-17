@@ -53,14 +53,6 @@ Documentation from Pluggy.ai
 
 
 class BancoDeChileConnector(ConnectorBase):
-    DEFAULT_TIMEZONE = "America/Santiago"
-    DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
-    DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
-
-    DATE_FORMAT_NO_FACTURADO = "%d/%m/%Y %H:%M:%S"
-
-    DATE_REPLACE_STRING = " Hrs."
-
     def __init__(self, client: APIClient):
         self._client = client
 
@@ -208,11 +200,6 @@ class BancoDeChileConnector(ConnectorBase):
     def _map_transaction_movimiento(
         self, cartola: GetCartolaResponse, movimiento: Movimiento
     ) -> Transaction | None:
-        # example: 20250730 16:44:29
-        dt = datetime.strptime(movimiento.fecha, self.DATE_FORMAT_MOVIMIENTO_CARTOLA)
-        dt_local = dt.replace(tzinfo=ZoneInfo(self.DEFAULT_TIMEZONE))
-
-        # can be "cargo" or "abono"
         if movimiento.tipo == MovimientoTipo.CARGO:
             transaction_type = TransactionType.DEBIT
         elif movimiento.tipo == MovimientoTipo.ABONO:
@@ -241,7 +228,7 @@ class BancoDeChileConnector(ConnectorBase):
 
         return Transaction(
             id=movimiento.id,
-            date=dt_local.isoformat(),
+            date=movimiento.fecha_isoformat,
             amount=monto,
             # balance=balance,
             description=movimiento.descripcion,
@@ -273,12 +260,7 @@ class BancoDeChileConnector(ConnectorBase):
             closingBalance=cartola.saldoDisponible,
             automaticallyInvestedBalance=0,
         )
-        updated_at = datetime.strptime(
-            cartola.horaConsulta.replace(self.DATE_REPLACE_STRING, ""),
-            self.DATE_FORMAT_HORA_CONSULTA,
-        )
-        updated_at_local = updated_at.replace(tzinfo=ZoneInfo(self.DEFAULT_TIMEZONE))
-        # dt_utc_iso = dt_local.astimezone(ZoneInfo("UTC")).isoformat()
+
         return Account(
             id=producto.id,
             type=AccountType.BANK,
@@ -289,16 +271,13 @@ class BancoDeChileConnector(ConnectorBase):
             itemId=itemId,
             balance=cartola.saldoFinal,  # This can also be cartola.saldoDisponible, not sure which one is the best
             bankData=bank_data,
-            updatedAt=updated_at_local.isoformat(),
+            updatedAt=cartola.hora_consulta_iso,
         )
 
     def _map_account_producto_tarjeta_credito(
         self, itemId: str, producto: Producto
     ) -> Account:
         saldo = self._get_saldo_raw(producto)
-        dt = datetime.fromtimestamp(
-            saldo.fechaConsulta / 1000, ZoneInfo(self.DEFAULT_TIMEZONE)
-        )
 
         return Account(
             id=producto.id,
@@ -310,7 +289,7 @@ class BancoDeChileConnector(ConnectorBase):
             itemId=itemId,
             balance=saldo.cupoUtilizadoNacional,  # Actual will automatically set this as negative for credit cards
             bankData=None,  # No bank data for credit cards
-            updatedAt=dt.isoformat(),
+            updatedAt=saldo.fecha_consulta_iso,
         )
 
     def _get_transactions_tarjeta_credito(self, tarjeta: Producto) -> list[Transaction]:
@@ -334,16 +313,10 @@ class BancoDeChileConnector(ConnectorBase):
         self, movimiento: MovimientoNoFacturado, tarjeta: Producto
     ) -> Transaction | None:
         if movimiento.origenTransaccion != OrigenTransaccionTipo.NAC:
-            # Skipping international transactions for now
-            # Y manejar bien las divisas! Estamos hardcodeando CLP
+            logger.warning(
+                f"Skipping non-national transaction {movimiento.descripcionTransaccion} {movimiento.montoCompra}"
+            )
             return None
-
-        # example: 30/07/2025 16:44:29
-        fecha = f"{movimiento.fechaTransaccionString} {movimiento.horaAutorizacion}"
-        dt = datetime.strptime(fecha, self.DATE_FORMAT_NO_FACTURADO)
-        dt_local = dt.replace(tzinfo=ZoneInfo(self.DEFAULT_TIMEZONE))
-
-        mov_id = f"{movimiento.numeroTarjeta}-{movimiento.codigoComercioTBK}-{movimiento.fechaTransaccion}-{movimiento.horaAutorizacion}-{movimiento.montoCompra}"
 
         if movimiento.montoCompra > 0:
             transaction_type = TransactionType.DEBIT
@@ -351,8 +324,8 @@ class BancoDeChileConnector(ConnectorBase):
             transaction_type = TransactionType.CREDIT
 
         return Transaction(
-            id=mov_id,
-            date=dt_local.isoformat(),
+            id=movimiento.id_fake,
+            date=movimiento.fecha_transaccion_iso,
             amount=movimiento.montoCompra,
             # balance=balance,
             description=movimiento.glosaTransaccion,
@@ -374,13 +347,9 @@ class BancoDeChileConnector(ConnectorBase):
                 f"Skipping totals or invalid transaction {movimiento.descripcion} {movimiento.montoTransaccion}"
             )
             return None
-        if not movimiento.fechaTransaccion:
+        if not movimiento.fechaTransaccion or not movimiento.fecha_transaccion_iso:
             logger.error(f"Transaction has no date")
             return None
-
-        dt = datetime.fromtimestamp(
-            movimiento.fechaTransaccion / 1000, ZoneInfo(self.DEFAULT_TIMEZONE)
-        )
 
         if movimiento.grupo in [GrupoTipo.AVANCES_COMPRAS, GrupoTipo.GENERICO]:
             transaction_type = TransactionType.DEBIT
@@ -394,7 +363,7 @@ class BancoDeChileConnector(ConnectorBase):
 
         return Transaction(
             id=movimiento.idMovimiento,
-            date=dt.isoformat(),
+            date=movimiento.fecha_transaccion_iso,
             amount=monto,
             # balance=balance,
             description=movimiento.descripcion,

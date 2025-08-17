@@ -180,7 +180,7 @@ class APIClient:
 
             # Wait for Home button to be clickable after login
             wait.until(EC.presence_of_element_located((By.ID, home_button_id)))
-            random_wait()
+            # random_wait()
 
             cookies = driver.get_cookies()
         except selenium_exceptions.TimeoutException:
