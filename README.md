@@ -4,7 +4,7 @@
 
 > 🐷💾 El chanchito que automatiza tus finanzas
 
-**Ahorratrón** es una herramienta en Python para ayudarte a organizar, convertir y analizar tus datos financieros, especialmente diseñada para procesar cartolas bancarias y de tarjetas de crédito de forma eficiente.
+**Ahorratrón** es una herramienta en Python para ayudarte a organizar, convertir y analizar tus datos financieros, especialmente diseñada para obtener datos de cartolas bancarias y de tarjetas de crédito.
 
 Inspirada en los tradicionales chanchitos de ahorro, esta herramienta busca facilitar el control de gastos, fomentar el ahorro y ayudarte a tomar el control de tus finanzas personales (o familiares).
 
@@ -25,7 +25,7 @@ La siguiente demo muestra [Actual Budget](https://actualbudget.org/) sincronizan
 
 ## 🏦 Bancos Soportados
 
-Actualmente, Ahorratrón está optimizado para el **Banco de Chile**, incluyendo:
+Actualmente, Ahorratrón solo está conectado con el **Banco de Chile**, incluyendo:
 
 - ✅ **Cuentas Corrientes**
 - ✅ **Cuentas Vista (FAN)**  
