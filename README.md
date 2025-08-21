@@ -164,15 +164,6 @@ bank-statement --account cte | convert-to-actual -o cartola.csv
 
 ---
 
-## 🛡️ Seguridad y Privacidad
-
-- **Datos locales**: Todas tus credenciales y datos financieros permanecen en tu servidor
-- **Sin terceros**: No dependes de servicios externos como Pluggy.ai  
-- **Código abierto**: Puedes auditar y modificar el código según tus necesidades
-- **Comunicación encriptada**: Todas las conexiones usan HTTPS/SSL
-
----
-
 ## Contribuciones
 
 ¡Las contribuciones son bienvenidas! Si tienes ideas para mejorar Ahorratrón o quieres agregar soporte para otros bancos, no dudes en crear un issue o enviar un pull request.
