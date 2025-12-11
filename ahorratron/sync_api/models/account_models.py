@@ -100,8 +100,8 @@ class Account(BaseModel):
     disaggregatedCreditLimits: list[DisaggregatedCreditLimit] | None = (
         None  # Disaggregated credit limits
     )
-    updatedAt: str = Field(
-        default_factory=lambda: datetime.now(UTC).isoformat(),
+    updatedAt: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
         description="Last updated timestamp in ISO 8601 format UTC",
     )
 

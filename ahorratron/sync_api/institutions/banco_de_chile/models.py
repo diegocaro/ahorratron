@@ -2,13 +2,15 @@ import zoneinfo
 from datetime import date, datetime
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 import ahorratron.sync_api.utils.constants as c
 
 DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
 DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
 DATE_FORMAT_NO_FACTURADO = "%d/%m/%Y %H:%M:%S"
+DATE_FORMAT_CUENTA_AHORRO_MOVIMIENTO = "%Y%m%d"
+DATE_FORMAT_CUENTA_AHORRO_CARTOLA = "%d/%m/%Y"
 DATE_REPLACE_STRING = " Hrs."
 
 
@@ -124,12 +126,12 @@ class MovimientoNoFacturado(BaseModel):
     numeroTarjetaCompleto: str | None
 
     @property
-    def fecha_transaccion_iso(self) -> str:
+    def fecha_transaccion_iso(self) -> datetime:
         # example: 30/07/2025 16:44:29
         return datetime.strptime(
             f"{self.fechaTransaccionString} {self.horaAutorizacion}",
             DATE_FORMAT_NO_FACTURADO,
-        ).isoformat()
+        )
 
     @property
     def id_fake(self) -> str:
@@ -176,9 +178,9 @@ class Movimiento(BaseModel):
     detalleGlosa: list[str]
 
     @property
-    def fecha_isoformat(self) -> str:
+    def fecha_isoformat(self) -> datetime:
         # example: 20250730 16:44:29
-        return datetime.strptime(self.fecha, DATE_FORMAT_MOVIMIENTO_CARTOLA).isoformat()
+        return datetime.strptime(self.fecha, DATE_FORMAT_MOVIMIENTO_CARTOLA)
 
 
 class GetCartolaResponse(BaseModel):
@@ -196,11 +198,11 @@ class GetCartolaResponse(BaseModel):
     movimientos: list[Movimiento]
 
     @property
-    def hora_consulta_iso(self) -> str:
+    def hora_consulta_iso(self) -> datetime:
         return datetime.strptime(
             self.horaConsulta.replace(DATE_REPLACE_STRING, ""),
             DATE_FORMAT_HORA_CONSULTA,
-        ).isoformat()
+        )
 
 
 class GetSaldoResponse(BaseModel):
@@ -225,10 +227,10 @@ class GetSaldoResponse(BaseModel):
     facturadoAl: str
 
     @property
-    def fecha_consulta_iso(self) -> str:
+    def fecha_consulta_iso(self) -> datetime:
         # There is a bug in Actual Budget where it mishandles timezones
         dt = datetime.fromtimestamp(self.fechaConsulta // 1000, tz=CHILE_TZ)
-        return dt.replace(tzinfo=None).isoformat()
+        return dt.replace(tzinfo=None)
 
 
 class GrupoTipo(str, Enum):
@@ -261,12 +263,12 @@ class TransaccionTarjeta(BaseModel):
     idComprobante: str
 
     @property
-    def fecha_transaccion_iso(self) -> str | None:
+    def fecha_transaccion_iso(self) -> datetime | None:
         if self.fechaTransaccion is None:
             return None
         # There is a bug in Actual Budget where it mishandles timezones
         dt = datetime.fromtimestamp(self.fechaTransaccion // 1000, tz=CHILE_TZ)
-        return dt.replace(tzinfo=None).isoformat()
+        return dt.replace(tzinfo=None)
 
 
 class Resumen(BaseModel):
@@ -332,3 +334,65 @@ class FechasFacturacionResponse(BaseModel):
     listaNacional: list[ItemFechaFacturacion]
     numeroCuenta: str
     listaInternacional: list[ItemFechaFacturacion]
+
+
+class CuentaAhorroRequest(BaseModel):
+    numeroCuenta: str
+    # fechaDesde: str  # "%d/%m/%Y", opcional
+    # fechaHasta: str  # "%d/%m/%Y", opcional
+
+
+class MovimientoCuentaAhorro(BaseModel):
+    tipo: str
+    glosa: str
+    monto: float
+    fechaContable: str
+    fechaEfectiva: str
+    indicadorPosteo: str
+    oficinaOrigen: str
+    correlativoTransaccion: str
+    codigoAgrupacion: str
+    codigoTransaccion: str
+    registro1: str
+    registro2: str
+    registro3: str
+    registro4: str
+    registro5: str
+    registro6: str
+    registro7: str
+    registro8: str
+    registro9: str
+
+    @property
+    def fecha_contable_iso(self) -> datetime:
+        return datetime.strptime(
+            self.fechaContable, DATE_FORMAT_CUENTA_AHORRO_MOVIMIENTO
+        )
+
+    @property
+    def fecha_efectiva_iso(self) -> datetime:
+        return datetime.strptime(
+            self.fechaEfectiva, DATE_FORMAT_CUENTA_AHORRO_MOVIMIENTO
+        )
+
+
+class CuentaAhorroResponse(BaseModel):
+    listaMovimientos: list[MovimientoCuentaAhorro]
+    codigoRetorno: str
+    rutCliente: str
+    numeroProducto: str
+    saldoDisponible: float
+    retencion1Dia: str
+    retencion2Dia: str
+    retencionMas2Dia: str
+    girosRealizados: str | None = None
+    girosPermitidos: str
+    fechaProxCapInt: str
+    fechaUltimaCartola: str
+    fechaProximaLiquidReajustes: str
+
+    @property
+    def fecha_ultima_cartola_iso(self) -> datetime:
+        return datetime.strptime(
+            self.fechaUltimaCartola, DATE_FORMAT_CUENTA_AHORRO_CARTOLA
+        )

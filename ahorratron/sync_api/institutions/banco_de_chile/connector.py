@@ -7,11 +7,14 @@ from cachetools import TTLCache
 import ahorratron.sync_api.utils.constants as c
 from ahorratron.sync_api.core.connector import ConnectorBase
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
+    CuentaAhorroRequest,
+    CuentaAhorroResponse,
     GetCartolaCuentaRequest,
     GetCartolaResponse,
     GetSaldoResponse,
     GrupoTipo,
     Movimiento,
+    MovimientoCuentaAhorro,
     MovimientoNoFacturado,
     MovimientosNoFacturadosRequest,
     MovimientoTipo,
@@ -95,7 +98,8 @@ class BancoDeChileConnector(ConnectorBase):
             transactions = self._get_transactions_cartola(producto)
         elif producto.tipo == "tarjeta":
             transactions = self._get_transactions_tarjeta_credito(producto)
-
+        elif producto.tipo == "ahorro":
+            transactions = self._get_transactions_cuenta_ahorro(producto)
         else:
             raise NotImplementedError(
                 f"Transactions for account type '{producto.tipo}' are not supported"
@@ -189,6 +193,13 @@ class BancoDeChileConnector(ConnectorBase):
         request = ResumenPorFechaRequest.model_validate(data)
         return self._client.get_resumen_nacional(request)
 
+    def _get_cuenta_ahorro_raw(self, tarjeta: Producto) -> CuentaAhorroResponse:
+        data = {
+            "numeroCuenta": tarjeta.numero,
+        }
+        request = CuentaAhorroRequest.model_validate(data)
+        return self._client.get_cuenta_ahorro(request)
+
     def _get_transactions_cartola(self, cuenta: Producto) -> list[Transaction]:
         cartola = self._get_cartola_raw(cuenta)
         transactions = [
@@ -246,6 +257,8 @@ class BancoDeChileConnector(ConnectorBase):
             return self._map_account_producto_cuenta(itemId, producto)
         elif producto.tipo == ProductoTipo.TARJETA:
             return self._map_account_producto_tarjeta_credito(itemId, producto)
+        elif producto.tipo == ProductoTipo.AHORRO:
+            return self._map_account_producto_cuenta_ahorro(itemId, producto)
         else:
             logger.warning(
                 f"Unknown account type: '{producto.tipo} for product {producto.codigo}"
@@ -290,6 +303,29 @@ class BancoDeChileConnector(ConnectorBase):
             balance=saldo.cupoUtilizadoNacional,  # Actual will automatically set this as negative for credit cards
             bankData=None,  # No bank data for credit cards
             updatedAt=saldo.fecha_consulta_iso,
+        )
+
+    def _map_account_producto_cuenta_ahorro(
+        self, itemId: str, producto: Producto
+    ) -> Account:
+        cartola = self._get_cuenta_ahorro_raw(producto)
+
+        bank_data = BankData(
+            transferNumber=producto.numero,
+            closingBalance=cartola.saldoDisponible,
+            automaticallyInvestedBalance=0,
+        )
+        return Account(
+            id=producto.id,
+            type=AccountType.BANK,
+            subtype=AccountSubtype.SAVINGS_ACCOUNT,
+            number=producto.numero,
+            name=producto.label,
+            currencyCode=producto.codigoMoneda,
+            itemId=itemId,
+            balance=cartola.saldoDisponible,  # This can also be cartola.saldoDisponible, not sure which one is the best
+            bankData=bank_data,
+            updatedAt=cartola.fecha_ultima_cartola_iso,
         )
 
     def _get_transactions_tarjeta_credito(self, tarjeta: Producto) -> list[Transaction]:
@@ -373,3 +409,33 @@ class BancoDeChileConnector(ConnectorBase):
             status=TransactionStatus.POSTED,
             merchant=Merchant(name=movimiento.descripcion),
         )
+
+    def _map_transaction_cuenta_ahorro(
+        self, cuenta_ahorro: CuentaAhorroResponse, movimiento: MovimientoCuentaAhorro
+    ) -> Transaction:
+        if movimiento.monto > 0:
+            transaction_type = TransactionType.CREDIT
+        else:
+            transaction_type = TransactionType.DEBIT
+
+        return Transaction(
+            id=movimiento.codigoTransaccion,
+            date=movimiento.fecha_efectiva_iso,
+            amount=movimiento.monto,
+            # balance=balance,
+            description=movimiento.glosa,
+            accountId=cuenta_ahorro.numeroProducto,
+            type=transaction_type,
+            currencyCode=c.CLP,
+            status=TransactionStatus.POSTED,
+            merchant=Merchant(name=movimiento.glosa),
+        )
+
+    def _get_transactions_cuenta_ahorro(self, cuenta: Producto) -> list[Transaction]:
+        cuenta_ahorro = self._get_cuenta_ahorro_raw(cuenta)
+        transactions = [
+            self._map_transaction_cuenta_ahorro(cuenta_ahorro, m)
+            for m in cuenta_ahorro.listaMovimientos
+        ]
+        transactions = [t for t in transactions if t is not None]
+        return transactions

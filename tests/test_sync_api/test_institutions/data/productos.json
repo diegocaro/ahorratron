@@ -35,6 +35,40 @@
             "tarjetaHabiente": "EJEMPLO USUARIO",
             "descripcionLogo": "Mastercard  ",
             "tipoCliente": "Titular"
+        },
+        {
+            "id": "2-4DPLE-43",
+            "numero": "24500037507",
+            "mascara": "****7507",
+            "codigo": "AHO",
+            "codigoMoneda": "CLP",
+            "alias": "Ahorro",
+            "label": "Ahorro",
+            "tipo": "ahorro",
+            "claseCuenta": "AHODR1",
+            "subProducto": null,
+            "estado": "Vigente o Activo",
+            "detalleEstado": null,
+            "tarjetaHabiente": null,
+            "descripcionLogo": "Cuenta De Ahorro",
+            "tipoCliente": "Titular"
+        },
+        {
+            "id": "6-61232A",
+            "numero": "1234567891",
+            "mascara": "****7891",
+            "codigo": "LCD",
+            "codigoMoneda": "CLP",
+            "alias": "Línea de Crédito",
+            "label": "Línea de Crédito",
+            "tipo": "linea",
+            "claseCuenta": "",
+            "subProducto": null,
+            "estado": "Vigente o Activo",
+            "detalleEstado": null,
+            "tarjetaHabiente": null,
+            "descripcionLogo": "Linea De Credito Personas",
+            "tipoCliente": "Titular"
         }
     ]
 }

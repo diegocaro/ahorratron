@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from pathlib import Path
 
 import httpx
@@ -6,6 +7,8 @@ import pytest
 
 from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APIClient
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
+    CuentaAhorroRequest,
+    CuentaAhorroResponse,
     FechasFacturacionResponse,
     GetCartolaCuentaRequest,
     GetCartolaResponse,
@@ -55,6 +58,12 @@ def fechas_facturacion_data():
         return json.load(f)
 
 
+@pytest.fixture
+def cuenta_ahorro_data():
+    with open(TEST_DATA_DIR / "cuenta_ahorro.json") as f:
+        return json.load(f)
+
+
 def test_validate_productos_data(productos_data):
     productos = ObtenerProductosResponse.model_validate(productos_data)
     assert productos.rut
@@ -68,7 +77,7 @@ def test_validate_no_facturados_data(no_facturados_data):
 
     assert len(no_facturados.listaMovNoFactur) > 0
     m = no_facturados.listaMovNoFactur[0]
-    expected_date = "2025-08-04T10:05:21"
+    expected_date = datetime.fromisoformat("2025-08-04T10:05:21")
     assert expected_date == m.fecha_transaccion_iso
 
     expected_fake_id = "3344-0-04/08/2025-10:05:21-12.45"
@@ -80,12 +89,12 @@ def test_validate_cartola_data(cartola_data):
     assert cartola.horaConsulta
     assert isinstance(cartola.movimientos, list)
 
-    expected_date = "2025-08-05T18:48:00"
+    expected_date = datetime.fromisoformat("2025-08-05T18:48:00")
     assert expected_date == cartola.hora_consulta_iso
 
     assert len(cartola.movimientos) > 0
     m = cartola.movimientos[0]
-    expected_date = "2025-08-04T15:40:35"
+    expected_date = datetime.fromisoformat("2025-08-04T15:40:35")
     assert expected_date == m.fecha_isoformat
 
 
@@ -94,7 +103,7 @@ def test_validate_saldo_data(saldo_data):
     assert saldo.cupoTotalNacional >= 0
     assert saldo.cupoUtilizadoNacional >= 0
 
-    expected_date = "2025-08-15T20:10:22"
+    expected_date = datetime.fromisoformat("2025-08-15T20:10:22")
     assert expected_date == saldo.fecha_consulta_iso
 
 
@@ -105,7 +114,7 @@ def test_validate_resumen_nacional_data(resumen_nacional_data):
     assert len(transacciones) > 0
 
     t = transacciones[0]
-    expected_date = "2025-06-28T00:00:00"
+    expected_date = datetime.fromisoformat("2025-06-28T00:00:00")
     assert expected_date == t.fecha_transaccion_iso
 
 
@@ -113,6 +122,11 @@ def test_validate_fechas_facturacion_data(fechas_facturacion_data):
     fechas = FechasFacturacionResponse.model_validate(fechas_facturacion_data)
     assert fechas.numeroCuenta
     assert len(fechas.listaNacional) > 0
+
+
+def test_validate_cuenta_ahorro_data(cuenta_ahorro_data):
+    cuenta_ahorro = CuentaAhorroResponse.model_validate(cuenta_ahorro_data)
+    assert len(cuenta_ahorro.listaMovimientos) > 0
 
 
 @pytest.fixture
@@ -185,3 +199,22 @@ def test_get_cartola(api_client, cartola_data, productos_data):
     assert isinstance(cartola, GetCartolaResponse)
     assert cartola.horaConsulta
     assert isinstance(cartola.movimientos, list)
+
+
+def test_get_cuenta_ahorro(api_client, cuenta_ahorro_data, productos_data):
+    def mock_send(request, *args, **kwargs):
+        return httpx.Response(200, json=cuenta_ahorro_data)
+
+    transport = httpx.MockTransport(mock_send)
+    api_client._session = httpx.Client(transport=transport)
+
+    productos = ObtenerProductosResponse.model_validate(productos_data)
+    cuenta = next(p for p in productos.productos if p.tipo == "ahorro")
+    data = {
+        "numeroCuenta": cuenta.numero,
+    }
+    request = CuentaAhorroRequest.model_validate(data)
+
+    cuenta_ahorro = api_client.get_cuenta_ahorro(request)
+    assert isinstance(cuenta_ahorro, CuentaAhorroResponse)
+    assert len(cuenta_ahorro.listaMovimientos) > 0

@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -80,7 +81,7 @@ class Merchant(BaseModel):
 
 class Transaction(BaseModel):
     id: str  # Primary identifier of the transaction
-    date: str = Field(
+    date: datetime = Field(
         ...,
         description="Date the transaction was made in ISO 8601 format, e.g., '2023-10-01T12:00:00Z'",  # Date the transaction was made
     )

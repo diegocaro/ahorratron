@@ -14,6 +14,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
+    CuentaAhorroRequest,
+    CuentaAhorroResponse,
     FechasFacturacionResponse,
     GetCartolaCuentaRequest,
     GetCartolaResponse,
@@ -237,6 +239,12 @@ class APIClient:
         response = self.session.post(url, json=data.model_dump())
         parsed = self._handle_response(response)
         return ResumenNacionalResponse.model_validate(parsed)
+
+    def get_cuenta_ahorro(self, data: CuentaAhorroRequest) -> CuentaAhorroResponse:
+        url = f"{self.BASE_URL}/movimientos/getMovimientosCuentaAhorro"
+        response = self.session.post(url, json=data.model_dump())
+        parsed = self._handle_response(response)
+        return CuentaAhorroResponse.model_validate(parsed)
 
 
 def main():
