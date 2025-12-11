@@ -193,9 +193,9 @@ class BancoDeChileConnector(ConnectorBase):
         request = ResumenPorFechaRequest.model_validate(data)
         return self._client.get_resumen_nacional(request)
 
-    def _get_cuenta_ahorro_raw(self, tarjeta: Producto) -> CuentaAhorroResponse:
+    def _get_cuenta_ahorro_raw(self, cuenta: Producto) -> CuentaAhorroResponse:
         data = {
-            "numeroCuenta": tarjeta.numero,
+            "numeroCuenta": cuenta.numero,
         }
         request = CuentaAhorroRequest.model_validate(data)
         return self._client.get_cuenta_ahorro(request)
@@ -318,7 +318,7 @@ class BancoDeChileConnector(ConnectorBase):
         return Account(
             id=producto.id,
             type=AccountType.BANK,
-            subtype=AccountSubtype.SAVINGS_ACCOUNT,
+            subtype=AccountSubtype.CHECKING_ACCOUNT,  # SAVINGS_ACCOUNT as a bug in ActualBudget
             number=producto.numero,
             name=producto.label,
             currencyCode=producto.codigoMoneda,
@@ -412,16 +412,23 @@ class BancoDeChileConnector(ConnectorBase):
 
     def _map_transaction_cuenta_ahorro(
         self, cuenta_ahorro: CuentaAhorroResponse, movimiento: MovimientoCuentaAhorro
-    ) -> Transaction:
-        if movimiento.monto > 0:
+    ) -> Transaction | None:
+        movimiento_tipo = movimiento.tipo.upper()
+        monto = abs(float(movimiento.monto))
+
+        if movimiento_tipo == "C":
             transaction_type = TransactionType.CREDIT
-        else:
+        elif movimiento_tipo == "D":
             transaction_type = TransactionType.DEBIT
+            monto = -monto
+        else:
+            logger.error(f"Unknown transaction type: {movimiento.tipo}")
+            return None
 
         return Transaction(
             id=movimiento.codigoTransaccion,
             date=movimiento.fecha_efectiva_iso,
-            amount=movimiento.monto,
+            amount=monto,
             # balance=balance,
             description=movimiento.glosa,
             accountId=cuenta_ahorro.numeroProducto,

@@ -12,8 +12,8 @@ class TransactionStatus(str, Enum):
 
 
 class TransactionType(str, Enum):
-    DEBIT = "DEBIT"
-    CREDIT = "CREDIT"
+    DEBIT = "DEBIT"  # outflow
+    CREDIT = "CREDIT"  # inflow
 
 
 class PaymentMethod(str, Enum):

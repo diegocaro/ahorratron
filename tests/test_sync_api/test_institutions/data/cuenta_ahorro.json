@@ -41,6 +41,27 @@
             "registro7": "",
             "registro8": "",
             "registro9": ""
+        },
+        {
+            "tipo": "D",
+            "glosa": "GIRO POR CAJA                 *",
+            "monto": "27000",
+            "fechaContable": "20251024",
+            "fechaEfectiva": "20251024",
+            "indicadorPosteo": "",
+            "oficinaOrigen": "SANTIAGO - AHUMADA",
+            "correlativoTransaccion": "00080",
+            "codigoAgrupacion": "",
+            "codigoTransaccion": "G30",
+            "registro1": "",
+            "registro2": "",
+            "registro3": "",
+            "registro4": "",
+            "registro5": "",
+            "registro6": "",
+            "registro7": "",
+            "registro8": "",
+            "registro9": ""
         }
     ],
     "codigoRetorno": "00",
