@@ -112,7 +112,7 @@ def cache_with_background(cache: BackgroundRefreshCache):
                 raise AttributeError(
                     "Object must have 'background_tasks' attribute for caching with background refresh."
                 )
-            key = (func.__name__,) + args + tuple(sorted(kwargs.items()))
+            key = (func.__name__, *args, *tuple(sorted(kwargs.items())))
 
             # Check that all elements in key are hashable (immutable)
             for element in key:

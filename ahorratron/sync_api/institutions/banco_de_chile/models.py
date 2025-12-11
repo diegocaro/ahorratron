@@ -2,9 +2,8 @@ import zoneinfo
 from datetime import date, datetime
 from enum import Enum
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 
-import ahorratron.sync_api.utils.constants as c
 
 DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
 DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"

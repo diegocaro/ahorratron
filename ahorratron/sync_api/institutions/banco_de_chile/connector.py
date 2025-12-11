@@ -1,6 +1,4 @@
 import logging
-from datetime import datetime
-from zoneinfo import ZoneInfo
 
 from cachetools import TTLCache
 
@@ -384,7 +382,7 @@ class BancoDeChileConnector(ConnectorBase):
             )
             return None
         if not movimiento.fechaTransaccion or not movimiento.fecha_transaccion_iso:
-            logger.error(f"Transaction has no date")
+            logger.error("Transaction has no date")
             return None
 
         if movimiento.grupo in [GrupoTipo.AVANCES_COMPRAS, GrupoTipo.GENERICO]:

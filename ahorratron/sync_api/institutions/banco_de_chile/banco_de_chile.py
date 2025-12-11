@@ -3,7 +3,7 @@ import os
 import platform
 import random
 import time
-from typing import Any
+from typing import Any, ClassVar
 
 import httpx
 import selenium.common.exceptions as selenium_exceptions
@@ -59,7 +59,7 @@ class APIClient:
 
     """
 
-    SESSION_COOKIE_NAMES = ["mod_auth_openidc_session"]
+    SESSION_COOKIE_NAMES: ClassVar[list[str]] = ["mod_auth_openidc_session"]
     BASE_URL = BANK_API_BASE_URL
     LOGIN_URL = BANK_LOGIN_URL
 
