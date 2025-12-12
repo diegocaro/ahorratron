@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 # Source: https://github.com/pluggyai/pluggy-node/blob/cc904e65641759a90959c7b9263c900295c8e7c7/src/types/transaction.ts
 
@@ -116,3 +116,10 @@ class TransactionsResponse(BaseModel):
     totalPages: int
     page: int
     results: list[Transaction]
+
+    @model_validator(mode="after")
+    def check_unique_ids(self):
+        ids = [t.id for t in self.results]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Transaction IDs in results must be unique")
+        return self
