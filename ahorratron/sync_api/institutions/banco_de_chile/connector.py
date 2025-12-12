@@ -424,7 +424,7 @@ class BancoDeChileConnector(ConnectorBase):
             return None
 
         return Transaction(
-            id=movimiento.codigoTransaccion,
+            id=movimiento.id_fake,
             date=movimiento.fecha_efectiva_iso,
             amount=monto,
             # balance=balance,

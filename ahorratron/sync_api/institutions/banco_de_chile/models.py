@@ -4,7 +4,6 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-
 DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
 DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
 DATE_FORMAT_NO_FACTURADO = "%d/%m/%Y %H:%M:%S"
@@ -361,6 +360,28 @@ class MovimientoCuentaAhorro(BaseModel):
     registro7: str
     registro8: str
     registro9: str
+
+    @property
+    def id_fake(self) -> str:
+        fields = [
+            self.tipo,
+            self.codigoAgrupacion,
+            self.codigoTransaccion,
+            self.fechaEfectiva,
+            self.fechaContable,
+            self.oficinaOrigen,
+            self.registro1,
+            self.registro2,
+            self.registro3,
+            self.registro4,
+            self.registro5,
+            self.registro6,
+            self.registro7,
+            self.registro8,
+            self.registro9,
+            str(self.monto),
+        ]
+        return "-".join(fields)
 
     @property
     def fecha_contable_iso(self) -> datetime:
