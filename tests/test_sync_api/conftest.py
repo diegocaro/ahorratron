@@ -1,3 +1,3 @@
-import os
+from dotenv import load_dotenv
 
-os.environ["ENV_FILE"] = "tests/test_sync_api/testing.env"
+load_dotenv("tests/test_sync_api/testing.env")
