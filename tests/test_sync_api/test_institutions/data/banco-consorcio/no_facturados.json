@@ -1,0 +1,16 @@
+{
+  "codigo": "200",
+  "mensaje": "OK",
+  "date": "2026-02-22 02:11:25.019000",
+  "errors": [],
+  "bodyResponse": {
+	"tarjetas": [
+	  {
+		"nationalMovements": [],
+		"internationalMovements": [],
+		"numCard": "ABCD 1234 5678 5431",
+		"lastnumCard": "5431"
+	  }
+	]
+  }
+}

@@ -28,7 +28,7 @@ from ahorratron.sync_api.institutions.banco_de_chile.models import (
 )
 
 BANK_LOGIN_URL = os.environ["BANK_LOGIN_URL"]
-BANK_API_BASE_URL = os.environ["BANK_API_BASE_URL"]
+BANK_API_BASE_URL = os.environ["BANK_API_BASE_URL"].rstrip("/")
 
 HEADER_REFERER = os.environ["HEADER_REFERER"]
 HEADER_ORIGIN = os.environ["HEADER_ORIGIN"]

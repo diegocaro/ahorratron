@@ -19,7 +19,7 @@ from ahorratron.sync_api.institutions.banco_de_chile.models import (
     ResumenNacionalResponse,
 )
 
-TEST_DATA_DIR = Path(__file__).parent / "data"
+TEST_DATA_DIR = Path(__file__).parent / "data" / "banco-de-chile"
 
 
 @pytest.fixture
