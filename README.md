@@ -4,13 +4,13 @@
 
 > 🐷💾 El chanchito que sincroniza tus finanzas
 
-**Ahorratrón** es una API compatible con [Pluggy.ai](https://pluggy.ai) que permite sincronizar automáticamente tus cuentas bancarias chilenas con [Actual Budget](https://actualbudget.org/).
+**Ahorratrón** es una API compatible con [Pluggy.ai](https://pluggy.ai) que permite sincronizar automáticamente tus cuentas bancarias chilenas con [Actual Budget](https://actualbudget.com/).
 
 Conecta directamente con los sistemas bancarios para obtener cuentas, saldos y transacciones de forma automática y segura, emulando la API de Pluggy.ai para que Actual Budget pueda sincronizar sin modificaciones.
 
 ## 🎬 Demo en Acción
 
-La siguiente demo muestra [Actual Budget](https://actualbudget.org/) sincronizando automáticamente las transacciones de una cuenta corriente del Banco de Chile:
+La siguiente demo muestra [Actual Budget](https://actualbudget.com/) sincronizando automáticamente las transacciones de una cuenta corriente del Banco de Chile:
 
 ![Demo Sync](images/actual-budget-sync.gif)
 
