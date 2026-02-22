@@ -5,7 +5,11 @@ import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 
 from ahorratron.sync_api.models.account_models import Account, AccountsResponse
-from ahorratron.sync_api.models.core_models import SessionData, UserData
+from ahorratron.sync_api.models.core_models import (
+    AuthRequest,
+    SessionData,
+    parse_multi_credentials,
+)
 from ahorratron.sync_api.models.transaction_models import TransactionsResponse
 from ahorratron.sync_api.service import Service
 from ahorratron.sync_api.utils.token import create_encrypted_token, get_decrypted_token
@@ -37,8 +41,9 @@ async def log_request_middleware(
 
 
 @app.post("/auth")
-async def auth(request: UserData):
-    data = SessionData(user_data=request)
+async def auth(request: AuthRequest):
+    users = parse_multi_credentials(request.clientId, request.clientSecret)
+    data = SessionData(users=users)
     try:
         token = create_encrypted_token(data)
         logger.debug(f"Generated token: {token}")
@@ -52,7 +57,7 @@ async def get_accounts(
     itemId: str,
     session_data: SessionData = Depends(get_decrypted_token),
 ):
-    response = Service().get_accounts(session_data.user_data, itemId)
+    response = Service().get_accounts(session_data.users, itemId)
     logger.debug(f"Accounts response: {response}")
     return response
 
@@ -62,7 +67,7 @@ async def get_account_by_id(
     accountId: str,
     session_data: SessionData = Depends(get_decrypted_token),
 ):
-    response = Service().get_account_by_id(session_data.user_data, accountId)
+    response = Service().get_account_by_id(session_data.users, accountId)
     logger.debug(f"Account detail response: {response}")
     return response
 
@@ -72,15 +77,16 @@ async def get_transactions(
     accountId: str,
     session_data: SessionData = Depends(get_decrypted_token),
 ):
-    response = Service().get_transactions(session_data.user_data, accountId)
+    response = Service().get_transactions(session_data.users, accountId)
     logger.debug(f"Transactions response: {response}")
     return response
 
 
 @app.get("/protected")
-def protected_route(user_data: SessionData = Depends(get_decrypted_token)):
+def protected_route(session_data: SessionData = Depends(get_decrypted_token)):
+    institutions = [u.connector_id for u in session_data.users]
     return {
-        "message": f"Hello, {user_data.user_data.clientId}. Your password is securely encrypted in the token.",
+        "message": f"Hello! Connected to {len(session_data.users)} institution(s): {', '.join(institutions)}",
     }
 
 

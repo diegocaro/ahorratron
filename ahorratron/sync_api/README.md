@@ -33,13 +33,37 @@ POST /auth
 Content-Type: application/json
 ```
 
-**Cuerpo de la petición:**
+**Cuerpo de la petición (un solo banco — formato legacy):**
 ```json
 {
   "clientId": "12345678-9",
-  "clientSecret": "tu-password-bancario",
+  "clientSecret": "tu-password-bancario"
 }
 ```
+
+**Cuerpo de la petición (múltiples bancos — base64 JSON):**
+
+Codifica las credenciales de cada institución en base64:
+```
+clientId:     base64({"banco_de_chile": "12345678-9", "banco_consorcio": "98765432-1"})
+clientSecret: base64({"banco_de_chile": "pass1", "banco_consorcio": "pass2"})
+```
+
+Puedes generar los valores base64 con:
+```bash
+echo -n '{"banco_de_chile": "12345678-9", "banco_consorcio": "98765432-1"}' | base64
+echo -n '{"banco_de_chile": "pass1", "banco_consorcio": "pass2"}' | base64
+```
+
+```json
+{
+  "clientId": "eyJiYW5jb19kZV9jaGlsZSI6ICIxMjM0NTY3OC05IiwgImJhbmNvX2NvbnNvcmNpbyI6ICI5ODc2NTQzMi0xIn0=",
+  "clientSecret": "eyJiYW5jb19kZV9jaGlsZSI6ICJwYXNzMSIsICJiYW5jb19jb25zb3JjaW8iOiAicGFzczIifQ=="
+}
+```
+
+> **Nota:** Los IDs de cuenta en las respuestas llevarán prefijo con el nombre de la institución
+> (ej. `banco_de_chile:123456`) para enrutar correctamente las consultas posteriores.
 
 **Respuesta:**
 ```json
