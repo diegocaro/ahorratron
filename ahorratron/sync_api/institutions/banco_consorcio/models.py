@@ -1,6 +1,21 @@
-from typing import Any, List
+from datetime import datetime, time
+from enum import Enum
+from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
+
+TIME_FORMAT = "%H:%M:%S"
+DATE_FORMAT = "%d/%m/%Y"
+
+
+class MovimientoTipo(str, Enum):
+    ABONO = "Abono"
+    CARGO = "Cargo"
+
+
+class ProductoNombreTipo(str, Enum):
+    CUENTA_CORRIENTE = "Cuenta Corriente"
+    LINEA_CREDITO = "Línea de Crédito"
 
 
 class DetalleItem(BaseModel):
@@ -9,12 +24,24 @@ class DetalleItem(BaseModel):
     hora: str
     monto: str
     saldo: str
-    tipo: str
+    tipo: MovimientoTipo
+
+    @property
+    def time(self) -> time:
+        return datetime.strptime(self.hora, TIME_FORMAT).time()
+
+    @property
+    def monto_float(self) -> float:
+        return float(self.monto.replace("$", "").replace(".", ""))
 
 
 class DtoResponseSetResultado(BaseModel):
     fecha: str
-    detalle: List[DetalleItem]
+    detalle: list[DetalleItem]
+
+    @property
+    def date(self) -> datetime:
+        return datetime.strptime(self.fecha, DATE_FORMAT)
 
 
 class DtoResponseCodigosEstadoHttp(BaseModel):

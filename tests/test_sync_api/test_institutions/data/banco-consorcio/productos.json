@@ -1,0 +1,18 @@
+{
+    "products": [
+        {
+            "nombreProducto": "Cuenta Corriente",
+            "numeroCuenta": "123123123",
+            "codigoProducto": "31",
+            "nombreCuenta": "Cuenta Corriente **123",
+            "prioridadProducto": 1
+        },
+        {
+            "nombreProducto": "Línea de Crédito",
+            "numeroCuenta": "123123124",
+            "codigoProducto": "32",
+            "nombreCuenta": "Linea de Credito **124",
+            "prioridadProducto": 2
+        }
+    ]
+}

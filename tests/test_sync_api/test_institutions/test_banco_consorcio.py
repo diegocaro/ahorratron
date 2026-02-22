@@ -9,15 +9,42 @@ from ahorratron.sync_api.institutions.banco_consorcio.banco_consorcio import (
     decrypt,
     encrypt,
 )
-from ahorratron.sync_api.institutions.banco_consorcio.models import NoFacturadosResponse
+from ahorratron.sync_api.institutions.banco_consorcio.models import (
+    MovementsResponse,
+    MovimientoTipo,
+    NoFacturadosResponse,
+    ProductsResponse,
+)
 
 TEST_DATA_DIR = Path(__file__).parent / "data" / "banco-consorcio"
+
+
+def enc(data: dict) -> dict:
+    return {"encryptedData": encrypt(data)}
 
 
 @pytest.fixture
 def no_facturados_data():
     with open(TEST_DATA_DIR / "no_facturados.json") as f:
         return json.load(f)
+
+
+@pytest.fixture
+def movements_data():
+    with open(TEST_DATA_DIR / "movements.json") as f:
+        return json.load(f)
+
+
+@pytest.fixture
+def productos_data():
+    with open(TEST_DATA_DIR / "productos.json") as f:
+        return json.load(f)
+
+
+def test_validate_productos_data(productos_data):
+    productos = ProductsResponse.model_validate(productos_data)
+    assert isinstance(productos.products, list)
+    assert len(productos.products) > 0
 
 
 def test_validate_no_facturados_data(no_facturados_data):
@@ -33,6 +60,13 @@ def test_validate_no_facturados_data(no_facturados_data):
 
     # expected_fake_id = "3344-0-04/08/2025-10:05:21-12.45"
     # assert expected_fake_id == m.id_fake
+
+
+def test_validate_movements_data(movements_data):
+    movements = MovementsResponse.model_validate(movements_data)
+    assert movements.dtoResponseCodigosEstadoHttp.codigo == "200"
+    first_detalle = movements.dtoResponseSetResultados[0].detalle[0]
+    assert first_detalle.tipo in [MovimientoTipo.ABONO, MovimientoTipo.CARGO]
 
 
 @pytest.fixture
@@ -52,6 +86,19 @@ def test_get_no_facturados(api_client, no_facturados_data):
     assert isinstance(no_facturados, NoFacturadosResponse)
     assert no_facturados.codigo == "200"
     assert len(no_facturados.bodyResponse.tarjetas) > 0
+
+
+def test_get_movements(api_client, movements_data):
+    def mock_send(request, *args, **kwargs):
+        return httpx.Response(200, json=enc(movements_data))
+
+    transport = httpx.MockTransport(mock_send)
+    api_client._session = httpx.Client(transport=transport)
+
+    movements = api_client.get_movements("1234567890")
+    assert isinstance(movements, MovementsResponse)
+    assert movements.dtoResponseCodigosEstadoHttp.codigo == "200"
+    assert len(movements.dtoResponseSetResultados) > 0
 
 
 def test_encrypt_decrypt_roundtrip():

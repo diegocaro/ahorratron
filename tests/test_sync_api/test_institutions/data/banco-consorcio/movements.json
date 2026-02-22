@@ -1,0 +1,80 @@
+{
+    "dtoResponseCodigosEstadoHttp": {
+        "codigo": "200",
+        "mensaje": "OK",
+        "descripcion": "OBTENCION DE DATOS EXITOSA"
+    },
+    "dtoResponseSetResultados": [
+        {
+            "fecha": "15/02/2025",
+            "detalle": [
+                {
+                    "identificador": "12345678901",
+                    "descripcion": "ABONO GASTOS TARJETA",
+                    "hora": "10:30:00",
+                    "monto": "$50.000",
+                    "saldo": "$150.000",
+                    "tipo": "Abono"
+                }
+            ]
+        },
+        {
+            "fecha": "10/02/2025",
+            "detalle": [
+                {
+                    "identificador": "23456789012",
+                    "descripcion": "PAGO COMPRA",
+                    "hora": "14:15:30",
+                    "monto": "$35.500",
+                    "saldo": "$100.000",
+                    "tipo": "Cargo"
+                },
+                {
+                    "identificador": "34567890123",
+                    "descripcion": "TRANSFERENCIA RECIBIDA",
+                    "hora": "11:45:00",
+                    "monto": "$75.000",
+                    "saldo": "$135.500",
+                    "tipo": "Abono"
+                }
+            ]
+        },
+        {
+            "fecha": "05/02/2025",
+            "detalle": [
+                {
+                    "identificador": "45678901234",
+                    "descripcion": "PAGO SERVICIO",
+                    "hora": "09:20:15",
+                    "monto": "$120.000",
+                    "saldo": "$60.500",
+                    "tipo": "Cargo"
+                },
+                {
+                    "identificador": "56789012345",
+                    "descripcion": "CUOTA MENSUAL",
+                    "hora": "08:30:45",
+                    "monto": "$95.000",
+                    "saldo": "$180.500",
+                    "tipo": "Cargo"
+                },
+                {
+                    "identificador": "67890123456",
+                    "descripcion": "ACREDITACION INTERNA",
+                    "hora": "08:25:30",
+                    "monto": "$105.000",
+                    "saldo": "$275.500",
+                    "tipo": "Abono"
+                },
+                {
+                    "identificador": "78901234567",
+                    "descripcion": "TRANSFERENCIA ENVIADA",
+                    "hora": "07:50:00",
+                    "monto": "$120.000",
+                    "saldo": "$170.500",
+                    "tipo": "Abono"
+                }
+            ]
+        }
+    ]
+}
