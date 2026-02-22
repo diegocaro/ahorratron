@@ -7,6 +7,11 @@ from ahorratron.sync_api.models.core_models import UserData
 logger = logging.getLogger(__name__)
 
 
+class CredentialError(ValueError):
+    """Raised when multi-bank credentials are structurally valid base64 JSON
+    but have a logical error (e.g. missing password for an institution)."""
+
+
 def parse_multi_credentials(client_id: str, client_secret: str) -> list[UserData]:
     """Parse credentials into a list of UserData for one or more institutions.
 
@@ -29,7 +34,7 @@ def parse_multi_credentials(client_id: str, client_secret: str) -> list[UserData
             users: list[UserData] = []
             for connector_id, rut in ids.items():
                 if connector_id not in secrets:
-                    raise ValueError(
+                    raise CredentialError(
                         f"Missing password for institution '{connector_id}'"
                     )
                 users.append(
@@ -40,13 +45,15 @@ def parse_multi_credentials(client_id: str, client_secret: str) -> list[UserData
                     )
                 )
             if not users:
-                raise ValueError("No institutions found in credentials")
+                raise CredentialError("No institutions found in credentials")
             logger.info(
                 "Parsed multi-bank credentials for: %s",
                 [u.connector_id for u in users],
             )
             return users
-    except (json.JSONDecodeError, UnicodeDecodeError, Exception) as exc:
+    except CredentialError:
+        raise
+    except Exception as exc:
         logger.debug("Not multi-bank format (%s), falling back to single-bank", exc)
 
     # Fallback: single institution (old format — connector_id;rut or just rut)
