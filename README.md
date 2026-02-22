@@ -2,16 +2,11 @@
 
 <img src="images/ahorratron.png" alt="Ahorratrón - El chanchito que automatiza tus finanzas" width="300" align="right">
 
-> 🐷💾 El chanchito que automatiza tus finanzas
+> 🐷💾 El chanchito que sincroniza tus finanzas
 
-**Ahorratrón** es una herramienta en Python para ayudarte a organizar, convertir y analizar tus datos financieros, especialmente diseñada para obtener datos de cartolas bancarias y de tarjetas de crédito.
+**Ahorratrón** es una API compatible con [Pluggy.ai](https://pluggy.ai) que permite sincronizar automáticamente tus cuentas bancarias chilenas con [Actual Budget](https://actualbudget.org/).
 
-Inspirada en los tradicionales chanchitos de ahorro, esta herramienta busca facilitar el control de gastos, fomentar el ahorro y ayudarte a tomar el control de tus finanzas personales (o familiares).
-
-La herramienta combina tres componentes principales:
-- 🔗 **[API de Sincronización](ahorratron/sync_api/README.md)**: Conecta en tiempo real con tu banco 
-- 🏦 **[Integración con Actual Budget](ahorratron/actual_api/README.md)**: Se conecta directamente con tu aplicación de presupuesto favorita [Actual Budget](https://actualbudget.org/)
-- 🔄 **[Conversor](ahorratron/conversor/README.md)**: Transforma cartolas bancarias a formatos compatibles (solo Banco de Chile)
+Conecta directamente con los sistemas bancarios para obtener cuentas, saldos y transacciones de forma automática y segura, emulando la API de Pluggy.ai para que Actual Budget pueda sincronizar sin modificaciones.
 
 ## 🎬 Demo en Acción
 
@@ -23,23 +18,34 @@ La siguiente demo muestra [Actual Budget](https://actualbudget.org/) sincronizan
 
 ---
 
-## 🏦 Bancos Soportados
+## 🏦 Bancos e Instituciones Soportadas
 
-Actualmente, Ahorratrón solo está conectado con el **Banco de Chile**, incluyendo:
+| Institución | Cuentas Corrientes | Cuentas Vista | Cuentas de Ahorro | Tarjetas de Crédito Facturados | Tarjetas de Crédito No Facturados | Estado |
+|-------------|:------------------:|:-------------:|:-----------------:|:-------------:|:----------------:|:------:|
+| **Banco de Chile** | ✅ | ✅ | - | ✅ | ✅ | **Implementado** |
+| **Banco Consorcio** | ✅ | X | X | X | X | WIP |
+| **Banco Santander** | - | - | - | - | - |  |
+| **Banco Estado** | - | - | - | - | - |  |
+| **Banco Security** | - | - | - | - | - |  |
+| **Banco Falabella** | - | - | - | - | - |  |
+| **Scotiabank** | - | - | - | - | - |  |
+| **Banco BCI** | - | - | - | - | - |  |
+| **Banco Itaú** | - | - | - | - | - |  |
+| **Coopeuch** | - | - | - | - | - |  |
+| **Fintual** | - | - | - | - | - | Coming soon? |
 
-- ✅ **Cuentas Corrientes**
-- ✅ **Cuentas Vista (FAN)**  
-- ✅ **Tarjetas de Crédito** (movimientos facturados y no facturados)
+**Leyenda:**
+- ✅ **Implementado**: Funciona completamente
+- **-** : Pull requests bienvenidos: ¡Contribuciones de la comunidad son bienvenidas!
 
 ---
 
 ## 🚀 Inicio Rápido con Docker
 
 La forma más sencilla de usar Ahorratrón es con Docker Compose, que lanza automáticamente:
-- Un servidor de Actual Budget (clon local de Actual Budget)
+- Un servidor de Actual Budget
 - La API de sincronización bancaria de Ahorratrón
-- Todos los servicios necesarios para la conexión
-
+- Un servidor Selenium para la conexión con los bancos
 
 ### Configuración
 
@@ -105,14 +111,9 @@ Para conectar tu banco con Actual Budget a través de Ahorratrón:
 
 Una vez completado, tus transacciones bancarias se sincronizarán automáticamente con tu presupuesto en Actual Budget.
 
-
-
 ---
 
-## 💻 Uso Avanzado (Línea de Comandos)
-
-Si prefieres usar Ahorratrón directamente desde la línea de comandos:
-### Instalación de Dependencias
+## 💻 Desarrollo Local
 
 Requiere Python 3.12 o superior.
 
@@ -122,46 +123,26 @@ cd ahorratron
 uv sync
 ```
 
-### Herramientas de Conversión
-
-**Convertir cartolas existentes:**
 ```bash
-convert-to-actual cartola.txt -o datos.csv
+# Ejecutar en modo desarrollo
+uv run uvicorn ahorratron.sync_api.main:app --reload --port 8000
 ```
 
-**Descargar cartola del banco y convertir directamente: (solo Banco de Chile)**
-```bash
-# Configurar credenciales
-export BANK_USER=11111111-1
-export BANK_PASSWORD=TuPassword
-export BANK_URL=https://banco.cl
-
-# Descargar y convertir
-bank-statement --account cte | convert-to-actual -o cartola.csv
-```
 ---
 
-## 🏦 Bancos e Instituciones Soportadas
+## 🔒 Autenticación y Seguridad
 
-| Institución | Cuentas Corrientes | Cuentas Vista | Cuentas de Ahorro | Tarjetas de Crédito Facturados | Tarjetas de Crédito No Facturados | Estado |
-|-------------|:------------------:|:-------------:|:-----------------:|:-------------:|:----------------:|:------:|
-| **Banco de Chile** | ✅ | ✅ | - | ✅ | ✅ | **Implementado** |
-| **Banco Consorcio** | ✅ | X | X | X | X | WIP | 
-| **Banco Santander** | - | - | - | - | - |  |
-| **Banco Estado** | - | - | - | - | - |  |
-| **Banco Security** | - | - | - | - | - |  |
-| **Banco Falabella** | - | - | - | - | - |  |
-| **Scotiabank** | - | - | - | - | - |  |
-| **Banco BCI** | - | - | - | - | - |  |
-| **Banco Itaú** | - | - | - | - | - |  |
-| **Coopeuch** | - | - | - | - | - |  |
-| **Fintual** | - | - | - | - | - | Coming soon? |
+### Flujo de Autenticación
 
+1. **Cliente** envía credenciales bancarias a `/auth`
+2. **Sync API** valida credenciales con el banco
+3. **Sistema** genera token JWT encriptado con credenciales
+4. **Cliente** usa el token para todas las operaciones subsiguientes
+5. **Sync API** desencripta token y usa credenciales para consultas bancarias
 
-**Leyenda:**
-- ✅ **Implementado**: Funciona completamente  
-- **-** : Pull requests bienvenidos: ¡Contribuciones de la comunidad son bienvenidas!
-- **N/A**: No aplica para este tipo de institución
+### Soporte Multi-banco
+
+Las credenciales pueden enviarse en formato simple (un solo banco) o codificadas en base64 (múltiples bancos). Ver la [documentación de la API](ahorratron/sync_api/README.md) para más detalles.
 
 ---
 
@@ -169,11 +150,9 @@ bank-statement --account cte | convert-to-actual -o cartola.csv
 
 ¡Las contribuciones son bienvenidas! Si tienes ideas para mejorar Ahorratrón o quieres agregar soporte para otros bancos, no dudes en crear un issue o enviar un pull request.
 
-
 ## 📝 Licencia
 
 Licencia MIT.
-
 
 > *Hecho con cariño, Python y ganas de ahorrar 🇨🇱*
 
