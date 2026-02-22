@@ -4,12 +4,9 @@ from collections.abc import Awaitable, Callable
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 
+from ahorratron.sync_api.core.credentials import parse_multi_credentials
 from ahorratron.sync_api.models.account_models import Account, AccountsResponse
-from ahorratron.sync_api.models.core_models import (
-    AuthRequest,
-    SessionData,
-    parse_multi_credentials,
-)
+from ahorratron.sync_api.models.core_models import AuthRequest, SessionData
 from ahorratron.sync_api.models.transaction_models import TransactionsResponse
 from ahorratron.sync_api.service import Service
 from ahorratron.sync_api.utils.token import create_encrypted_token, get_decrypted_token
@@ -46,7 +43,6 @@ async def auth(request: AuthRequest):
     data = SessionData(users=users)
     try:
         token = create_encrypted_token(data)
-        logger.debug(f"Generated token: {token}")
         return {"apiKey": token}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
