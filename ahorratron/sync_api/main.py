@@ -78,10 +78,9 @@ async def get_transactions(
 
 
 @app.get("/protected")
-def protected_route(user_data: dict = Depends(get_decrypted_token)):
+def protected_route(user_data: SessionData = Depends(get_decrypted_token)):
     return {
-        "message": f"Hello, {user_data['username']}. Your password is securely encrypted in the token.",
-        "data": user_data,
+        "message": f"Hello, {user_data.user_data.clientId}. Your password is securely encrypted in the token.",
     }
 
 

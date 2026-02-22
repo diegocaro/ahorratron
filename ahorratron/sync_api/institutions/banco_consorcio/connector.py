@@ -52,7 +52,7 @@ class BancoConsorcioConnector(ConnectorBase):
     def get_account_by_id(self, accountId: str) -> Account:
         productos = self._productos
         producto = next(
-            (p for p in productos.products if p.codigoProducto == accountId), None
+            (p for p in productos.products if p.numeroCuenta == accountId), None
         )
         if not producto:
             raise ValueError(f"Account with id {accountId} not found")
