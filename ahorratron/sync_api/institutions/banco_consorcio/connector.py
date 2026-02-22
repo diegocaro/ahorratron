@@ -9,7 +9,6 @@ from ahorratron.sync_api.institutions.banco_consorcio.models import (
     DetalleItem,
     MovementsResponse,
     MovimientoTipo,
-    NoFacturadosResponse,
     ProductItem,
     ProductoNombreTipo,
     ProductsResponse,

@@ -2,7 +2,7 @@ from datetime import datetime, time
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel
 
 TIME_FORMAT = "%H:%M:%S"
 DATE_FORMAT = "%d/%m/%Y"

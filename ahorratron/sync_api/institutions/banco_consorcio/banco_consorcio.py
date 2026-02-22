@@ -64,11 +64,6 @@ def decode_url(url: str) -> str:
     return decrypt(ans)
 
 
-def decode_response(response: dict, key: str = "encryptedData") -> dict:
-    encrypted_data = response.get(key)
-    return decrypt(encrypted_data)
-
-
 def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
     time.sleep(random.uniform(min_seconds, max_seconds))
 
@@ -107,7 +102,6 @@ class BancoConsorcioAPI:
         username: str,
         password: str,
     ) -> list:
-
         try:
             driver.get(bank_url)
             wait = WebDriverWait(driver, self.TIMEOUT_SECONDS)
