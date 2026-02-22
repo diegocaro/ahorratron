@@ -129,7 +129,7 @@ uv sync
 convert-to-actual cartola.txt -o datos.csv
 ```
 
-**Descargar cartola del banco y convertir directamente:**
+**Descargar cartola del banco y convertir directamente: (solo Banco de Chile)**
 ```bash
 # Configurar credenciales
 export BANK_USER=11111111-1
@@ -146,6 +146,7 @@ bank-statement --account cte | convert-to-actual -o cartola.csv
 | Institución | Cuentas Corrientes | Cuentas Vista | Cuentas de Ahorro | Tarjetas de Crédito Facturados | Tarjetas de Crédito No Facturados | Estado |
 |-------------|:------------------:|:-------------:|:-----------------:|:-------------:|:----------------:|:------:|
 | **Banco de Chile** | ✅ | ✅ | - | ✅ | ✅ | **Implementado** |
+| **Banco Consorcio** | ✅ | X | X | X | X | WIP | 
 | **Banco Santander** | - | - | - | - | - |  |
 | **Banco Estado** | - | - | - | - | - |  |
 | **Banco Security** | - | - | - | - | - |  |
