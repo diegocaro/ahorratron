@@ -65,7 +65,7 @@ class BancoConsorcioConnector(ConnectorBase):
     def get_transactions(self, accountId: str) -> TransactionsResponse:
         productos = self._productos
         producto = next(
-            (p for p in productos.products if p.codigoProducto == accountId), None
+            (p for p in productos.products if p.numeroCuenta == accountId), None
         )
         if not producto:
             logger.warning(f"Account with id {accountId} not found in productos")

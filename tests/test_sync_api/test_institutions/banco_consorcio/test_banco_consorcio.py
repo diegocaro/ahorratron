@@ -16,7 +16,7 @@ from ahorratron.sync_api.institutions.banco_consorcio.models import (
     ProductsResponse,
 )
 
-TEST_DATA_DIR = Path(__file__).parent / "data" / "banco-consorcio"
+TEST_DATA_DIR = Path(__file__).parent / "data"
 
 
 def enc(data: dict) -> dict:
@@ -98,7 +98,10 @@ def test_get_movements(api_client, movements_data):
     movements = api_client.get_movements("1234567890")
     assert isinstance(movements, MovementsResponse)
     assert movements.dtoResponseCodigosEstadoHttp.codigo == "200"
-    assert len(movements.dtoResponseSetResultados) > 0
+    resultados = movements.dtoResponseSetResultados
+    assert len(resultados) > 0
+    first_detalle = resultados[0].detalle[0]
+    assert first_detalle.tipo in [MovimientoTipo.ABONO, MovimientoTipo.CARGO]
 
 
 def test_encrypt_decrypt_roundtrip():
