@@ -18,6 +18,7 @@ from ahorratron.sync_api.models.account_models import (
     AccountsResponse,
     AccountSubtype,
     AccountType,
+    BankData,
 )
 from ahorratron.sync_api.models.transaction_models import (
     Merchant,
@@ -106,6 +107,16 @@ class BancoConsorcioConnector(ConnectorBase):
     def _map_account_producto_cuenta_corriente(
         self, itemId: str, producto: ProductItem
     ) -> Account:
+        resumen = self._client.get_resumen(
+            producto.numeroCuenta, self._productos.key_account
+        )
+
+        bank_data = BankData(
+            transferNumber=producto.numeroCuenta,
+            closingBalance=resumen.saldo_disponible_float,
+            automaticallyInvestedBalance=0,
+        )
+
         return Account(
             id=producto.numeroCuenta,
             type=AccountType.BANK,
@@ -114,8 +125,8 @@ class BancoConsorcioConnector(ConnectorBase):
             name=producto.nombreCuenta,
             currencyCode=c.CLP,
             itemId=itemId,
-            balance=0.0,  # Not provided
-            bankData=None,
+            balance=resumen.saldo_disponible_float,
+            bankData=bank_data,
             updatedAt=datetime.now(),
         )
 

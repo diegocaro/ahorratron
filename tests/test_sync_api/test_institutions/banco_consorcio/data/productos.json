@@ -14,5 +14,6 @@
             "nombreCuenta": "Linea de Credito **124",
             "prioridadProducto": 2
         }
-    ]
+    ],
+    "key_account": "fake-key-account-for-testing"
 }

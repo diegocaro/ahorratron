@@ -1,11 +1,26 @@
 from datetime import datetime, time
 from enum import Enum
-from typing import Any
+from typing import Any, overload
 
 from pydantic import BaseModel
 
 TIME_FORMAT = "%H:%M:%S"
 DATE_FORMAT = "%d/%m/%Y"
+
+
+@overload
+def currency_to_float(value: None) -> None: ...
+
+
+@overload
+def currency_to_float(value: str) -> float: ...
+
+
+def currency_to_float(value: str | None) -> float | None:
+    """Convert Chilean currency string to float. Returns None if value is None."""
+    if value is None:
+        return None
+    return float(value.replace("$", "").replace(".", ""))
 
 
 class MovimientoTipo(str, Enum):
@@ -32,7 +47,7 @@ class DetalleItem(BaseModel):
 
     @property
     def monto_float(self) -> float:
-        return float(self.monto.replace("$", "").replace(".", ""))
+        return currency_to_float(self.monto)
 
 
 class DtoResponseSetResultado(BaseModel):
@@ -65,6 +80,7 @@ class ProductItem(BaseModel):
 
 class ProductsResponse(BaseModel):
     products: list[ProductItem]
+    key_account: str
 
 
 class CreditCardMovement(BaseModel):
@@ -88,3 +104,18 @@ class NoFacturadosResponse(BaseModel):
     date: str
     errors: list[Any]
     bodyResponse: NoFacturadosBodyResponse
+
+
+class ResumenCuentaResponse(BaseModel):
+    numeroCuenta: int
+    saldoInicial: str
+    saldoContable: str
+    saldoDisponible: str
+    totalCargos: str
+    totalAbonos: str
+    totalSobregiro: str | None
+    totalRetenciones: str
+
+    @property
+    def saldo_disponible_float(self) -> float:
+        return currency_to_float(self.saldoDisponible)

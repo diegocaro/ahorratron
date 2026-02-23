@@ -22,6 +22,7 @@ from ahorratron.sync_api.institutions.banco_consorcio.models import (
     MovementsResponse,
     NoFacturadosResponse,
     ProductsResponse,
+    ResumenCuentaResponse,
 )
 
 ENCRYPTION_KEY_32 = os.environ["CONSORCIO_ENC_KEY"].encode("utf-8")
@@ -215,17 +216,20 @@ class BancoConsorcioAPI:
                 logger.info("Session expired, re-logging in")
                 raise ValueError("Session expired, please re-login") from e
             logger.error(f"HTTP error occurred: {e}")
+            logger.error(f"Response content: {response.text}")
             raise
 
     def _encrypt_param(self, param: str) -> str:
-        assert isinstance(param, str)
+        # assert isinstance(param, str)
 
         return quote(encrypt(param), safe="")
 
     def get_products(self) -> ProductsResponse:
         url = f"{self.BASE_URL}/products/list"
         response = self.session.get(url)
+        key_account = response.headers["key-account"]
         decoded = self._handle_response(response)
+        decoded["key_account"] = key_account
         return ProductsResponse.model_validate(decoded)
 
     def get_movements(self, account_id: str) -> MovementsResponse:
@@ -236,6 +240,15 @@ class BancoConsorcioAPI:
         response = self.session.get(url)
         decoded = self._handle_response(response)
         return MovementsResponse.model_validate(decoded)
+
+    def get_resumen(self, account_id: str, key_account: str) -> ResumenCuentaResponse:
+        if isinstance(account_id, str):
+            account_id = int(account_id)  # type: ignore
+        encrypted_account_id = self._encrypt_param(account_id)
+        url = f"{self.BASE_URL}/summaries/account/{encrypted_account_id}"
+        response = self.session.get(url, headers={"key-account": key_account})
+        decoded = self._handle_response(response)
+        return ResumenCuentaResponse.model_validate(decoded)
 
     def get_no_facturados(self) -> NoFacturadosResponse:
         url = f"{self.TC_API_BASE_URL}/credit-cards/unbilled-movements"
