@@ -235,6 +235,7 @@ class GrupoTipo(str, Enum):
     PAGOS = "pagos"
     AVANCES_COMPRAS = "avancesCompras"
     GENERICO = "generico"
+    CUOTAS = "cuotas"
 
 
 class TransaccionTarjeta(BaseModel):
