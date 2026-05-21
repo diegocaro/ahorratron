@@ -1,5 +1,5 @@
 from datetime import datetime, time
-from enum import Enum
+from enum import StrEnum
 from typing import Any, overload
 
 from pydantic import BaseModel
@@ -23,12 +23,12 @@ def currency_to_float(value: str | None) -> float | None:
     return float(value.replace("$", "").replace(".", ""))
 
 
-class MovimientoTipo(str, Enum):
+class MovimientoTipo(StrEnum):
     ABONO = "Abono"
     CARGO = "Cargo"
 
 
-class ProductoNombreTipo(str, Enum):
+class ProductoNombreTipo(StrEnum):
     CUENTA_CORRIENTE = "Cuenta Corriente"
     LINEA_CREDITO = "Línea de Crédito"
 

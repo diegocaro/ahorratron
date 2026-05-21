@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
@@ -11,35 +11,35 @@ class BankData(BaseModel):
     automaticallyInvestedBalance: float  # Automatically invested balance
 
 
-class AccountType(str, Enum):
+class AccountType(StrEnum):
     BANK = "BANK"
     CREDIT = "CREDIT"
     PAYMENT_ACCOUNT = "PAYMENT_ACCOUNT"
 
 
-class AccountSubtype(str, Enum):
+class AccountSubtype(StrEnum):
     CHECKING_ACCOUNT = "CHECKING_ACCOUNT"
     SAVINGS_ACCOUNT = "SAVINGS_ACCOUNT"
     CREDIT_CARD = "CREDIT_CARD"
 
 
-class CreditStatus(str, Enum):
+class CreditStatus(StrEnum):
     ACTIVE = "ACTIVE"
     BLOCKED = "BLOCKED"
     CANCELLED = "CANCELLED"
 
 
-class HolderType(str, Enum):
+class HolderType(StrEnum):
     MAIN = "MAIN"
     ADDITIONAL = "ADDITIONAL"
 
 
-class CreditLineLimitType(str, Enum):
+class CreditLineLimitType(StrEnum):
     LIMITE_CREDITO_TOTAL = "LIMITE_CREDITO_TOTAL"
     LIMITE_CREDITO_MODALIDADE_OPERACAO = "LIMITE_CREDITO_MODALIDADE_OPERACAO"
 
 
-class ConsolidationType(str, Enum):
+class ConsolidationType(StrEnum):
     INDIVIDUAL = "INDIVIDUAL"
     CONSOLIDATED = "CONSOLIDATED"
 

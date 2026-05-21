@@ -1,6 +1,6 @@
 import zoneinfo
 from datetime import date, datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel
 
@@ -57,7 +57,7 @@ class ResumenPorFechaRequest(BaseModel):
 
 
 #### RESPONSES MODELS ####
-class ProductoTipo(str, Enum):
+class ProductoTipo(StrEnum):
     CUENTA = "cuenta"
     CUENTA_CORRIENTE_MONEDA_LOCAL = "cuentaCorrienteMonedaLocal"
     AHORRO = "ahorro"
@@ -91,7 +91,7 @@ class ObtenerProductosResponse(BaseModel):
     productos: list[Producto]
 
 
-class OrigenTransaccionTipo(str, Enum):
+class OrigenTransaccionTipo(StrEnum):
     NAC = "NAC"
     INT = "INT"
 
@@ -153,7 +153,7 @@ class NoFacturadosResponse(BaseModel):
     listaMovNoFactur: list[MovimientoNoFacturado]
 
 
-class MovimientoTipo(str, Enum):
+class MovimientoTipo(StrEnum):
     CARGO = "cargo"
     ABONO = "abono"
 
@@ -231,7 +231,7 @@ class GetSaldoResponse(BaseModel):
         return dt.replace(tzinfo=None)
 
 
-class GrupoTipo(str, Enum):
+class GrupoTipo(StrEnum):
     PAGOS = "pagos"
     AVANCES_COMPRAS = "avancesCompras"
     GENERICO = "generico"

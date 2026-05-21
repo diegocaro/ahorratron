@@ -1,29 +1,29 @@
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field, model_validator
 
 # Source: https://github.com/pluggyai/pluggy-node/blob/cc904e65641759a90959c7b9263c900295c8e7c7/src/types/transaction.ts
 
 
-class TransactionStatus(str, Enum):
+class TransactionStatus(StrEnum):
     POSTED = "POSTED"
     PENDING = "PENDING"
 
 
-class TransactionType(str, Enum):
+class TransactionType(StrEnum):
     DEBIT = "DEBIT"  # outflow
     CREDIT = "CREDIT"  # inflow
 
 
-class PaymentMethod(str, Enum):
+class PaymentMethod(StrEnum):
     PIX = "PIX"
     TED = "TED"
     DOC = "DOC"
     BOLETO = "BOLETO"
 
 
-class DocumentType(str, Enum):
+class DocumentType(StrEnum):
     CPF = "CPF"
     CNPJ = "CNPJ"
 
