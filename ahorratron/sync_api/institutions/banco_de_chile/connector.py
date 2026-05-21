@@ -39,7 +39,7 @@ from ahorratron.sync_api.models.transaction_models import (
     TransactionStatus,
     TransactionType,
 )
-
+from ahorratron.sync_api.utils.helpers import drop_none
 from .banco_de_chile import APIClient
 
 logger = logging.getLogger(__name__)
@@ -63,7 +63,7 @@ class BancoDeChileConnector(ConnectorBase):
         cuentas = [
             self._map_account_producto(itemId, c) for c in self._productos.productos
         ]
-        cuentas = [c for c in cuentas if c is not None]
+        cuentas = drop_none(cuentas)
         response = AccountsResponse(
             results=cuentas,
             total=len(cuentas),
@@ -203,8 +203,7 @@ class BancoDeChileConnector(ConnectorBase):
         transactions = [
             self._map_transaction_movimiento(cartola, m) for m in cartola.movimientos
         ]
-        transactions = [t for t in transactions if t is not None]
-        return transactions
+        return drop_none(transactions)
 
     def _map_transaction_movimiento(
         self, cartola: GetCartolaResponse, movimiento: Movimiento
@@ -327,21 +326,39 @@ class BancoDeChileConnector(ConnectorBase):
         )
 
     def _get_transactions_tarjeta_credito(self, tarjeta: Producto) -> list[Transaction]:
-        no_facturados = self._get_no_facturados_raw(tarjeta)
-        transactions = [
+        no_facturados_raw = self._get_no_facturados_raw(tarjeta)
+        no_facturados = [
             self._map_transaction_no_facturado(movimiento, tarjeta)
-            for movimiento in no_facturados.listaMovNoFactur
+            for movimiento in no_facturados_raw.listaMovNoFactur
         ]
 
-        facturados = self._get_facturados_raw(tarjeta)
-        transactions += [
-            self._map_transaction_facturado(facturados, movimiento)
-            for movimiento in facturados.seccionOperaciones.transaccionesTarjetas
-            + facturados.seccionCargosImpuestosAbonos.transaccionesTarjetas
+        facturados_raw = self._get_facturados_raw(tarjeta)
+        facturados = [
+            self._map_transaction_facturado(facturados_raw, movimiento)
+            for movimiento in facturados_raw.seccionOperaciones.transaccionesTarjetas
+            + facturados_raw.seccionCargosImpuestosAbonos.transaccionesTarjetas
         ]
-        transactions = [t for t in transactions if t is not None]
+        transactions = self._deduplicate_tarjeta_credito_transactions(
+            drop_none(facturados), drop_none(no_facturados)
+        )
 
         return transactions
+
+    def _deduplicate_tarjeta_credito_transactions(
+        self, facturados: list[Transaction], no_facturados: list[Transaction]
+    ) -> list[Transaction]:
+        # pre-condition
+        facturados = drop_none(facturados)
+        no_facturados = drop_none(no_facturados)
+
+        max_facturado_date = max(t.date for t in facturados) if facturados else None
+        deduplicated = (
+            [nf for nf in no_facturados if nf.date > max_facturado_date]
+            if max_facturado_date
+            else no_facturados
+        )
+        ans = sorted(deduplicated + facturados, key=lambda t: t.date)
+        return ans
 
     def _map_transaction_no_facturado(
         self, movimiento: MovimientoNoFacturado, tarjeta: Producto
@@ -442,5 +459,4 @@ class BancoDeChileConnector(ConnectorBase):
             self._map_transaction_cuenta_ahorro(cuenta_ahorro, m)
             for m in cuenta_ahorro.listaMovimientos
         ]
-        transactions = [t for t in transactions if t is not None]
-        return transactions
+        return drop_none(transactions)

@@ -248,6 +248,8 @@ class APIClient:
 
 
 def main():
+    from pathlib import Path
+
     BANK_USER = os.environ["BANK_USER"]
     BANK_PASSWORD = os.environ["BANK_PASSWORD"]
 
@@ -259,47 +261,47 @@ def main():
     # cartola = client.get_cartola()
     # open("cartola.json", "w").write(json.dumps(cartola, indent=4))
 
-    productos_con_cartola = [
-        c
-        for c in productos.productos
-        if c.tipo == "cuenta" and c.claseCuenta in ["CCNMN1", "VTACNN"]
-    ]
+    # productos_con_cartola = [
+    #     c
+    #     for c in productos.productos
+    #     if c.tipo == "cuenta" and c.claseCuenta in ["CCNMN1", "VTACNN"]
+    # ]
 
-    for cuenta in productos_con_cartola:
-        print(f"Cuenta: {cuenta.numero} - {cuenta.mascara}")
-        data = {
-            "cuentaSeleccionada": {
-                "nombreCliente": productos.nombre,
-                "rutCliente": productos.rut,
-                "numero": cuenta.numero,
-                "mascara": cuenta.mascara,
-                # "selected": True, # Opcional
-                "codigoProducto": cuenta.codigo,
-                "claseCuenta": cuenta.claseCuenta,
-                "moneda": cuenta.codigoMoneda,
-            },
-            "cabecera": {"statusGenerico": True, "paginacionDesde": 1},
-        }
-        request = GetCartolaCuentaRequest.model_validate(data)
-        cartola = client.get_cartola(request)
-        print(cartola)
+    # for cuenta in productos_con_cartola:
+    #     print(f"Cuenta: {cuenta.numero} - {cuenta.mascara}")
+    #     data = {
+    #         "cuentaSeleccionada": {
+    #             "nombreCliente": productos.nombre,
+    #             "rutCliente": productos.rut,
+    #             "numero": cuenta.numero,
+    #             "mascara": cuenta.mascara,
+    #             # "selected": True, # Opcional
+    #             "codigoProducto": cuenta.codigo,
+    #             "claseCuenta": cuenta.claseCuenta,
+    #             "moneda": cuenta.codigoMoneda,
+    #         },
+    #         "cabecera": {"statusGenerico": True, "paginacionDesde": 1},
+    #     }
+    #     request = GetCartolaCuentaRequest.model_validate(data)
+    #     cartola = client.get_cartola(request)
+    #     print(cartola)
 
     tarjetas_de_credito = [c for c in productos.productos if c.tipo == "tarjeta"]
-    for tarjeta in tarjetas_de_credito:
-        print(f"Tarjeta: {tarjeta.numero} - {tarjeta.mascara}")
-        data = {
-            "idTarjeta": tarjeta.id,
-            "codigoProducto": tarjeta.codigo,
-            "tipoTarjeta": tarjeta.descripcionLogo,
-            "mascara": tarjeta.mascara,
-            "nombreTitular": tarjeta.tarjetaHabiente,
-            "tipoCliente": tarjeta.tipoCliente,
-        }
-        request = MovimientosNoFacturadosRequest.model_validate(data)
-        no_facturados = client.get_no_facturados(request)
-        print(no_facturados)
+    # for tarjeta in tarjetas_de_credito:
+    #     print(f"Tarjeta: {tarjeta.numero} - {tarjeta.mascara}")
+    #     data = {
+    #         "idTarjeta": tarjeta.id,
+    #         "codigoProducto": tarjeta.codigo,
+    #         "tipoTarjeta": tarjeta.descripcionLogo,
+    #         "mascara": tarjeta.mascara,
+    #         "nombreTitular": tarjeta.tarjetaHabiente,
+    #         "tipoCliente": tarjeta.tipoCliente,
+    #     }
+    #     request = MovimientosNoFacturadosRequest.model_validate(data)
+    #     no_facturados = client.get_no_facturados(request)
+    #     print(no_facturados)
 
-    tarjeta = tarjetas_de_credito[0]
+    tarjeta = tarjetas_de_credito[1]
     print(f"Tarjeta: {tarjeta.numero} - {tarjeta.mascara}")
     data = {
         "idTarjeta": tarjeta.id,
@@ -309,9 +311,24 @@ def main():
         "nombreTitular": tarjeta.tarjetaHabiente,
         "tipoCliente": tarjeta.tipoCliente,
     }
+
+    tmp_dir = Path(__file__).parents[4] / "tmp"
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+
+    request = MovimientosNoFacturadosRequest.model_validate(data)
+    no_facturados = client.get_no_facturados(request)
+    with open(tmp_dir / "no_facturados.json", "w") as f:
+        f.write(no_facturados.model_dump_json(indent=2))
+
     request = MovimientosNoFacturadosRequest.model_validate(data)
     fechas_facturacion = client.get_fechas_facturacion(request)
-    print(fechas_facturacion)
+    # print(fechas_facturacion)
+    with open(tmp_dir / "fechas_facturacion.json", "w") as f:
+        f.write(fechas_facturacion.model_dump_json(indent=2))
+
+    mes_mas_reciente = max(
+        e.fechaFacturacion for e in fechas_facturacion.listaNacional
+    ).isoformat()
 
     data = {
         "idTarjeta": tarjeta.id,
@@ -320,12 +337,15 @@ def main():
         "mascara": tarjeta.mascara,
         "nombreTitular": tarjeta.tarjetaHabiente,
         # "tipoCliente": tarjeta.tipoCliente,
-        "fechaFacturacion": fechas_facturacion.listaNacional[0].fechaFacturacion,
+        "fechaFacturacion": mes_mas_reciente,
         "numeroCuenta": fechas_facturacion.numeroCuenta,
     }
     request = ResumenPorFechaRequest.model_validate(data)
     resumen_nacional_data = client.get_resumen_nacional(request)
-    print(resumen_nacional_data)
+    # print(resumen_nacional_data)
+    with open(tmp_dir / "resumen_nacional.json", "w") as f:
+        f.write(resumen_nacional_data.model_dump_json(indent=2))
+
     # random_wait()
     # no_facturados = client.get_no_facturados()
     # print(no_facturados)
