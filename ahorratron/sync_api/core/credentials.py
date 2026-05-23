@@ -22,7 +22,7 @@ def parse_multi_credentials(client_id: str, client_secret: str) -> list[UserData
         clientId:     base64({"banco_de_chile": "12345678-9", "banco_consorcio": "98765432-1"})
         clientSecret: base64({"banco_de_chile": "pass1", "banco_consorcio": "pass2"})
 
-    2. **Single-bank (legacy)**::
+    2. **Single-bank (legacy, defaults to banco_de_chile)**::
 
         clientId:     "banco_de_chile;12345678-9"   (or just "12345678-9")
         clientSecret: "password"
