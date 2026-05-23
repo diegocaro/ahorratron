@@ -100,10 +100,32 @@ Para conectar tu banco con Actual Budget a través de Ahorratrón:
 3. **Configura la conexión bancaria:**
    - Ve a la sección de **Accounts** (Cuentas) en Actual Budget
    - Busca la opción **Set up Pluggy.ai for bank sync**
-   - Ingresa los siguientes datos:
-     - **Client ID**: Tu RUT (ej: 12345678-9)
-     - **Client Secret**: Tu clave del banco
-     - **Items ID**: `chile`
+   - Ingresa los siguientes datos según cuántos bancos quieras conectar:
+
+   **Un solo banco (Banco de Chile por defecto):**
+   - **Client ID**: Tu RUT (ej: `12345678-9`)
+   - **Client Secret**: Tu clave del banco
+   - **Items ID**: `chile`
+
+   > El formato de un solo banco conecta siempre con Banco de Chile.
+
+   **Múltiples bancos:**
+
+   Las credenciales se envían como un JSON codificado en base64, donde cada clave es el identificador del banco:
+
+   ```bash
+   # Genera el Client ID:
+   echo -n '{"banco_de_chile": "12345678-9", "banco_consorcio": "98765432-1"}' | base64
+
+   # Genera el Client Secret:
+   echo -n '{"banco_de_chile": "mi-clave-bchile", "banco_consorcio": "mi-clave-consorcio"}' | base64
+   ```
+
+   - **Client ID**: el valor base64 del JSON con los RUTs por banco
+   - **Client Secret**: el valor base64 del JSON con las claves por banco
+   - **Items ID**: `chile`
+
+   Los identificadores de banco soportados son: `banco_de_chile`, `banco_consorcio`.
 
 4. **Vincula tu cuenta bancaria:**
    - Elige las cuentas que deseas sincronizar
