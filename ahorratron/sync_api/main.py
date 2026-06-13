@@ -4,6 +4,7 @@ from collections.abc import Awaitable, Callable
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 
+from ahorratron.sync_api.config import LOG_LEVEL
 from ahorratron.sync_api.core.credentials import parse_multi_credentials
 from ahorratron.sync_api.models.account_models import Account, AccountsResponse
 from ahorratron.sync_api.models.core_models import AuthRequest, SessionData
@@ -12,7 +13,7 @@ from ahorratron.sync_api.service import Service
 from ahorratron.sync_api.utils.token import create_encrypted_token, get_decrypted_token
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=LOG_LEVEL,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
@@ -74,7 +75,7 @@ async def get_transactions(
     session_data: SessionData = Depends(get_decrypted_token),
 ):
     response = Service().get_transactions(session_data.users, accountId)
-    logger.debug(f"Transactions response: {response}")
+    # logger.debug(f"Transactions response: {response}")
     return response
 
 

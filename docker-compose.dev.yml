@@ -1,0 +1,21 @@
+services:
+  ahorratron-sync-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./ahorratron:/app/ahorratron
+      - certs_data:/certs
+    command: |
+      sh -c '
+        if [ ! -f /certs/cert.pem ]; then
+          openssl req -x509 -newkey rsa:2048 -nodes \
+            -keyout /certs/key.pem \
+            -out /certs/cert.pem \
+            -days 365 \
+            -subj "/CN=api.pluggy.ai";
+        fi;
+        uv run uvicorn ahorratron.sync_api.main:app --host 0.0.0.0 --port 443 --ssl-keyfile /certs/key.pem --ssl-certfile /certs/cert.pem --reload
+      '
+    ports:
+      - '8443:443'
