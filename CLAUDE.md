@@ -10,8 +10,18 @@ uv run uvicorn ahorratron.sync_api.main:app --reload --port 8000    # servidor d
 uv run pytest                                                        # tests
 uv run ruff check .                                                  # lint (con autofix: ruff check --fix .)
 uv run pyright                                                       # type check
-docker-compose up                                                    # stack completo (Actual + API + Selenium)
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up   # stack con hot-reload para desarrollo
+docker-compose up                                                    # stack completo (Actual + API + Selenium) en producción
 ```
+
+### Docker en desarrollo
+
+Para desarrollo local con hot-reload, usar el compose file de desarrollo:
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+```
+
+Esto monta el código local (`./ahorratron`) en el contenedor y habilita auto-reload en uvicorn. Cualquier cambio en los archivos se refleja automáticamente sin necesidad de reconstruir la imagen.
 
 ## Arquitectura
 
