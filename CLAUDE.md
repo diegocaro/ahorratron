@@ -11,6 +11,7 @@ uv run pytest                                                        # tests
 uv run ruff check .                                                  # lint (con autofix: ruff check --fix .)
 uv run pyright                                                       # type check
 docker-compose up                                                    # stack completo (Actual + API + Selenium)
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up   # stack con hot-reload para desarrollo
 ```
 
 ## Arquitectura
@@ -112,6 +113,10 @@ uv run pytest tests/test_sync_api/           # solo sync_api
 - Usa Selenium para el login (sesión lenta, ~30 s en frío).
 - `DemoAPIClient` en `demo.py` sirve datos cacheados para desarrollo local.
 - Tipos de producto soportados: `cuenta` (corriente), `tarjeta` (crédito), `ahorro`.
+- **Statuses de transacción:**
+  - **No facturados (tarjetas):** Marcados como `PENDING` si `horaAutorizacion != "00:00:00"`, sino `POSTED`.
+  - **Facturados (tarjetas):** Siempre `POSTED`.
+  - **Cuentas corriente y ahorro:** Siempre `POSTED`.
 - Tarjetas de crédito: combina movimientos **no facturados** (PENDING) y **facturados** (POSTED). La deduplicación descarta no-facturados cuya fecha sea ≤ la fecha máxima de facturados.
 - Transacciones internacionales en no-facturados se omiten (`origenTransaccion != NAC`).
 - `SAVINGS_ACCOUNT` se mapea como `CHECKING_ACCOUNT` por un bug conocido en Actual Budget.
