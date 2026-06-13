@@ -209,6 +209,7 @@ class APIClient:
 
         response = self.session.post(url, json=data.model_dump())
         parsed = self._handle_response(response)
+        logger.debug(f"Raw No facturados raw response: {parsed}")
         return NoFacturadosResponse.model_validate(parsed)
 
     def get_cartola(self, data: GetCartolaCuentaRequest) -> GetCartolaResponse:

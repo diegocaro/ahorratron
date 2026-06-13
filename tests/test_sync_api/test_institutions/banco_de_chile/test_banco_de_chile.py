@@ -84,6 +84,14 @@ def test_validate_no_facturados_data(no_facturados_data):
     assert expected_fake_id == m.id_fake
 
 
+def test_validate_no_facturados_pendientes(no_facturados_data):
+    no_facturados = NoFacturadosResponse.model_validate(no_facturados_data)
+    pendientes = [m for m in no_facturados.listaMovNoFactur if m.is_pending]
+    assert len(pendientes) > 0
+    for m in pendientes:
+        assert m.horaAutorizacion != "00:00:00"
+
+
 def test_validate_cartola_data(cartola_data):
     cartola = GetCartolaResponse.model_validate(cartola_data)
     assert cartola.horaConsulta

@@ -124,6 +124,12 @@ class MovimientoNoFacturado(BaseModel):
     numeroTarjetaCompleto: str | None
 
     @property
+    def is_pending(self) -> bool:
+        # las transcciones pendientes tienen una hora de autorizacion igual
+        # a la hora en que se hizo la compra, extraño, pero bueno...
+        return self.horaAutorizacion != "00:00:00"
+
+    @property
     def fecha_transaccion_iso(self) -> datetime:
         # example: 30/07/2025 16:44:29
         return datetime.strptime(

@@ -40,6 +40,7 @@ from ahorratron.sync_api.models.transaction_models import (
     TransactionType,
 )
 from ahorratron.sync_api.utils.helpers import drop_none
+
 from .banco_de_chile import APIClient
 
 logger = logging.getLogger(__name__)
@@ -383,7 +384,11 @@ class BancoDeChileConnector(ConnectorBase):
             accountId=movimiento.numeroTarjeta,
             type=transaction_type,
             currencyCode=c.CLP,
-            status=TransactionStatus.PENDING,
+            status=(
+                TransactionStatus.PENDING
+                if movimiento.is_pending
+                else TransactionStatus.POSTED
+            ),
             merchant=Merchant(name=movimiento.glosaTransaccion),
         )
 
