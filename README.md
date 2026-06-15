@@ -170,7 +170,7 @@ Las credenciales pueden enviarse en formato simple (un solo banco) o codificadas
 
 ## Contribuciones
 
-¡Las contribuciones son bienvenidas! Si tienes ideas para mejorar Ahorratrón o quieres agregar soporte para otros bancos, no dudes en crear un issue o enviar un pull request.
+¡Las contribuciones son bienvenidas! Si tienes ideas para mejorar Ahorratrón o quieres agregar soporte para otros bancos, no dudes en crear un issue o enviar un pull request. Lee el [CONTRIBUTING.md](CONTRIBUTING.md) antes de empezar.
 
 ## 📝 Licencia
 
