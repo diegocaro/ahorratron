@@ -46,6 +46,7 @@ target-version = "py312"
 extend-select = [
     "UP", # modernize python
     "RUF", # ruff specific rules
+    "I", # isort
 ]
 extend-ignore = [
     "E731" # lambda assignment
