@@ -65,6 +65,7 @@ class ProductoTipo(StrEnum):
     TARJETA = "tarjeta"
     SEGURO = "seguro"
     PAGO_AUTOMATICO = "pagoAutomatico"
+    CREDITO_CONSUMO = "creditoConsumo"
 
 
 class Producto(BaseModel):

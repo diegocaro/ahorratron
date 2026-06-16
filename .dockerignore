@@ -1,0 +1,22 @@
+# No copiar credenciales al contenedor
+.env
+.env.*
+
+# No necesario en el contenedor
+tests/
+images/
+.github/
+.vscode/
+docker-compose.yml
+README.md
+
+# No Python
+__pycache__/
+*.py[oc]
+.venv/
+dist/
+build/
+*.egg-info/
+
+# macOS
+.DS_Store
