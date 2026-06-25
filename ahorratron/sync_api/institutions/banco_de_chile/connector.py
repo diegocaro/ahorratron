@@ -221,12 +221,6 @@ class BancoDeChileConnector(ConnectorBase):
         if movimiento.tipo == MovimientoTipo.CARGO:
             monto = -monto
 
-        if movimiento.estado is None:
-            estado = TransactionStatus.POSTED
-        else:
-            logger.error(f"Unknown transaction status: {movimiento.estado}")
-            return None
-
         # balance = None
         # try:
         #     balance = float(movimiento.saldo)
@@ -244,7 +238,7 @@ class BancoDeChileConnector(ConnectorBase):
             accountId=movimiento.idCuenta,
             type=transaction_type,
             currencyCode=cartola.moneda,
-            status=estado,
+            status=TransactionStatus.POSTED,
             merchant=Merchant(
                 name=movimiento.descripcion,
             ),
@@ -413,6 +407,9 @@ class BancoDeChileConnector(ConnectorBase):
         elif movimiento.grupo == GrupoTipo.PAGOS:
             transaction_type = TransactionType.CREDIT
             monto = -abs(movimiento.montoTransaccion)
+        elif movimiento.grupo == GrupoTipo.CUOTAS:
+            logger.warning(f"Skipping cuotas transaction: {movimiento.idMovimiento}")
+            return None
         else:
             logger.error(f"Unknown transaction type: {movimiento.grupo}")
             return None
