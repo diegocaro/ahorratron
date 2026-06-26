@@ -149,6 +149,10 @@ class MovimientoNoFacturado(BaseModel):
         ]
         return "-".join(fields)
 
+    @property
+    def is_prepago(self) -> bool:
+        return ".PREPAGO:" in self.glosaTransaccion.upper()
+
 
 class NoFacturadosResponse(BaseModel):
     tarjetaHabiente: str

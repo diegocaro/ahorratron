@@ -364,6 +364,12 @@ class BancoDeChileConnector(ConnectorBase):
             )
             return None
 
+        if movimiento.is_prepago:
+            logger.warning(
+                f"Skipping prepago transaction {movimiento.glosaTransaccion} {movimiento.montoCompra}"
+            )
+            return None
+
         if movimiento.montoCompra > 0:
             transaction_type = TransactionType.DEBIT
         else:
