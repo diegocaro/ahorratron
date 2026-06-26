@@ -414,7 +414,9 @@ class BancoDeChileConnector(ConnectorBase):
             transaction_type = TransactionType.CREDIT
             monto = -abs(movimiento.montoTransaccion)
         elif movimiento.grupo == GrupoTipo.CUOTAS:
-            logger.warning(f"Skipping cuotas transaction: {movimiento.idMovimiento}")
+            logger.warning(
+                f"Skipping cuotas transaction: {movimiento.descripcion} {movimiento.montoTransaccion}"
+            )
             return None
         else:
             logger.error(f"Unknown transaction type: {movimiento.grupo}")
