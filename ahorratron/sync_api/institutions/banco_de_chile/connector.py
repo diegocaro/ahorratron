@@ -364,6 +364,12 @@ class BancoDeChileConnector(ConnectorBase):
             )
             return None
 
+        if movimiento.is_prepago:
+            logger.warning(
+                f"Skipping prepago transaction {movimiento.glosaTransaccion} {movimiento.montoCompra}"
+            )
+            return None
+
         if movimiento.montoCompra > 0:
             transaction_type = TransactionType.DEBIT
         else:
@@ -408,7 +414,9 @@ class BancoDeChileConnector(ConnectorBase):
             transaction_type = TransactionType.CREDIT
             monto = -abs(movimiento.montoTransaccion)
         elif movimiento.grupo == GrupoTipo.CUOTAS:
-            logger.warning(f"Skipping cuotas transaction: {movimiento.idMovimiento}")
+            logger.warning(
+                f"Skipping cuotas transaction: {movimiento.descripcion} {movimiento.montoTransaccion}"
+            )
             return None
         else:
             logger.error(f"Unknown transaction type: {movimiento.grupo}")
