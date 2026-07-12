@@ -11,7 +11,6 @@ uv run pytest                                                        # tests
 uv run ruff check .                                                  # lint (con autofix: ruff check --fix .)
 uv run pyright                                                       # type check
 docker-compose up                                                    # stack completo (Actual + API + Selenium)
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up   # stack con hot-reload para desarrollo
 ```
 
 ## Arquitectura

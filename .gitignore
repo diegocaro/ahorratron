@@ -19,5 +19,9 @@ tmp
 # Pytest Coverage
 .coverage
 
+
+# docker compose override
+docker-compose.override.yml
+
 # macOS files
 .DS_Store
