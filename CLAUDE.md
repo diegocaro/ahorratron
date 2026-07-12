@@ -13,6 +13,8 @@ uv run pyright                                                       # type chec
 docker-compose up                                                    # stack completo (Actual + API + Selenium)
 ```
 
+Para hot-reload en `ahorratron-sync-api` durante desarrollo, copia `docker-compose.override.yml.example` a `docker-compose.override.yml` (gitignored). Docker Compose lo mezcla automáticamente con `docker-compose.yml` en `docker-compose up`, sin flags `-f` adicionales — construye la imagen localmente, monta `./ahorratron` y agrega `--reload` a uvicorn.
+
 ## Arquitectura
 
 ```
