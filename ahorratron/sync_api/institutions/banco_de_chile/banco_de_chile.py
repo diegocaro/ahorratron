@@ -106,7 +106,8 @@ class APIClient:
                     "DNT": "1",
                     "Connection": "keep-alive",
                     "Cookie": cookie,
-                }
+                },
+                timeout=httpx.Timeout(timeout=self.TIMEOUT_SECONDS),
             )
             self._session = s
         return self._session

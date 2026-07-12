@@ -54,7 +54,7 @@ class Service:
                 logger.exception(
                     "Failed to get accounts for %s", user_data.connector_id
                 )
-                continue
+                raise
             for account in response.results:
                 account.id = self._prefix_id(user_data.connector_id, account.id)
             all_accounts.extend(response.results)
