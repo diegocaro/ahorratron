@@ -1,7 +1,9 @@
-from datetime import UTC, datetime
+from datetime import datetime
 from enum import StrEnum
 
 from pydantic import BaseModel, Field
+
+from ahorratron.sync_api.utils.helpers import utcnow
 
 
 # Source: https://github.com/pluggyai/pluggy-node/blob/cc904e65641759a90959c7b9263c900295c8e7c7/src/types/account.ts
@@ -100,10 +102,8 @@ class Account(BaseModel):
     disaggregatedCreditLimits: list[DisaggregatedCreditLimit] | None = (
         None  # Disaggregated credit limits
     )
-    updatedAt: datetime = Field(
-        default_factory=lambda: datetime.now(UTC),
-        description="Last updated timestamp in ISO 8601 format UTC",
-    )
+    createdAt: datetime = Field(default_factory=utcnow)
+    updatedAt: datetime = Field(default_factory=utcnow)
 
 
 class AccountsResponse(BaseModel):

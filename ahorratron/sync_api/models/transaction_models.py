@@ -3,6 +3,8 @@ from enum import StrEnum
 
 from pydantic import BaseModel, Field, model_validator
 
+from ahorratron.sync_api.utils.helpers import utcnow
+
 # Source: https://github.com/pluggyai/pluggy-node/blob/cc904e65641759a90959c7b9263c900295c8e7c7/src/types/transaction.ts
 
 
@@ -109,13 +111,13 @@ class Transaction(BaseModel):
     providerId: str | None = None  # Provider ID (for Open Finance connectors)
     operationType: str | None = None  # Operation type of the transaction
     operationCategory: str | None = None  # Operation category of the transaction
+    createdAt: datetime = Field(default_factory=utcnow)
+    updatedAt: datetime = Field(default_factory=utcnow)
 
 
 class TransactionsResponse(BaseModel):
-    total: int
-    totalPages: int
-    page: int
-    results: list[Transaction]
+    results: list[Transaction] = Field(default_factory=list)
+    next: str | None = None
 
     @model_validator(mode="after")
     def check_unique_ids(self):

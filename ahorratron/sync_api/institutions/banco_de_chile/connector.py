@@ -91,7 +91,7 @@ class BancoDeChileConnector(ConnectorBase):
         )
         if not producto:
             logger.warning(f"Account with id {accountId} not found in productos")
-            return TransactionsResponse(results=[], total=0, totalPages=0, page=0)
+            return TransactionsResponse()
 
         if producto.tipo == "cuenta":
             transactions = self._get_transactions_cartola(producto)
@@ -104,12 +104,7 @@ class BancoDeChileConnector(ConnectorBase):
                 f"Transactions for account type '{producto.tipo}' are not supported"
             )
 
-        return TransactionsResponse(
-            results=transactions,
-            total=len(transactions),
-            totalPages=1,  # Assuming all transactions fit in one page
-            page=1,  # Default to first page
-        )
+        return TransactionsResponse(results=transactions)
 
     @property
     def _productos(self) -> ObtenerProductosResponse:
@@ -277,6 +272,7 @@ class BancoDeChileConnector(ConnectorBase):
             balance=cartola.saldoFinal,  # This can also be cartola.saldoDisponible, not sure which one is the best
             bankData=bank_data,
             updatedAt=cartola.hora_consulta_iso,
+            createdAt=cartola.hora_consulta_iso,
         )
 
     def _map_account_producto_tarjeta_credito(
@@ -295,6 +291,7 @@ class BancoDeChileConnector(ConnectorBase):
             balance=saldo.cupoUtilizadoNacional,  # Actual will automatically set this as negative for credit cards
             bankData=None,  # No bank data for credit cards
             updatedAt=saldo.fecha_consulta_iso,
+            createdAt=saldo.fecha_consulta_iso,
         )
 
     def _map_account_producto_cuenta_ahorro(
@@ -318,6 +315,7 @@ class BancoDeChileConnector(ConnectorBase):
             balance=cartola.saldoDisponible,  # This can also be cartola.saldoDisponible, not sure which one is the best
             bankData=bank_data,
             updatedAt=cartola.fecha_ultima_cartola_iso,
+            createdAt=cartola.fecha_ultima_cartola_iso,
         )
 
     def _get_transactions_tarjeta_credito(self, tarjeta: Producto) -> list[Transaction]:
@@ -390,6 +388,8 @@ class BancoDeChileConnector(ConnectorBase):
                 else TransactionStatus.POSTED
             ),
             merchant=Merchant(name=movimiento.glosaTransaccion),
+            createdAt=movimiento.fecha_transaccion_iso,
+            updatedAt=movimiento.fecha_transaccion_iso,
         )
 
     def _map_transaction_facturado(
@@ -433,6 +433,8 @@ class BancoDeChileConnector(ConnectorBase):
             currencyCode=currency_code,
             status=TransactionStatus.POSTED,
             merchant=Merchant(name=movimiento.descripcion),
+            createdAt=movimiento.fecha_transaccion_iso,
+            updatedAt=movimiento.fecha_transaccion_iso,
         )
 
     def _map_transaction_cuenta_ahorro(
@@ -461,6 +463,8 @@ class BancoDeChileConnector(ConnectorBase):
             currencyCode=c.CLP,
             status=TransactionStatus.POSTED,
             merchant=Merchant(name=movimiento.glosa),
+            createdAt=movimiento.fecha_efectiva_iso,
+            updatedAt=movimiento.fecha_efectiva_iso,
         )
 
     def _get_transactions_cuenta_ahorro(self, cuenta: Producto) -> list[Transaction]:

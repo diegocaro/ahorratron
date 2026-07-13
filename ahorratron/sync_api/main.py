@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Awaitable, Callable
+from datetime import date
 
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
@@ -55,7 +56,7 @@ async def get_accounts(
     session_data: SessionData = Depends(get_decrypted_token),
 ):
     response = Service().get_accounts(session_data.users, itemId)
-    logger.debug(f"Accounts response: {response}")
+    logger.debug(f"Accounts response: {response.model_dump_json()}")
     return response
 
 
@@ -65,17 +66,18 @@ async def get_account_by_id(
     session_data: SessionData = Depends(get_decrypted_token),
 ):
     response = Service().get_account_by_id(session_data.users, accountId)
-    logger.debug(f"Account detail response: {response}")
+    logger.debug(f"Account detail response: {response.model_dump_json()}")
     return response
 
 
-@app.get("/transactions", response_model=TransactionsResponse)
-async def get_transactions(
+@app.get("/v2/transactions", response_model=TransactionsResponse)
+async def get_transactions_v2(
     accountId: str,
+    dateFrom: date | None = None,
     session_data: SessionData = Depends(get_decrypted_token),
 ):
     response = Service().get_transactions(session_data.users, accountId)
-    # logger.debug(f"Transactions response: {response}")
+    logger.debug(f"Transactions response: {response.model_dump_json()}")
     return response
 
 

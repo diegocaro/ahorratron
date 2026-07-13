@@ -70,18 +70,13 @@ class BancoConsorcioConnector(ConnectorBase):
         )
         if not producto:
             logger.warning(f"Account with id {accountId} not found in productos")
-            return TransactionsResponse(results=[], total=0, totalPages=0, page=0)
+            return TransactionsResponse()
 
         # Get movements for the account
         movements = self._client.get_movements(producto.numeroCuenta)
         transactions = self._map_transactions_from_movements(movements, producto)
 
-        return TransactionsResponse(
-            results=transactions,
-            total=len(transactions),
-            totalPages=1,
-            page=1,
-        )
+        return TransactionsResponse(results=transactions)
 
     @property
     def _productos(self) -> ProductsResponse:
@@ -127,7 +122,6 @@ class BancoConsorcioConnector(ConnectorBase):
             itemId=itemId,
             balance=resumen.saldo_disponible_float,
             bankData=bank_data,
-            updatedAt=datetime.now(),
         )
 
     def _map_transactions_from_movements(
