@@ -3,6 +3,8 @@ from enum import StrEnum
 
 from pydantic import BaseModel
 
+from ahorratron.sync_api.utils.constants import CHILE_TZ
+
 DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
 DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
 DATE_FORMAT_NO_FACTURADO = "%d/%m/%Y %H:%M:%S"
@@ -132,7 +134,7 @@ class MovimientoNoFacturado(BaseModel):
         return datetime.strptime(
             f"{self.fechaTransaccionString} {self.horaAutorizacion}",
             DATE_FORMAT_NO_FACTURADO,
-        )
+        ).replace(tzinfo=CHILE_TZ)
 
     @property
     def id_fake(self) -> str:
@@ -184,7 +186,9 @@ class Movimiento(BaseModel):
     @property
     def fecha_isoformat(self) -> datetime:
         # example: 20250730 16:44:29
-        return datetime.strptime(self.fecha, DATE_FORMAT_MOVIMIENTO_CARTOLA)
+        return datetime.strptime(self.fecha, DATE_FORMAT_MOVIMIENTO_CARTOLA).replace(
+            tzinfo=CHILE_TZ
+        )
 
 
 class GetCartolaResponse(BaseModel):
@@ -206,7 +210,7 @@ class GetCartolaResponse(BaseModel):
         return datetime.strptime(
             self.horaConsulta.replace(DATE_REPLACE_STRING, ""),
             DATE_FORMAT_HORA_CONSULTA,
-        )
+        ).replace(tzinfo=CHILE_TZ)
 
 
 class GetSaldoResponse(BaseModel):

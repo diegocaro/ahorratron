@@ -5,7 +5,6 @@ from pathlib import Path
 import httpx
 import pytest
 
-from ahorratron.sync_api.config import DEFAULT_TIMEZONE
 from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APIClient
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
     CuentaAhorroRequest,
@@ -19,6 +18,7 @@ from ahorratron.sync_api.institutions.banco_de_chile.models import (
     ObtenerProductosResponse,
     ResumenNacionalResponse,
 )
+from ahorratron.sync_api.utils.constants import CHILE_TZ
 
 TEST_DATA_DIR = Path(__file__).parent / "data"
 
@@ -79,7 +79,7 @@ def test_validate_no_facturados_data(no_facturados_data):
     assert len(no_facturados.listaMovNoFactur) > 0
     m = no_facturados.listaMovNoFactur[0]
     expected_date = datetime.fromisoformat("2025-08-04T10:05:21").replace(
-        tzinfo=DEFAULT_TIMEZONE
+        tzinfo=CHILE_TZ
     )
     assert expected_date == m.fecha_transaccion_iso
 
@@ -101,14 +101,14 @@ def test_validate_cartola_data(cartola_data):
     assert isinstance(cartola.movimientos, list)
 
     expected_date = datetime.fromisoformat("2025-08-05T18:48:00").replace(
-        tzinfo=DEFAULT_TIMEZONE
+        tzinfo=CHILE_TZ
     )
     assert expected_date == cartola.hora_consulta_iso
 
     assert len(cartola.movimientos) > 0
     m = cartola.movimientos[0]
     expected_date = datetime.fromisoformat("2025-08-04T15:40:35").replace(
-        tzinfo=DEFAULT_TIMEZONE
+        tzinfo=CHILE_TZ
     )
     assert expected_date == m.fecha_isoformat
 
