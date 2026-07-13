@@ -1,9 +1,8 @@
-from datetime import datetime
 from enum import StrEnum
 
 from pydantic import BaseModel, Field, model_validator
 
-from ahorratron.sync_api.models.base import APIBaseModel
+from ahorratron.sync_api.models.base import UTCDatetime
 from ahorratron.sync_api.utils.helpers import utcnow
 
 # Source: https://github.com/pluggyai/pluggy-node/blob/cc904e65641759a90959c7b9263c900295c8e7c7/src/types/transaction.ts
@@ -82,9 +81,9 @@ class Merchant(BaseModel):
     category: str | None = None
 
 
-class Transaction(APIBaseModel):
+class Transaction(BaseModel):
     id: str  # Primary identifier of the transaction
-    date: datetime = Field(
+    date: UTCDatetime = Field(
         ...,
         description="Date the transaction was made in ISO 8601 format, e.g., '2023-10-01T12:00:00Z'",  # Date the transaction was made
     )
@@ -112,8 +111,8 @@ class Transaction(APIBaseModel):
     providerId: str | None = None  # Provider ID (for Open Finance connectors)
     operationType: str | None = None  # Operation type of the transaction
     operationCategory: str | None = None  # Operation category of the transaction
-    createdAt: datetime = Field(default_factory=utcnow)
-    updatedAt: datetime = Field(default_factory=utcnow)
+    createdAt: UTCDatetime = Field(default_factory=utcnow)
+    updatedAt: UTCDatetime = Field(default_factory=utcnow)
 
 
 class TransactionsResponse(BaseModel):

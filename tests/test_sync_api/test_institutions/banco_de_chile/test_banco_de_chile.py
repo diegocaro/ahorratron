@@ -118,9 +118,8 @@ def test_validate_saldo_data(saldo_data):
     assert saldo.cupoTotalNacional >= 0
     assert saldo.cupoUtilizadoNacional >= 0
 
-    expected_date = datetime.fromisoformat("2025-08-15T20:10:22").replace(
-        tzinfo=DEFAULT_TIMEZONE
-    )
+    # Epoch timestamps are absolute: 2025-08-15T20:10:22 in Santiago (UTC-4)
+    expected_date = datetime.fromisoformat("2025-08-15T20:10:22-04:00")
     assert expected_date == saldo.fecha_consulta_iso
 
 
@@ -131,9 +130,8 @@ def test_validate_resumen_nacional_data(resumen_nacional_data):
     assert len(transacciones) > 0
 
     t = transacciones[0]
-    expected_date = datetime.fromisoformat("2025-06-28T00:00:00").replace(
-        tzinfo=DEFAULT_TIMEZONE
-    )
+    # Epoch timestamps are absolute: 2025-06-28T00:00:00 in Santiago (UTC-4)
+    expected_date = datetime.fromisoformat("2025-06-28T00:00:00-04:00")
     assert expected_date == t.fecha_transaccion_iso
 
 

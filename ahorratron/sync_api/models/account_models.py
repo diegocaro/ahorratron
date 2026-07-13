@@ -1,9 +1,8 @@
-from datetime import datetime
 from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
-from ahorratron.sync_api.models.base import APIBaseModel
+from ahorratron.sync_api.models.base import UTCDatetime
 from ahorratron.sync_api.utils.helpers import utcnow
 
 
@@ -74,7 +73,7 @@ class DisaggregatedCreditLimit(BaseModel):
     availableAmountCurrencyCode: str | None
 
 
-class Account(APIBaseModel):
+class Account(BaseModel):
     id: str  # Primary identifier of the account
     type: AccountType  # Type of the account (e.g., BANK, CREDIT)
     subtype: AccountSubtype  # Subtype of the account (e.g., CHECKING_ACCOUNT)
@@ -103,8 +102,8 @@ class Account(APIBaseModel):
     disaggregatedCreditLimits: list[DisaggregatedCreditLimit] | None = (
         None  # Disaggregated credit limits
     )
-    createdAt: datetime = Field(default_factory=utcnow)
-    updatedAt: datetime = Field(default_factory=utcnow)
+    createdAt: UTCDatetime = Field(default_factory=utcnow)
+    updatedAt: UTCDatetime = Field(default_factory=utcnow)
 
 
 class AccountsResponse(BaseModel):

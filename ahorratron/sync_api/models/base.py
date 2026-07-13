@@ -1,7 +1,9 @@
 from datetime import datetime
-from typing import Any
+from typing import Annotated
 
-from pydantic import BaseModel, SerializerFunctionWrapHandler, model_serializer
+from pydantic import AfterValidator, PlainSerializer
+
+from ahorratron.sync_api.utils.helpers import to_utc
 
 
 def isoformat_millis(dt: datetime) -> str:
@@ -11,14 +13,15 @@ def isoformat_millis(dt: datetime) -> str:
     return dt.isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
-class APIBaseModel(BaseModel):
-    """Base for Pluggy-compatible response models: serializes every datetime field
-    to millisecond precision (e.g. `2026-07-13T02:41:28.714Z`)."""
+UTCDatetime = Annotated[
+    datetime,
+    AfterValidator(to_utc),
+    PlainSerializer(isoformat_millis, return_type=str, when_used="json"),
+]
+"""Datetime for Pluggy-compatible response models.
 
-    @model_serializer(mode="wrap")
-    def _serialize_datetimes(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
-        data = handler(self)
-        for name, value in self:
-            if isinstance(value, datetime):
-                data[name] = isoformat_millis(value)
-        return data
+On validation, naive values are interpreted in the configured timezone and aware
+values are normalized, so the field is always UTC-aware no matter which connector
+produced it. On JSON serialization it emits millisecond precision with a Z suffix
+(e.g. `2026-07-13T02:41:28.714Z`); `model_dump()` keeps datetime objects.
+"""
