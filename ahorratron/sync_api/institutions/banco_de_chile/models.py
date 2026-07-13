@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from enum import StrEnum
 
 from pydantic import BaseModel
@@ -239,8 +239,7 @@ class GetSaldoResponse(BaseModel):
 
     @property
     def fecha_consulta_iso(self) -> datetime:
-        # There is a bug in Actual Budget where it mishandles timezones
-        return to_utc(datetime.fromtimestamp(self.fechaConsulta // 1000))
+        return datetime.fromtimestamp(self.fechaConsulta // 1000, tz=UTC)
 
 
 class GrupoTipo(StrEnum):
@@ -277,8 +276,7 @@ class TransaccionTarjeta(BaseModel):
     def fecha_transaccion_iso(self) -> datetime | None:
         if self.fechaTransaccion is None:
             return None
-        # There is a bug in Actual Budget where it mishandles timezones
-        return to_utc(datetime.fromtimestamp(self.fechaTransaccion // 1000))
+        return datetime.fromtimestamp(self.fechaTransaccion // 1000, tz=UTC)
 
 
 class Resumen(BaseModel):
