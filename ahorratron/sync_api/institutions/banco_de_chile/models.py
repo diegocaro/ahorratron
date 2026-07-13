@@ -1,8 +1,9 @@
-import zoneinfo
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from enum import StrEnum
 
 from pydantic import BaseModel
+
+from ahorratron.sync_api.utils.constants import CHILE_TZ
 
 DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
 DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
@@ -10,9 +11,6 @@ DATE_FORMAT_NO_FACTURADO = "%d/%m/%Y %H:%M:%S"
 DATE_FORMAT_CUENTA_AHORRO_MOVIMIENTO = "%Y%m%d"
 DATE_FORMAT_CUENTA_AHORRO_CARTOLA = "%d/%m/%Y"
 DATE_REPLACE_STRING = " Hrs."
-
-
-CHILE_TZ = zoneinfo.ZoneInfo("America/Santiago")
 
 
 ### REQUEST MODELS ###
@@ -136,7 +134,7 @@ class MovimientoNoFacturado(BaseModel):
         return datetime.strptime(
             f"{self.fechaTransaccionString} {self.horaAutorizacion}",
             DATE_FORMAT_NO_FACTURADO,
-        )
+        ).replace(tzinfo=CHILE_TZ)
 
     @property
     def id_fake(self) -> str:
@@ -188,7 +186,9 @@ class Movimiento(BaseModel):
     @property
     def fecha_isoformat(self) -> datetime:
         # example: 20250730 16:44:29
-        return datetime.strptime(self.fecha, DATE_FORMAT_MOVIMIENTO_CARTOLA)
+        return datetime.strptime(self.fecha, DATE_FORMAT_MOVIMIENTO_CARTOLA).replace(
+            tzinfo=CHILE_TZ
+        )
 
 
 class GetCartolaResponse(BaseModel):
@@ -210,7 +210,7 @@ class GetCartolaResponse(BaseModel):
         return datetime.strptime(
             self.horaConsulta.replace(DATE_REPLACE_STRING, ""),
             DATE_FORMAT_HORA_CONSULTA,
-        )
+        ).replace(tzinfo=CHILE_TZ)
 
 
 class GetSaldoResponse(BaseModel):
@@ -236,9 +236,7 @@ class GetSaldoResponse(BaseModel):
 
     @property
     def fecha_consulta_iso(self) -> datetime:
-        # There is a bug in Actual Budget where it mishandles timezones
-        dt = datetime.fromtimestamp(self.fechaConsulta // 1000, tz=CHILE_TZ)
-        return dt.replace(tzinfo=None)
+        return datetime.fromtimestamp(self.fechaConsulta // 1000, tz=UTC)
 
 
 class GrupoTipo(StrEnum):
@@ -275,9 +273,7 @@ class TransaccionTarjeta(BaseModel):
     def fecha_transaccion_iso(self) -> datetime | None:
         if self.fechaTransaccion is None:
             return None
-        # There is a bug in Actual Budget where it mishandles timezones
-        dt = datetime.fromtimestamp(self.fechaTransaccion // 1000, tz=CHILE_TZ)
-        return dt.replace(tzinfo=None)
+        return datetime.fromtimestamp(self.fechaTransaccion // 1000, tz=UTC)
 
 
 class Resumen(BaseModel):

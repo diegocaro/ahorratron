@@ -60,7 +60,7 @@ class TestBancoConsorcioConnectorGetTransactions:
         response = connector.get_transactions(accountId="123123123")
 
         mock_client.get_movements.assert_called_once_with("123123123")
-        assert response.total == 7
+        assert response.next is None
         assert len(response.results) == 7
 
     def test_abono_is_credit_with_positive_amount(
@@ -92,5 +92,5 @@ class TestBancoConsorcioConnectorGetTransactions:
         response = connector.get_transactions(accountId="nonexistent")
 
         mock_client.get_movements.assert_not_called()
-        assert response.total == 0
+        assert response.next is None
         assert response.results == []

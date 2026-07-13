@@ -11,14 +11,16 @@ uv run pytest                                                        # tests
 uv run ruff check .                                                  # lint (con autofix: ruff check --fix .)
 uv run pyright                                                       # type check
 docker-compose up                                                    # stack completo (Actual + API + Selenium)
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up   # stack con hot-reload para desarrollo
 ```
+
+Para hot-reload en `ahorratron-sync-api` durante desarrollo, copia `docker-compose.override.yml.example` a `docker-compose.override.yml` (gitignored). Docker Compose lo mezcla automáticamente con `docker-compose.yml` en `docker-compose up`, sin flags `-f` adicionales — construye la imagen localmente, monta `./ahorratron` y agrega `--reload` a uvicorn.
 
 ## Arquitectura
 
 ```
 ahorratron/sync_api/
-├── main.py               # FastAPI: /auth, /accounts, /transactions
+├── main.py               # FastAPI: /auth, /accounts, /v2/transactions
+├── config.py             # LOG_LEVEL, TZ / DEFAULT_TIMEZONE (America/Santiago)
 ├── service.py            # Agrega resultados de múltiples instituciones
 ├── core/
 │   ├── connector.py      # ABC: get_accounts / get_account_by_id / get_transactions
@@ -30,7 +32,8 @@ ahorratron/sync_api/
 ├── models/               # Modelos Pluggy.ai-compatibles (Account, Transaction, SessionData)
 └── utils/
     ├── token.py          # JWT (HS256) + JWE (A256GCM) — las credenciales viajan encriptadas
-    └── constants.py      # Zona horaria America/Santiago, CLP, formatos de fecha
+    ├── helpers.py        # to_utc / utcnow — normalización de fechas a UTC
+    └── constants.py      # CLP, USD, formatos de fecha
 ```
 
 ## Flujo de autenticación
@@ -61,7 +64,7 @@ Cada clave del JSON es un `connector_id`. Los IDs válidos están en el dict `CO
 
 ## IDs de cuenta multi-banco
 
-`Service` prefija los IDs de cuenta con `connector_id:` (ej. `banco_de_chile:123456`) para poder enrutar `/accounts/{id}` y `/transactions?accountId=` a la institución correcta. Los IDs legacy (sin prefijo) se enrutan siempre al primer usuario.
+`Service` prefija los IDs de cuenta con `connector_id:` (ej. `banco_de_chile:123456`) para poder enrutar `/accounts/{id}` y `/v2/transactions?accountId=` a la institución correcta. Los IDs legacy (sin prefijo) se enrutan siempre al primer usuario.
 
 ## Caché
 

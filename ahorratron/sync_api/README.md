@@ -107,7 +107,7 @@ X-API-KEY: your-api-key
 ### 💰 Obtener Transacciones
 
 ```http
-GET /transactions?accountId=cuenta-corriente-123
+GET /v2/transactions?accountId=cuenta-corriente-123
 X-API-KEY: your-api-key
 ```
 
@@ -119,7 +119,7 @@ X-API-KEY: your-api-key
       "id": "tx-789",
       "description": "Pago Supermercado XYZ",
       "amount": -50000.0,
-      "date": "2025-01-15T10:30:00Z",
+      "date": "2025-01-15T10:30:00.000Z",
       "balance": 1450000.0,
       "currency": "CLP",
       "type": "DEBIT",
@@ -130,9 +130,7 @@ X-API-KEY: your-api-key
       }
     }
   ],
-  "total": 1,
-  "totalPages": 1,
-  "page": 1
+  "next": null
 }
 ```
 

@@ -1,7 +1,9 @@
-from datetime import datetime
 from enum import StrEnum
 
 from pydantic import BaseModel, Field, model_validator
+
+from ahorratron.sync_api.models.annotations import datetimeUTC
+from ahorratron.sync_api.utils.helpers import utcnow
 
 # Source: https://github.com/pluggyai/pluggy-node/blob/cc904e65641759a90959c7b9263c900295c8e7c7/src/types/transaction.ts
 
@@ -81,7 +83,7 @@ class Merchant(BaseModel):
 
 class Transaction(BaseModel):
     id: str  # Primary identifier of the transaction
-    date: datetime = Field(
+    date: datetimeUTC = Field(
         ...,
         description="Date the transaction was made in ISO 8601 format, e.g., '2023-10-01T12:00:00Z'",  # Date the transaction was made
     )
@@ -109,13 +111,35 @@ class Transaction(BaseModel):
     providerId: str | None = None  # Provider ID (for Open Finance connectors)
     operationType: str | None = None  # Operation type of the transaction
     operationCategory: str | None = None  # Operation category of the transaction
+    createdAt: datetimeUTC = Field(default_factory=utcnow)
+    updatedAt: datetimeUTC = Field(default_factory=utcnow)
+
+
+class TransactionsResponseV1(BaseModel):
+    total: int = 0
+    totalPages: int = 0
+    page: int = 0
+    results: list[Transaction] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def check_unique_ids(self):
+        ids = [t.id for t in self.results]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Transaction IDs in results must be unique")
+        return self
+
+    @model_validator(mode="after")
+    def fill_total(self):
+        if self.total == 0:
+            self.total = len(self.results)
+            self.totalPages = 1 if self.total > 0 else 0
+            self.page = 1 if self.total > 0 else 0
+        return self
 
 
 class TransactionsResponse(BaseModel):
-    total: int
-    totalPages: int
-    page: int
-    results: list[Transaction]
+    results: list[Transaction] = Field(default_factory=list)
+    next: str | None = None
 
     @model_validator(mode="after")
     def check_unique_ids(self):

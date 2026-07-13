@@ -20,7 +20,9 @@ jobs:
         id: version
         run: |
           VERSION=$(grep -m1 '^version' pyproject.toml | sed -E 's/version = "(.*)"/\1/')
+          MINOR_VERSION=$(echo "$VERSION" | cut -d. -f1,2)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "minor_version=$MINOR_VERSION" >> "$GITHUB_OUTPUT"
           echo "Version: $VERSION"
 
       - name: Set up Docker Buildx
@@ -42,3 +44,4 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/ahorratron:latest
             ghcr.io/${{ github.repository_owner }}/ahorratron:${{ steps.version.outputs.version }}
+            ghcr.io/${{ github.repository_owner }}/ahorratron:${{ steps.version.outputs.minor_version }}
