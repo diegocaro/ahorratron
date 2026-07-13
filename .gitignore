@@ -15,9 +15,11 @@ tmp
 # Dotenv files
 .env
 
-
 # Pytest Coverage
 .coverage
+
+# Docker Compose Override
+docker-compose.override.yml
 
 # macOS files
 .DS_Store
