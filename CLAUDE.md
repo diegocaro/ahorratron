@@ -126,6 +126,12 @@ uv run pytest tests/test_sync_api/           # solo sync_api
 - Solo cuenta corriente (`CUENTA_CORRIENTE`) está implementada.
 - Las demás cuentas/productos se loguean como `warning` y se omiten.
 
+## Releases y versionado
+
+La versión en `pyproject.toml` sigue a la de actual-server: `26.6.0` corresponde a actual-server 26.6.0.
+
+Al mergear a `main`, el workflow `docker-image` lee la versión del `pyproject.toml` y publica la imagen en GHCR con los tags `:<versión>` y `:latest`. Para hacer release: subir la versión en `pyproject.toml`, correr `uv lock`, y mergear.
+
 ## Sesiones legacy
 
 `SessionData` migra tokens viejos que traían `user_data` (campo singular) a `users` (lista) via `model_validator`. No eliminar el campo `user_data` de `SessionData` hasta asegurarse de que no haya tokens viejos en circulación.

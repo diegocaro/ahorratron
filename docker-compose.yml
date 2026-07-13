@@ -1,7 +1,5 @@
 services:
   actual_server:
-    # Fixing version to 26.6.0, recent versions of Actual Budget changed the sync API for Pluggy.ai
-    # FIXME: update the code in the sync_api to support the new API
     image: docker.io/actualbudget/actual-server:26.6.0
     ports:
       # This line makes Actual available at port 5006 of the device you run the server on,

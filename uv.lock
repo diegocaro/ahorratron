@@ -11,12 +11,12 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-06-19T14:21:51.532767Z"
+exclude-newer = "2026-07-06T04:49:29.1805Z"
 exclude-newer-span = "P1W"
 
 [[package]]
 name = "ahorratron"
-version = "0.1.0"
+version = "26.6.0"
 source = { editable = "." }
 dependencies = [
     { name = "cachetools" },
