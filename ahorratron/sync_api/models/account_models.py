@@ -2,7 +2,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
-from ahorratron.sync_api.models.base import UTCDatetime
+from ahorratron.sync_api.models.annotations import datetimeUTC
 from ahorratron.sync_api.utils.helpers import utcnow
 
 
@@ -102,8 +102,8 @@ class Account(BaseModel):
     disaggregatedCreditLimits: list[DisaggregatedCreditLimit] | None = (
         None  # Disaggregated credit limits
     )
-    createdAt: UTCDatetime = Field(default_factory=utcnow)
-    updatedAt: UTCDatetime = Field(default_factory=utcnow)
+    createdAt: datetimeUTC = Field(default_factory=utcnow)
+    updatedAt: datetimeUTC = Field(default_factory=utcnow)
 
 
 class AccountsResponse(BaseModel):

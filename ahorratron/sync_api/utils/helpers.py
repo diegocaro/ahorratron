@@ -20,3 +20,12 @@ def to_utc(dt: datetime, tz: tzinfo = DEFAULT_TIMEZONE) -> datetime:
         dt = dt.replace(tzinfo=tz)
 
     return dt.astimezone(UTC)
+
+
+def isoformat_millis(dt: datetime) -> str:
+    """
+    Create an ISO 8601 string with millisecond precision
+    and a Z suffix for UTC datetimes.
+    """
+
+    return dt.isoformat(timespec="milliseconds").replace("+00:00", "Z")

@@ -9,7 +9,10 @@ from ahorratron.sync_api.config import LOG_LEVEL
 from ahorratron.sync_api.core.credentials import parse_multi_credentials
 from ahorratron.sync_api.models.account_models import Account, AccountsResponse
 from ahorratron.sync_api.models.core_models import AuthRequest, SessionData
-from ahorratron.sync_api.models.transaction_models import TransactionsResponse
+from ahorratron.sync_api.models.transaction_models import (
+    TransactionsResponse,
+    TransactionsResponseV1,
+)
 from ahorratron.sync_api.service import Service
 from ahorratron.sync_api.utils.token import create_encrypted_token, get_decrypted_token
 
@@ -56,7 +59,7 @@ async def get_accounts(
     session_data: SessionData = Depends(get_decrypted_token),
 ):
     response = Service().get_accounts(session_data.users, itemId)
-    logger.debug(f"Accounts response: {response.model_dump_json()}")
+    # logger.debug(f"Accounts response: {response.model_dump_json()}")
     return response
 
 
@@ -66,7 +69,17 @@ async def get_account_by_id(
     session_data: SessionData = Depends(get_decrypted_token),
 ):
     response = Service().get_account_by_id(session_data.users, accountId)
-    logger.debug(f"Account detail response: {response.model_dump_json()}")
+    # logger.debug(f"Account detail response: {response.model_dump_json()}")
+    return response
+
+
+@app.get("/transactions", response_model=TransactionsResponseV1)
+async def get_transactions_v1(
+    accountId: str,
+    session_data: SessionData = Depends(get_decrypted_token),
+):
+    response = Service().get_transactions(session_data.users, accountId)
+    # logger.debug(f"Transactions response: {response.model_dump_json()}")
     return response
 
 
@@ -76,8 +89,13 @@ async def get_transactions_v2(
     dateFrom: date | None = None,
     session_data: SessionData = Depends(get_decrypted_token),
 ):
-    response = Service().get_transactions(session_data.users, accountId)
-    logger.debug(f"Transactions response: {response.model_dump_json()}")
+    interim = Service().get_transactions(session_data.users, accountId)
+    # logger.debug(f"Transactions response: {response.model_dump_json()}")
+
+    response = TransactionsResponse(
+        results=interim.results,
+        next=None,  # Placeholder for pagination logic
+    )
     return response
 
 
