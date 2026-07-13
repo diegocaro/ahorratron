@@ -1,4 +1,3 @@
-import zoneinfo
 from datetime import date, datetime
 from enum import StrEnum
 
@@ -12,9 +11,6 @@ DATE_FORMAT_NO_FACTURADO = "%d/%m/%Y %H:%M:%S"
 DATE_FORMAT_CUENTA_AHORRO_MOVIMIENTO = "%Y%m%d"
 DATE_FORMAT_CUENTA_AHORRO_CARTOLA = "%d/%m/%Y"
 DATE_REPLACE_STRING = " Hrs."
-
-
-CHILE_TZ = zoneinfo.ZoneInfo("America/Santiago")
 
 
 ### REQUEST MODELS ###
@@ -135,9 +131,11 @@ class MovimientoNoFacturado(BaseModel):
     @property
     def fecha_transaccion_iso(self) -> datetime:
         # example: 30/07/2025 16:44:29
-        return datetime.strptime(
-            f"{self.fechaTransaccionString} {self.horaAutorizacion}",
-            DATE_FORMAT_NO_FACTURADO,
+        return to_utc(
+            datetime.strptime(
+                f"{self.fechaTransaccionString} {self.horaAutorizacion}",
+                DATE_FORMAT_NO_FACTURADO,
+            )
         )
 
     @property
@@ -242,8 +240,7 @@ class GetSaldoResponse(BaseModel):
     @property
     def fecha_consulta_iso(self) -> datetime:
         # There is a bug in Actual Budget where it mishandles timezones
-        dt = datetime.fromtimestamp(self.fechaConsulta // 1000, tz=CHILE_TZ)
-        return dt.replace(tzinfo=None)
+        return to_utc(datetime.fromtimestamp(self.fechaConsulta // 1000))
 
 
 class GrupoTipo(StrEnum):
@@ -281,8 +278,7 @@ class TransaccionTarjeta(BaseModel):
         if self.fechaTransaccion is None:
             return None
         # There is a bug in Actual Budget where it mishandles timezones
-        dt = datetime.fromtimestamp(self.fechaTransaccion // 1000, tz=CHILE_TZ)
-        return dt.replace(tzinfo=None)
+        return to_utc(datetime.fromtimestamp(self.fechaTransaccion // 1000))
 
 
 class Resumen(BaseModel):

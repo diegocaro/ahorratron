@@ -5,9 +5,9 @@ from pathlib import Path
 import httpx
 import pytest
 
+from ahorratron.sync_api.config import DEFAULT_TIMEZONE
 from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APIClient
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
-    CHILE_TZ,
     CuentaAhorroRequest,
     CuentaAhorroResponse,
     FechasFacturacionResponse,
@@ -78,7 +78,9 @@ def test_validate_no_facturados_data(no_facturados_data):
 
     assert len(no_facturados.listaMovNoFactur) > 0
     m = no_facturados.listaMovNoFactur[0]
-    expected_date = datetime.fromisoformat("2025-08-04T10:05:21")
+    expected_date = datetime.fromisoformat("2025-08-04T10:05:21").replace(
+        tzinfo=DEFAULT_TIMEZONE
+    )
     assert expected_date == m.fecha_transaccion_iso
 
     expected_fake_id = "3344-0-04/08/2025-10:05:21-12.45"
@@ -99,14 +101,14 @@ def test_validate_cartola_data(cartola_data):
     assert isinstance(cartola.movimientos, list)
 
     expected_date = datetime.fromisoformat("2025-08-05T18:48:00").replace(
-        tzinfo=CHILE_TZ
+        tzinfo=DEFAULT_TIMEZONE
     )
     assert expected_date == cartola.hora_consulta_iso
 
     assert len(cartola.movimientos) > 0
     m = cartola.movimientos[0]
     expected_date = datetime.fromisoformat("2025-08-04T15:40:35").replace(
-        tzinfo=CHILE_TZ
+        tzinfo=DEFAULT_TIMEZONE
     )
     assert expected_date == m.fecha_isoformat
 
@@ -116,7 +118,9 @@ def test_validate_saldo_data(saldo_data):
     assert saldo.cupoTotalNacional >= 0
     assert saldo.cupoUtilizadoNacional >= 0
 
-    expected_date = datetime.fromisoformat("2025-08-15T20:10:22")
+    expected_date = datetime.fromisoformat("2025-08-15T20:10:22").replace(
+        tzinfo=DEFAULT_TIMEZONE
+    )
     assert expected_date == saldo.fecha_consulta_iso
 
 
@@ -127,7 +131,9 @@ def test_validate_resumen_nacional_data(resumen_nacional_data):
     assert len(transacciones) > 0
 
     t = transacciones[0]
-    expected_date = datetime.fromisoformat("2025-06-28T00:00:00")
+    expected_date = datetime.fromisoformat("2025-06-28T00:00:00").replace(
+        tzinfo=DEFAULT_TIMEZONE
+    )
     assert expected_date == t.fecha_transaccion_iso
 
 
