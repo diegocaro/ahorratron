@@ -1,4 +1,5 @@
 import json
+import zoneinfo
 from datetime import UTC, datetime
 
 from pydantic import BaseModel
@@ -18,7 +19,7 @@ def test_result_default_timezone():
 def test_result_is_utc_aware():
     dt = datetime(2025, 1, 15, 12, 0, 0)
 
-    result = to_utc(dt, timezone="America/Santiago")
+    result = to_utc(dt, tz=zoneinfo.ZoneInfo("America/Santiago"))
 
     assert result.tzinfo == UTC
 
@@ -26,7 +27,7 @@ def test_result_is_utc_aware():
 def test_custom_timezone():
     dt = datetime(2025, 1, 15, 12, 0, 0)
 
-    result = to_utc(dt, timezone="UTC")
+    result = to_utc(dt, tz=UTC)
 
     assert result == datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
 

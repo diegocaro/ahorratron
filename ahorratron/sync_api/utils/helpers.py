@@ -1,8 +1,7 @@
-import zoneinfo
 from collections.abc import Sequence
-from datetime import UTC, datetime
+from datetime import UTC, datetime, tzinfo
 
-from ahorratron.sync_api.config import TZ
+from ahorratron.sync_api.config import DEFAULT_TIMEZONE
 
 
 def drop_none[T](x: Sequence[T | None]) -> list[T]:
@@ -15,9 +14,9 @@ def utcnow():
     return datetime.now(UTC)
 
 
-def to_utc(dt: datetime, timezone: str = TZ) -> datetime:
-    """Interpret a naive datetime as a timezone-aware datetime and convert it to UTC."""
+def to_utc(dt: datetime, tz: tzinfo = DEFAULT_TIMEZONE) -> datetime:
+    """Interpret a naive datetime as being in `tz` and convert it to UTC."""
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=zoneinfo.ZoneInfo(timezone))
+        dt = dt.replace(tzinfo=tz)
 
     return dt.astimezone(UTC)
