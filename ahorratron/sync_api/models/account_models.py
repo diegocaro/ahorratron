@@ -3,6 +3,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
+from ahorratron.sync_api.models.base import APIBaseModel
 from ahorratron.sync_api.utils.helpers import utcnow
 
 
@@ -73,7 +74,7 @@ class DisaggregatedCreditLimit(BaseModel):
     availableAmountCurrencyCode: str | None
 
 
-class Account(BaseModel):
+class Account(APIBaseModel):
     id: str  # Primary identifier of the account
     type: AccountType  # Type of the account (e.g., BANK, CREDIT)
     subtype: AccountSubtype  # Subtype of the account (e.g., CHECKING_ACCOUNT)

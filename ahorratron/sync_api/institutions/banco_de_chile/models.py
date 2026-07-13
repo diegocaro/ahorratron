@@ -4,6 +4,8 @@ from enum import StrEnum
 
 from pydantic import BaseModel
 
+from ahorratron.sync_api.utils.helpers import to_utc
+
 DATE_FORMAT_MOVIMIENTO_CARTOLA = "%Y%m%d %H:%M:%S"
 DATE_FORMAT_HORA_CONSULTA = "%d/%m/%Y %H:%M"
 DATE_FORMAT_NO_FACTURADO = "%d/%m/%Y %H:%M:%S"
@@ -187,8 +189,9 @@ class Movimiento(BaseModel):
 
     @property
     def fecha_isoformat(self) -> datetime:
-        # example: 20250730 16:44:29
-        return datetime.strptime(self.fecha, DATE_FORMAT_MOVIMIENTO_CARTOLA)
+        # example input: 20250730 16:44:29
+        # example output: 2025-07-30T20:44:29+00:00
+        return to_utc(datetime.strptime(self.fecha, DATE_FORMAT_MOVIMIENTO_CARTOLA))
 
 
 class GetCartolaResponse(BaseModel):
@@ -207,9 +210,11 @@ class GetCartolaResponse(BaseModel):
 
     @property
     def hora_consulta_iso(self) -> datetime:
-        return datetime.strptime(
-            self.horaConsulta.replace(DATE_REPLACE_STRING, ""),
-            DATE_FORMAT_HORA_CONSULTA,
+        return to_utc(
+            datetime.strptime(
+                self.horaConsulta.replace(DATE_REPLACE_STRING, ""),
+                DATE_FORMAT_HORA_CONSULTA,
+            )
         )
 
 

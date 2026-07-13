@@ -3,6 +3,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, Field, model_validator
 
+from ahorratron.sync_api.models.base import APIBaseModel
 from ahorratron.sync_api.utils.helpers import utcnow
 
 # Source: https://github.com/pluggyai/pluggy-node/blob/cc904e65641759a90959c7b9263c900295c8e7c7/src/types/transaction.ts
@@ -81,7 +82,7 @@ class Merchant(BaseModel):
     category: str | None = None
 
 
-class Transaction(BaseModel):
+class Transaction(APIBaseModel):
     id: str  # Primary identifier of the transaction
     date: datetime = Field(
         ...,

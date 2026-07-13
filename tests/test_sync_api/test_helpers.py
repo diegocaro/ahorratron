@@ -43,6 +43,3 @@ def test_pydantic_model_accepts_utc_datetime():
     parsed = json.loads(json_data)
 
     assert parsed["field"] == "2025-01-15T12:00:00Z"
-
-
-xw

@@ -21,6 +21,7 @@ services:
       - certs_data:/certs
     environment:
       NODE_EXTRA_CA_CERTS: /certs/cert.pem
+      TZ: America/Santiago
     networks:
       ahorratron_net:
     depends_on:
@@ -40,6 +41,8 @@ services:
       - '8443:443' 
     env_file:
       - .env
+    environment:
+      TZ: America/Santiago
     volumes:
       - certs_data:/certs
     command: |
@@ -67,7 +70,8 @@ services:
       - "7900:7900"   # noVNC browser access
       - "5900:5900"   # VNC client access
     shm_size: 2gb
-    # environment:
+    environment:
+      TZ: America/Santiago
       # - SE_START_XVFB=true   # Ensures graphical mode (not headless)
       # - SE_VNC_PASSWORD=secret  # Default VNC password
     networks:

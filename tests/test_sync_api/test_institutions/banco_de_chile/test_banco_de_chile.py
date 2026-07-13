@@ -7,6 +7,7 @@ import pytest
 
 from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APIClient
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
+    CHILE_TZ,
     CuentaAhorroRequest,
     CuentaAhorroResponse,
     FechasFacturacionResponse,
@@ -97,12 +98,16 @@ def test_validate_cartola_data(cartola_data):
     assert cartola.horaConsulta
     assert isinstance(cartola.movimientos, list)
 
-    expected_date = datetime.fromisoformat("2025-08-05T18:48:00")
+    expected_date = datetime.fromisoformat("2025-08-05T18:48:00").replace(
+        tzinfo=CHILE_TZ
+    )
     assert expected_date == cartola.hora_consulta_iso
 
     assert len(cartola.movimientos) > 0
     m = cartola.movimientos[0]
-    expected_date = datetime.fromisoformat("2025-08-04T15:40:35")
+    expected_date = datetime.fromisoformat("2025-08-04T15:40:35").replace(
+        tzinfo=CHILE_TZ
+    )
     assert expected_date == m.fecha_isoformat
 
 
