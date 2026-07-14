@@ -131,9 +131,14 @@ uv run pytest tests/test_sync_api/           # solo sync_api
 
 ## Releases y versionado
 
-La versión en `pyproject.toml` sigue a la de actual-server: `26.6.0` corresponde a actual-server 26.6.0.
+La versión en `pyproject.toml` tiene hasta cuatro segmentos: `<major>.<minor>.<patch>[.<micro>]`.
 
-Al mergear a `main`, el workflow `docker-image` lee la versión del `pyproject.toml` y publica la imagen en GHCR con los tags `:<versión>` y `:latest`. Para hacer release: subir la versión en `pyproject.toml`, correr `uv lock`, y mergear.
+- Los tres primeros siguen a actual-server: `26.7.0` corresponde a actual-server 26.7.0.
+- El cuarto segmento (**micro**) es propio de Ahorratrón: se incrementa en cada release que no corresponde a una nueva versión de actual-server (ej. `26.7.0.1`, `26.7.0.2`). Al adoptar una nueva versión de actual-server, el micro se reinicia (vuelve a `26.8.0`).
+
+**Todo cambio que se mergea a `main` debe subir la versión** (normalmente el micro): el workflow `docker-image` corre en cada push a `main` y publica la imagen en GHCR con los tags `:<versión>`, `:<major>.<minor>` y `:latest` — si la versión no cambió, el tag `:<versión>` anterior se sobreescribe silenciosamente.
+
+Para hacer release: subir la versión en `pyproject.toml`, correr `uv lock`, y mergear.
 
 ## Sesiones legacy
 
