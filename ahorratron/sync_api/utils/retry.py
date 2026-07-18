@@ -13,16 +13,11 @@ logger = logging.getLogger(__name__)
 def retry_on_error[**P, R](
     attempts: int = 3, backoff_seconds: float = 1.0
 ) -> Callable[[Callable[P, R]], Callable[P, R]]:
-    """Retry endpoint methods on SessionExpired, InternalServerError or timeouts.
+    """Retry on SessionExpired, InternalServerError or timeouts.
 
-    Retrying the whole method re-triggers the lazy ``session`` property, which
-    re-logs-in when the session was invalidated — so a SessionExpired retry is
-    a re-login retry. All errors share the same ``attempts`` budget, but
-    SessionExpired is retried at most once: a second 302 right after a fresh
-    login means something is structurally wrong.
-
-    Only safe on read-only queries; none of the bank endpoints mutate state.
-    LoginError is deliberately not caught, so a failed re-login aborts.
+    SessionExpired is retried at most once (a second 302 after a fresh login
+    means something is structurally wrong); LoginError is not caught, so a
+    failed re-login aborts. Only safe on read-only calls.
     """
 
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
