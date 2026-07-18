@@ -1,7 +1,7 @@
 [project]
 name = "ahorratron"
 version = "26.7.0.1"
-description = "Add your description here"
+description = "Sincroniza cuentas de bancos chilenos con Actual Budget"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
