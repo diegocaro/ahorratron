@@ -1,3 +1,5 @@
+import random
+import time
 from collections.abc import Sequence
 from datetime import UTC, datetime, tzinfo
 
@@ -29,3 +31,7 @@ def isoformat_millis(dt: datetime) -> str:
     """
 
     return dt.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+
+def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
+    time.sleep(random.uniform(min_seconds, max_seconds))

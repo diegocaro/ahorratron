@@ -1,11 +1,16 @@
 import json
+import time
 from datetime import datetime
 from pathlib import Path
 
 import httpx
 import pytest
 
-from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APIClient
+from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import (
+    APIClient,
+    InternalServerError,
+    SessionExpired,
+)
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
     CuentaAhorroRequest,
     CuentaAhorroResponse,
@@ -235,3 +240,100 @@ def test_get_cuenta_ahorro(api_client, cuenta_ahorro_data, productos_data):
     cuenta_ahorro = api_client.get_cuenta_ahorro(request)
     assert isinstance(cuenta_ahorro, CuentaAhorroResponse)
     assert len(cuenta_ahorro.listaMovimientos) > 0
+
+
+def patch_login(api_client, monkeypatch, transport):
+    """Make the lazy `session` property 'log in' with a mock transport,
+    counting how many logins happen. Returns the counter dict."""
+    logins = {"count": 0}
+
+    def fake_session(self):
+        if self._session is None:
+            logins["count"] += 1
+            self._session = httpx.Client(transport=transport)
+        return self._session
+
+    monkeypatch.setattr(APIClient, "session", property(fake_session))
+    return logins
+
+
+def test_retry_on_302_relogs_in(api_client, productos_data, monkeypatch):
+    responses = iter([httpx.Response(302), httpx.Response(200, json=productos_data)])
+    transport = httpx.MockTransport(lambda request: next(responses))
+    logins = patch_login(api_client, monkeypatch, transport)
+
+    productos = api_client.get_productos()
+    assert isinstance(productos, ObtenerProductosResponse)
+    assert logins["count"] == 2  # initial login + re-login after 302
+
+
+def test_persistent_302_raises_after_one_relogin(api_client, monkeypatch):
+    transport = httpx.MockTransport(lambda request: httpx.Response(302))
+    logins = patch_login(api_client, monkeypatch, transport)
+
+    with pytest.raises(SessionExpired):
+        api_client.get_productos()
+    assert logins["count"] == 2
+
+
+def test_retry_on_500(api_client, productos_data, monkeypatch):
+    monkeypatch.setattr(time, "sleep", lambda _: None)
+    responses = iter(
+        [
+            httpx.Response(500),
+            httpx.Response(500),
+            httpx.Response(200, json=productos_data),
+        ]
+    )
+    api_client._session = httpx.Client(
+        transport=httpx.MockTransport(lambda request: next(responses))
+    )
+
+    productos = api_client.get_productos()
+    assert isinstance(productos, ObtenerProductosResponse)
+
+
+def test_persistent_500_raises(api_client, monkeypatch):
+    monkeypatch.setattr(time, "sleep", lambda _: None)
+    requests_made = {"count": 0}
+
+    def mock_send(request):
+        requests_made["count"] += 1
+        return httpx.Response(500)
+
+    api_client._session = httpx.Client(transport=httpx.MockTransport(mock_send))
+
+    with pytest.raises(InternalServerError):
+        api_client.get_productos()
+    assert requests_made["count"] == 3  # default attempts
+
+
+def test_retry_on_timeout(api_client, productos_data, monkeypatch):
+    monkeypatch.setattr(time, "sleep", lambda _: None)
+    requests_made = {"count": 0}
+
+    def mock_send(request):
+        requests_made["count"] += 1
+        if requests_made["count"] == 1:
+            raise httpx.ReadTimeout("timed out")
+        return httpx.Response(200, json=productos_data)
+
+    api_client._session = httpx.Client(transport=httpx.MockTransport(mock_send))
+
+    productos = api_client.get_productos()
+    assert isinstance(productos, ObtenerProductosResponse)
+    assert requests_made["count"] == 2
+
+
+def test_4xx_is_not_retried(api_client):
+    requests_made = {"count": 0}
+
+    def mock_send(request):
+        requests_made["count"] += 1
+        return httpx.Response(403)
+
+    api_client._session = httpx.Client(transport=httpx.MockTransport(mock_send))
+
+    with pytest.raises(httpx.HTTPStatusError):
+        api_client.get_productos()
+    assert requests_made["count"] == 1
