@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from cachetools import Cache, LRUCache
@@ -66,7 +66,7 @@ class BackgroundRefreshCache:
         self._cache: Cache = cache_class(maxsize, **cache_kwargs)
 
     def _now(self) -> datetime:
-        return datetime.now()
+        return datetime.now(UTC)
 
     def _is_stale(self, entry: _Entry) -> bool:
         return (self._now() - entry.timestamp) > timedelta(seconds=self.ttl_seconds)

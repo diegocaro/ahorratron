@@ -53,7 +53,9 @@ def parse_multi_credentials(client_id: str, client_secret: str) -> list[UserData
             return users
     except CredentialError:
         raise
-    except Exception as exc:
+    except ValueError as exc:
+        # Covers base64/binascii errors, JSON decode errors, and pydantic
+        # ValidationError — all subclass ValueError.
         logger.debug("Not multi-bank format (%s), falling back to single-bank", exc)
 
     # Fallback: single institution (old format — connector_id;rut or just rut)

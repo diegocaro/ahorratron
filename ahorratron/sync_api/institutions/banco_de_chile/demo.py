@@ -22,23 +22,28 @@ class DemoAPIClient:
         pass
 
     def get_productos(self, incluirTarjetas: bool = True) -> ObtenerProductosResponse:
-        parsed = json.load(open(DATADIR / "productos.json"))
+        with open(DATADIR / "productos.json") as f:
+            parsed = json.load(f)
         return ObtenerProductosResponse.model_validate(parsed)
 
     def get_no_facturados(
         self, data: MovimientosNoFacturadosRequest
     ) -> NoFacturadosResponse:
-        parsed = json.load(open(DATADIR / "no_facturados.json"))
+        with open(DATADIR / "no_facturados.json") as f:
+            parsed = json.load(f)
         return NoFacturadosResponse.model_validate(parsed)
 
     def get_cartola(self, data: GetCartolaCuentaRequest) -> GetCartolaResponse:
-        parsed = json.load(open(DATADIR / "cartola.json"))
+        with open(DATADIR / "cartola.json") as f:
+            parsed = json.load(f)
         return GetCartolaResponse.model_validate(parsed)
 
     def get_saldo(self, data: MovimientosNoFacturadosRequest) -> GetSaldoResponse:
-        parsed = json.load(open(DATADIR / "saldo.json"))
+        with open(DATADIR / "saldo.json") as f:
+            parsed = json.load(f)
         return GetSaldoResponse.model_validate(parsed)
 
     def get_cuenta_ahorro(self, data: CuentaAhorroRequest) -> CuentaAhorroResponse:
-        parsed = json.load(open(DATADIR / "cuenta_ahorro.json"))
+        with open(DATADIR / "cuenta_ahorro.json") as f:
+            parsed = json.load(f)
         return CuentaAhorroResponse.model_validate(parsed)

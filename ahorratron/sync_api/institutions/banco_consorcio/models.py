@@ -4,6 +4,8 @@ from typing import Any, overload
 
 from pydantic import BaseModel
 
+from ahorratron.sync_api.utils.constants import CHILE_TZ
+
 TIME_FORMAT = "%H:%M:%S"
 DATE_FORMAT = "%d/%m/%Y"
 
@@ -43,7 +45,9 @@ class DetalleItem(BaseModel):
 
     @property
     def time(self) -> time:
-        return datetime.strptime(self.hora, TIME_FORMAT).time()
+        return (
+            datetime.strptime(self.hora, TIME_FORMAT).replace(tzinfo=CHILE_TZ).timetz()
+        )
 
     @property
     def monto_float(self) -> float:
@@ -56,7 +60,7 @@ class DtoResponseSetResultado(BaseModel):
 
     @property
     def date(self) -> datetime:
-        return datetime.strptime(self.fecha, DATE_FORMAT)
+        return datetime.strptime(self.fecha, DATE_FORMAT).replace(tzinfo=CHILE_TZ)
 
 
 class DtoResponseCodigosEstadoHttp(BaseModel):

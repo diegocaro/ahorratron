@@ -45,8 +45,6 @@ def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
 class LoginError(Exception):
     """Custom exception for login errors. You should not retry if this is raised."""
 
-    pass
-
 
 class APIClient:
     """
