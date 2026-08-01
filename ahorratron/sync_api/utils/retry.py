@@ -5,13 +5,14 @@ from collections.abc import Callable
 
 import httpx
 
+from ahorratron.sync_api.config import RETRY_ATTEMPTS, RETRY_BACKOFF_SECONDS
 from ahorratron.sync_api.core.exceptions import InternalServerError, SessionExpired
 
 logger = logging.getLogger(__name__)
 
 
 def retry_on_error[**P, R](
-    attempts: int = 3, backoff_seconds: float = 1.0
+    attempts: int = RETRY_ATTEMPTS, backoff_seconds: float = RETRY_BACKOFF_SECONDS
 ) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """Retry on SessionExpired, InternalServerError or timeouts.
 
