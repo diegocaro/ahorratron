@@ -65,14 +65,6 @@ def decode_url(url: str) -> str:
     return decrypt(ans)
 
 
-def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
-    time.sleep(random.uniform(min_seconds, max_seconds))
-
-
-class LoginError(Exception):
-    """Custom exception for login errors. You should not retry if this is raised."""
-
-
 class BancoConsorcioAPI:
     BASE_URL = BANK_API_BASE_URL
     TC_API_BASE_URL = BANK_TC_API_BASE_URL
