@@ -49,6 +49,11 @@ extend-ignore = [
     "E731" # lambda assignment
 ]
 
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency injection relies on calling Depends()/Query()/etc.
+# as argument defaults; this is the documented way to opt B008 out for them.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
+
 [tool.pyright]
 venvPath = "."
 venv = ".venv"

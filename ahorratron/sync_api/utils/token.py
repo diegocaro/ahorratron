@@ -48,5 +48,7 @@ def get_decrypted_token(x_api_key: str = Header(..., alias="X-API-KEY")) -> Sess
             raise HTTPException(status_code=401, detail="Invalid encrypted token")
         session_data = SessionData.model_validate_json(decrypted.decode())
         return session_data
-    except Exception:
+    except HTTPException:
+        raise
+    except Exception:  # noqa: BLE001 -- any decode/crypto/validation failure means an invalid token
         raise HTTPException(status_code=401, detail="Invalid or expired token")

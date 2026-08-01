@@ -11,7 +11,7 @@ class Model(BaseModel):
 
 
 def test_naive_datetime_uses_default_timezone():
-    model = Model(dt=datetime(2025, 1, 15, 12, 0, 0))
+    model = Model(dt=datetime(2025, 1, 15, 12, 0, 0))  # noqa: DTZ001 -- naive input under test
 
     assert model.dt == datetime(2025, 1, 15, 15, 0, 0, tzinfo=UTC)
 

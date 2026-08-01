@@ -398,13 +398,13 @@ class MovimientoCuentaAhorro(BaseModel):
     def fecha_contable_iso(self) -> datetime:
         return datetime.strptime(
             self.fechaContable, DATE_FORMAT_CUENTA_AHORRO_MOVIMIENTO
-        )
+        ).replace(tzinfo=CHILE_TZ)
 
     @property
     def fecha_efectiva_iso(self) -> datetime:
         return datetime.strptime(
             self.fechaEfectiva, DATE_FORMAT_CUENTA_AHORRO_MOVIMIENTO
-        )
+        ).replace(tzinfo=CHILE_TZ)
 
 
 class CuentaAhorroResponse(BaseModel):
@@ -426,4 +426,4 @@ class CuentaAhorroResponse(BaseModel):
     def fecha_ultima_cartola_iso(self) -> datetime:
         return datetime.strptime(
             self.fechaUltimaCartola, DATE_FORMAT_CUENTA_AHORRO_CARTOLA
-        )
+        ).replace(tzinfo=CHILE_TZ)
