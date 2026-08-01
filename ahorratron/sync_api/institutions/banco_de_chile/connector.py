@@ -58,7 +58,7 @@ class BancoDeChileConnector(ConnectorBase):
     def __init__(self, client: APIClient):
         self._client = client
 
-        self._cache = TTLCache(maxsize=100, ttl=60)
+        self._cache = TTLCache[str, ObtenerProductosResponse](maxsize=100, ttl=60)
 
     def get_accounts(self, itemId: str) -> AccountsResponse:
         cuentas = [
