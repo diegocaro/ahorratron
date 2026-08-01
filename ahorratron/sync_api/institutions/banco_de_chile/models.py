@@ -275,6 +275,10 @@ class TransaccionTarjeta(BaseModel):
             return None
         return datetime.fromtimestamp(self.fechaTransaccion // 1000, tz=UTC)
 
+    @property
+    def is_prepago(self):
+        return ".PREPAGO:" in self.descripcion.upper()
+
 
 class Resumen(BaseModel):
     cupo: float

@@ -418,6 +418,13 @@ class BancoDeChileConnector(ConnectorBase):
                 f"Skipping cuotas transaction: {movimiento.descripcion} {movimiento.montoTransaccion}"
             )
             return None
+
+        if movimiento.is_prepago:
+            logger.warning(
+                f"Skipping prepago transaction {movimiento.descripcion} {movimiento.montoTransaccion}"
+            )
+            return None
+
         else:
             logger.error(f"Unknown transaction type: {movimiento.grupo}")
             return None
