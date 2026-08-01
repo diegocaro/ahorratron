@@ -11,7 +11,7 @@ COPY . /app
 WORKDIR /app
 
 # Install the application dependencies.
-RUN uv sync --frozen --no-cache
+RUN uv sync --frozen --no-cache --no-dev
 
 # Expose port
 EXPOSE 8000
