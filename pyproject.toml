@@ -1,11 +1,11 @@
 [project]
 name = "ahorratron"
-version = "26.7.0.1"
+version = "26.7.0.2"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "fastapi[standard]>=0.104.0",
+    "fastapi>=0.104.0",
     "uvicorn[standard]>=0.24.0",
     "pydantic>=2.12.0,<3.0.0",
     "selenium>=4.34.2",
