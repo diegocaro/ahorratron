@@ -3,8 +3,6 @@ import json
 import logging
 import os
 import platform
-import random
-import time
 from typing import Any
 from urllib.parse import quote, unquote, urlparse
 
@@ -18,12 +16,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+from ahorratron.sync_api.core.exceptions import LoginError
 from ahorratron.sync_api.institutions.banco_consorcio.models import (
     MovementsResponse,
     NoFacturadosResponse,
     ProductsResponse,
     ResumenCuentaResponse,
 )
+from ahorratron.sync_api.utils.helpers import random_wait
 
 ENCRYPTION_KEY_32 = os.environ["CONSORCIO_ENC_KEY"].encode("utf-8")
 ENCRYPTION_IV_16 = os.environ["CONSORCIO_ENC_IV"].encode("utf-8")
@@ -63,14 +63,6 @@ def decode_url(url: str) -> str:
     last_segment = parsed.path.split("/")[-1]
     ans = unquote(last_segment)
     return decrypt(ans)
-
-
-def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
-    time.sleep(random.uniform(min_seconds, max_seconds))
-
-
-class LoginError(Exception):
-    """Custom exception for login errors. You should not retry if this is raised."""
 
 
 class BancoConsorcioAPI:

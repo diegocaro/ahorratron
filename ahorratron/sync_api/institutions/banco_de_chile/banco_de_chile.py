@@ -1,8 +1,6 @@
 import logging
 import os
 import platform
-import random
-import time
 from typing import Any, ClassVar
 
 import httpx
@@ -13,6 +11,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+from ahorratron.sync_api.core.exceptions import (
+    InternalServerError,
+    LoginError,
+    SessionExpired,
+)
 from ahorratron.sync_api.institutions.banco_de_chile.models import (
     CuentaAhorroRequest,
     CuentaAhorroResponse,
@@ -26,6 +29,8 @@ from ahorratron.sync_api.institutions.banco_de_chile.models import (
     ResumenNacionalResponse,
     ResumenPorFechaRequest,
 )
+from ahorratron.sync_api.utils.helpers import random_wait
+from ahorratron.sync_api.utils.retry import retry_on_error
 
 BANK_LOGIN_URL = os.environ["BANK_LOGIN_URL"]
 BANK_API_BASE_URL = os.environ["BANK_API_BASE_URL"].rstrip("/")
@@ -36,14 +41,6 @@ HEADER_ORIGIN = os.environ["HEADER_ORIGIN"]
 logger = logging.getLogger(__name__)
 
 type CookieDict = dict[str, str]
-
-
-def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
-    time.sleep(random.uniform(min_seconds, max_seconds))
-
-
-class LoginError(Exception):
-    """Custom exception for login errors. You should not retry if this is raised."""
 
 
 class APIClient:
@@ -110,16 +107,27 @@ class APIClient:
             self._session = s
         return self._session
 
+    def _invalidate_session(self) -> None:
+        if self._session is not None:
+            self._session.close()
+            self._session = None
+
     def _handle_response(self, response: httpx.Response) -> Any:
         try:
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:
             if response.status_code == 302:
-                self._session = None
-                logger.info("Session expired, re-logging in")
-                raise ValueError("Session expired, please re-login") from e
+                self._invalidate_session()
+                raise SessionExpired("Session expired, re-login required") from e
+            if response.status_code >= 500:
+                logger.error(f"HTTP error occurred: {e}")
+                logger.error(f"Response content: {response.text}")
+                raise InternalServerError(
+                    f"Bank API returned {response.status_code}"
+                ) from e
             logger.error(f"HTTP error occurred: {e}")
+            logger.error(f"Response content: {response.text}")
             raise
 
     def _login_and_cookies(self) -> list[CookieDict]:
@@ -194,6 +202,7 @@ class APIClient:
         # Return session cookies
         return cookies
 
+    @retry_on_error()
     def get_productos(self, incluirTarjetas: bool = True) -> ObtenerProductosResponse:
         url = f"{self.BASE_URL}/selectorproductos/selectorProductos/obtenerProductos"
         params = {"incluirTarjetas": incluirTarjetas}
@@ -201,6 +210,7 @@ class APIClient:
         parsed = self._handle_response(response)
         return ObtenerProductosResponse.model_validate(parsed)
 
+    @retry_on_error()
     def get_no_facturados(
         self, data: MovimientosNoFacturadosRequest
     ) -> NoFacturadosResponse:
@@ -211,6 +221,7 @@ class APIClient:
         logger.debug(f"Raw No facturados raw response: {parsed}")
         return NoFacturadosResponse.model_validate(parsed)
 
+    @retry_on_error()
     def get_cartola(self, data: GetCartolaCuentaRequest) -> GetCartolaResponse:
         url = f"{self.BASE_URL}/bff-pper-prd-cta-movimientos/movimientos/getCartola"
 
@@ -218,12 +229,14 @@ class APIClient:
         parsed = self._handle_response(response)
         return GetCartolaResponse.model_validate(parsed)
 
+    @retry_on_error()
     def get_saldo(self, data: MovimientosNoFacturadosRequest) -> GetSaldoResponse:
         url = f"{self.BASE_URL}/tarjeta-credito-digital/saldo/obtener-saldo"
         response = self.session.post(url, json=data.model_dump())
         parsed = self._handle_response(response)
         return GetSaldoResponse.model_validate(parsed)
 
+    @retry_on_error()
     def get_fechas_facturacion(
         self, data: MovimientosNoFacturadosRequest
     ) -> FechasFacturacionResponse:
@@ -232,6 +245,7 @@ class APIClient:
         parsed = self._handle_response(response)
         return FechasFacturacionResponse.model_validate(parsed)
 
+    @retry_on_error()
     def get_resumen_nacional(
         self, data: ResumenPorFechaRequest
     ) -> ResumenNacionalResponse:
@@ -240,6 +254,7 @@ class APIClient:
         parsed = self._handle_response(response)
         return ResumenNacionalResponse.model_validate(parsed)
 
+    @retry_on_error()
     def get_cuenta_ahorro(self, data: CuentaAhorroRequest) -> CuentaAhorroResponse:
         url = f"{self.BASE_URL}/movimientos/getMovimientosCuentaAhorro"
         response = self.session.post(url, json=data.model_dump())
