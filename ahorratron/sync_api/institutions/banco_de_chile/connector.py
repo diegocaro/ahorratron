@@ -58,7 +58,7 @@ class BancoDeChileConnector(ConnectorBase):
     def __init__(self, client: APIClient):
         self._client = client
 
-        self._cache = TTLCache(maxsize=100, ttl=60)
+        self._cache = TTLCache[str, ObtenerProductosResponse](maxsize=100, ttl=60)
 
     def get_accounts(self, itemId: str) -> AccountsResponse:
         cuentas = [
@@ -418,6 +418,13 @@ class BancoDeChileConnector(ConnectorBase):
                 f"Skipping cuotas transaction: {movimiento.descripcion} {movimiento.montoTransaccion}"
             )
             return None
+
+        if movimiento.is_prepago:
+            logger.warning(
+                f"Skipping prepago transaction {movimiento.descripcion} {movimiento.montoTransaccion}"
+            )
+            return None
+
         else:
             logger.error(f"Unknown transaction type: {movimiento.grupo}")
             return None

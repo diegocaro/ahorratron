@@ -42,9 +42,8 @@ class SessionData(BaseModel, frozen=True):
     @classmethod
     def _migrate_legacy(cls, data):
         """If an old-format token has ``user_data`` but no ``users``, migrate it."""
-        if isinstance(data, dict):
-            if "user_data" in data and not data.get("users"):
-                ud = data["user_data"]
-                if ud is not None:
-                    data["users"] = [ud]
+        if isinstance(data, dict) and "user_data" in data and not data.get("users"):
+            ud = data["user_data"]
+            if ud is not None:
+                data["users"] = [ud]
         return data

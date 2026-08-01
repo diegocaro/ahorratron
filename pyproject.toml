@@ -1,7 +1,7 @@
 [project]
 name = "ahorratron"
-version = "26.7.0.1"
-description = "Sincroniza cuentas de bancos chilenos con Actual Budget"
+version = "26.7.1"
+description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -48,6 +48,11 @@ extend-select = [
 extend-ignore = [
     "E731" # lambda assignment
 ]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency injection relies on calling Depends()/Query()/etc.
+# as argument defaults; this is the documented way to opt B008 out for them.
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
 
 [tool.pyright]
 venvPath = "."

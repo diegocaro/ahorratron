@@ -43,6 +43,14 @@ logger = logging.getLogger(__name__)
 type CookieDict = dict[str, str]
 
 
+def random_wait(min_seconds: float = 1, max_seconds: float = 3) -> None:
+    time.sleep(random.uniform(min_seconds, max_seconds))
+
+
+class LoginError(Exception):
+    """Custom exception for login errors. You should not retry if this is raised."""
+
+
 class APIClient:
     """
     Note: if you ever use this class in a thread, or update the code to be async,

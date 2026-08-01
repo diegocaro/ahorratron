@@ -5,7 +5,7 @@ from ahorratron.sync_api.utils.helpers import to_utc
 
 
 def test_default_timezone():
-    dt = datetime(2025, 1, 15, 12, 0, 0)
+    dt = datetime(2025, 1, 15, 12, 0, 0)  # noqa: DTZ001 -- naive input is what to_utc interprets
 
     result = to_utc(dt)
 
@@ -13,7 +13,7 @@ def test_default_timezone():
 
 
 def test_custom_timezone():
-    dt = datetime(2025, 1, 15, 12, 0, 0)
+    dt = datetime(2025, 1, 15, 12, 0, 0)  # noqa: DTZ001 -- naive input is what to_utc interprets
 
     result = to_utc(dt, tz=zoneinfo.ZoneInfo("America/Santiago"))
 
@@ -21,7 +21,7 @@ def test_custom_timezone():
 
 
 def test_utc_timezone():
-    dt = datetime(2025, 1, 15, 12, 0, 0)
+    dt = datetime(2025, 1, 15, 12, 0, 0)  # noqa: DTZ001 -- naive input is what to_utc interprets
 
     result = to_utc(dt, tz=UTC)
 

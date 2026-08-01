@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 class BancoConsorcioConnector(ConnectorBase):
     def __init__(self, client: BancoConsorcioAPI):
         self._client = client
-        self._cache = TTLCache(maxsize=100, ttl=60)
+        self._cache = TTLCache[str, ProductsResponse](maxsize=100, ttl=60)
 
     def get_accounts(self, itemId: str) -> AccountsResponse:
         productos = self._productos
