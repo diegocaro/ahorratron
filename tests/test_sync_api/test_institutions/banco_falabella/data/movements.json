@@ -1,0 +1,29 @@
+{
+  "account_id": "10000000001",
+  "movements": [
+    {
+      "id": "abc111",
+      "date": "15/07/2026",
+      "description": "Transferencia recibida",
+      "amount": 50000.0,
+      "balance": 100000.0,
+      "tipo": "abono"
+    },
+    {
+      "id": "abc222",
+      "date": "14/07/2026",
+      "description": "Pago comercio",
+      "amount": -12000.0,
+      "balance": 601011.0,
+      "tipo": "cargo"
+    },
+    {
+      "id": "abc333",
+      "date": "10/07/2026",
+      "description": "Abono sueldo",
+      "amount": 800000.0,
+      "balance": 613011.0,
+      "tipo": "abono"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "account_id": "1234",
+  "movements": [
+    {
+      "id": "cmr1",
+      "date": "20/07/2026",
+      "description": "SUPERMERCADO",
+      "amount": -15990.0,
+      "tipo": "cargo",
+      "status": "pending"
+    },
+    {
+      "id": "cmr2",
+      "date": "01/06/2026",
+      "description": "FARMACIA",
+      "amount": -8900.0,
+      "tipo": "cargo",
+      "status": "posted"
+    },
+    {
+      "id": "cmr3",
+      "date": "15/07/2026",
+      "description": "PAGO CMR",
+      "amount": 50000.0,
+      "tipo": "abono",
+      "status": "posted"
+    }
+  ]
+}
