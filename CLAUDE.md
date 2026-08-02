@@ -129,6 +129,17 @@ uv run pytest tests/test_sync_api/           # solo sync_api
 - Solo cuenta corriente (`CUENTA_CORRIENTE`) está implementada.
 - Las demás cuentas/productos se loguean como `warning` y se omiten.
 
+## Banco Falabella — estado WIP
+
+- Cuenta corriente + CMR vía Selenium + scrape DOM (mismo path UI que fintself).
+- Corriente: saldo + mes calendario más reciente (`MM/YYYY`). "Últimos/Mes en curso" dejan la tabla vacía en el DOM.
+- CMR: no facturados → `PENDING`; facturados → `POSTED` **solo del último mes** del estado (con dedupe).
+- APIs cifradas `{m,p,s,i}` aún no usadas (posible optimización futura).
+- Variable opcional: `FALABELLA_LOGIN_URL` (default `https://www.bancofalabella.cl`).
+- `FALABELLA_CHECKING_MAX_MONTHS` — cuántos `MM/YYYY` scrapear (default `1`).
+- Connector id: `banco_falabella`.
+- Smoke live: `uv run python scripts/live_falabella_smoke.py` (lee `CL_FALABELLA_*`).
+
 ## Releases y versionado
 
 La versión en `pyproject.toml` tiene hasta cuatro segmentos: `<major>.<minor>.<patch>[.<micro>]`.

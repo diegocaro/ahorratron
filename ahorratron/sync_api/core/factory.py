@@ -13,12 +13,19 @@ from ahorratron.sync_api.institutions.banco_de_chile.connector import (
     BancoDeChileConnector,
 )
 from ahorratron.sync_api.institutions.banco_de_chile.demo import DemoAPIClient
+from ahorratron.sync_api.institutions.banco_falabella.banco_falabella import (
+    BancoFalabellaAPI,
+)
+from ahorratron.sync_api.institutions.banco_falabella.connector import (
+    BancoFalabellaConnector,
+)
 from ahorratron.sync_api.models.core_models import UserData
 
 CONNECTORS = {
     "banco_de_chile": (BancoDeChileConnector, APIClient),
     "demo_banco_de_chile": (BancoDeChileConnector, DemoAPIClient),
     "banco_consorcio": (BancoConsorcioConnector, BancoConsorcioAPI),
+    "banco_falabella": (BancoFalabellaConnector, BancoFalabellaAPI),
 }
 
 # Simple in-memory cache for connectors per user and institution

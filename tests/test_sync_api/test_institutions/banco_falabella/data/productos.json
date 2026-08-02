@@ -1,0 +1,20 @@
+{
+  "products": [
+    {
+      "id": "10000000001",
+      "name": "Cuenta Corriente",
+      "number": "10000000001",
+      "type": "checking",
+      "balance": 100000.0
+    },
+    {
+      "id": "1234",
+      "name": "CMR",
+      "number": "1234",
+      "type": "credit_card",
+      "balance": 500000.0,
+      "credit_limit": 1000000.0,
+      "available_credit": 500000.0
+    }
+  ]
+}

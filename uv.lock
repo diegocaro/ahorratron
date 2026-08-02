@@ -8,12 +8,12 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-07-25T02:30:25.176156Z"
+exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
 exclude-newer-span = "P1W"
 
 [[package]]
 name = "ahorratron"
-version = "26.7.0.2"
+version = "26.7.0.3"
 source = { editable = "." }
 dependencies = [
     { name = "cachetools" },
