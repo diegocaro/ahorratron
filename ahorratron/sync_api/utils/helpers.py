@@ -10,6 +10,26 @@ def drop_none[T](x: Sequence[T | None]) -> list[T]:
     return [i for i in x if i is not None]
 
 
+def disambiguate_ids(ids: Sequence[str]) -> list[str]:
+    """Agrega un contador a los ids repetidos para hacerlos únicos.
+
+    Cuando el banco no entrega un identificador, el id se arma con los campos
+    del movimiento. Dos compras idénticas (mismo comercio, día y monto) quedan
+    con el mismo id, así que se numeran las repeticiones en el orden de la
+    lista: la primera conserva el id original y las siguientes reciben el
+    sufijo `#2`, `#3`, etc.
+
+    Se devuelve la lista en el mismo orden que entró.
+    """
+    counts = {i: 0 for i in ids}
+    unique = []
+    for i in ids:
+        counts[i] += 1
+        n = counts[i]
+        unique.append(i if n == 1 else f"{i}#{n}")
+    return unique
+
+
 def utcnow():
     """Return the current UTC time as a timezone-aware datetime object."""
 
