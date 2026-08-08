@@ -39,7 +39,7 @@ from ahorratron.sync_api.models.transaction_models import (
     TransactionStatus,
     TransactionType,
 )
-from ahorratron.sync_api.utils.helpers import drop_none
+from ahorratron.sync_api.utils.helpers import disambiguate_ids, drop_none
 
 from .banco_de_chile import APIClient
 
@@ -320,9 +320,13 @@ class BancoDeChileConnector(ConnectorBase):
 
     def _get_transactions_tarjeta_credito(self, tarjeta: Producto) -> list[Transaction]:
         no_facturados_raw = self._get_no_facturados_raw(tarjeta)
+        movimientos = no_facturados_raw.listaMovNoFactur
+        # los ids se calculan sobre la lista completa (antes de descartar
+        # internacionales o prepago) para que no cambien al filtrar
+        ids = disambiguate_ids([m.id_fake for m in movimientos])
         no_facturados = [
-            self._map_transaction_no_facturado(movimiento, tarjeta)
-            for movimiento in no_facturados_raw.listaMovNoFactur
+            self._map_transaction_no_facturado(movimiento, tarjeta, transaction_id)
+            for movimiento, transaction_id in zip(movimientos, ids, strict=True)
         ]
 
         facturados_raw = self._get_facturados_raw(tarjeta)
@@ -354,7 +358,10 @@ class BancoDeChileConnector(ConnectorBase):
         return ans
 
     def _map_transaction_no_facturado(
-        self, movimiento: MovimientoNoFacturado, tarjeta: Producto
+        self,
+        movimiento: MovimientoNoFacturado,
+        tarjeta: Producto,
+        transaction_id: str | None = None,
     ) -> Transaction | None:
         if movimiento.origenTransaccion != OrigenTransaccionTipo.NAC:
             logger.warning(
@@ -374,7 +381,7 @@ class BancoDeChileConnector(ConnectorBase):
             transaction_type = TransactionType.CREDIT
 
         return Transaction(
-            id=movimiento.id_fake,
+            id=transaction_id or movimiento.id_fake,
             date=movimiento.fecha_transaccion_iso,
             amount=movimiento.montoCompra,
             # balance=balance,
