@@ -1,6 +1,6 @@
 [project]
 name = "ahorratron"
-version = "26.7.0.2"
+version = "26.7.0.3"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
