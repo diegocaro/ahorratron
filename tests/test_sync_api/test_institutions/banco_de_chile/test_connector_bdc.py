@@ -9,7 +9,11 @@ from ahorratron.sync_api.institutions.banco_de_chile.banco_de_chile import APICl
 from ahorratron.sync_api.institutions.banco_de_chile.connector import (
     BancoDeChileConnector,
 )
-from ahorratron.sync_api.institutions.banco_de_chile.models import NoFacturadosResponse
+from ahorratron.sync_api.institutions.banco_de_chile.models import (
+    GrupoTipo,
+    NoFacturadosResponse,
+    TransaccionTarjeta,
+)
 from ahorratron.sync_api.models.transaction_models import (
     Merchant,
     Transaction,
@@ -18,6 +22,32 @@ from ahorratron.sync_api.models.transaction_models import (
 )
 
 TEST_DATA_DIR = Path(__file__).parent / "data"
+
+
+def make_transaccion_tarjeta(
+    grupo: GrupoTipo,
+    monto: float = 100.0,
+    descripcion: str = "Compra en comercio",
+    idMovimiento: str = "mov-1",
+) -> TransaccionTarjeta:
+    return TransaccionTarjeta(
+        numReferencia="1",
+        nombreTarjeta="Tarjeta Test",
+        fechaTransaccion=1722366000000,
+        fechaTransaccionString="30/07/2025",
+        montoTransaccion=monto,
+        descripcion=descripcion,
+        ciudad="Santiago",
+        cuotas="1/1",
+        nombreTitular="Test",
+        totales=False,
+        grupo=grupo,
+        tituloTotales=None,
+        cambioTarjeta=False,
+        aclaracion={},
+        idMovimiento=idMovimiento,
+        idComprobante="comp-1",
+    )
 
 
 def make_transaction(id: str, date: str, amount: float = -100.0) -> Transaction:
@@ -38,6 +68,33 @@ def make_transaction(id: str, date: str, amount: float = -100.0) -> Transaction:
 def connector():
     client = MagicMock(spec=APIClient)
     return BancoDeChileConnector(client)
+
+
+@pytest.mark.parametrize(
+    "grupo,expected_type",
+    [
+        (GrupoTipo.AVANCES_COMPRAS, TransactionType.DEBIT),
+        (GrupoTipo.GENERICO, TransactionType.DEBIT),
+        (GrupoTipo.PAGOS, TransactionType.CREDIT),
+    ],
+)
+def test_map_transaction_facturado_known_groups_are_not_dropped(
+    connector, grupo, expected_type
+):
+    movimiento = make_transaccion_tarjeta(grupo=grupo)
+
+    result = connector._map_transaction_facturado(MagicMock(), movimiento)
+
+    assert result is not None
+    assert result.type == expected_type
+
+
+def test_map_transaction_facturado_cuotas_is_skipped(connector):
+    movimiento = make_transaccion_tarjeta(grupo=GrupoTipo.CUOTAS)
+
+    result = connector._map_transaction_facturado(MagicMock(), movimiento)
+
+    assert result is None
 
 
 def test_no_facturados_before_facturados_are_removed(connector):
