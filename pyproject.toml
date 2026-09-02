@@ -1,6 +1,6 @@
 [project]
 name = "ahorratron"
-version = "26.9.0.0"
+version = "26.9.0.1"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -13,7 +13,7 @@ dependencies = [
     "python-jose>=3.5.0",
     "cachetools>=6.1.0",
     "pycryptodome>=3.23.0",
-    "cryptography>=45.0.4",
+    "cryptography>=50.0.0",
 ]
 
 [project.scripts]
