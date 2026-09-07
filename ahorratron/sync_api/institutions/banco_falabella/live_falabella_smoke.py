@@ -14,7 +14,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[4]
 load_dotenv(ROOT / ".env")
 load_dotenv(Path("/Users/vitor.dsantos/Documents/PROYECTOS ST-VITTO/bankscrapper/.env"))
 

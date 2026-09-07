@@ -37,7 +37,7 @@ from ahorratron.sync_api.utils.helpers import random_wait
 
 logger = logging.getLogger(__name__)
 
-BANK_LOGIN_URL = os.getenv("FALABELLA_LOGIN_URL", "https://www.bancofalabella.cl")
+BANK_LOGIN_URL = os.environ["FALABELLA_LOGIN_URL"]
 CMR_HOST = "credit-card-movements"
 MAX_CMR_PAGES = 20
 # How many MM/YYYY periods to scrape (newest first). Default 1 = current calendar month.
