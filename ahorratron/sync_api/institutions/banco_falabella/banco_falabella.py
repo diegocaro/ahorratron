@@ -18,7 +18,6 @@ import selenium.common.exceptions as selenium_exceptions
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select, WebDriverWait
 
@@ -420,42 +419,48 @@ class BancoFalabellaAPI:
         wait = WebDriverWait(driver, self.TIMEOUT_SECONDS)
         try:
             driver.get(BANK_LOGIN_URL)
+            # Legacy ids (#btn-auth-normal) disappeared; wait for header CTA text.
             wait.until(
-                EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, "#main-header__sub-content, #btn-auth-normal")
+                lambda d: d.execute_script(
+                    "return Array.from(document.querySelectorAll('button,a,[role=button]'))"
+                    ".some(el => /mi\\s*cuenta/i.test(el.innerText || el.getAttribute('aria-label') || ''))"
                 )
             )
         except Exception as e:
             raise ValueError(f"Error loading Falabella homepage: {e}") from e
 
+        self._dismiss_cookies(driver)
         if not self._click_mi_cuenta(driver):
             raise LoginError("Could not find 'Mi cuenta' on Banco Falabella homepage.")
 
         random_wait(1, 2)
         try:
-            rut = wait.until(
-                EC.presence_of_element_located(
-                    (
-                        By.CSS_SELECTOR,
-                        'input[name*="rut"], input[id*="rut"], input[placeholder*="RUT"]',
-                    )
-                )
+            # Modal login (not the homepage credit simulator RUT input).
+            pwd = wait.until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, "input#pass"))
             )
+            rut = driver.execute_script(
+                """
+                const pass = document.querySelector('input#pass');
+                if (!pass) return null;
+                const root = pass.closest('form') || pass.parentElement?.parentElement?.parentElement || document;
+                return root.querySelector('input[type=text], input:not([type])');
+                """
+            )
+            if rut is None:
+                raise LoginError("Login modal RUT input not found")
             rut.clear()
             rut.send_keys(self._username)
-            rut.send_keys(Keys.ENTER)
-            random_wait(1, 2)
-            pwd = wait.until(
-                EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, 'input[type="password"]')
-                )
-            )
+            random_wait(0.4, 0.8)
             pwd.clear()
             pwd.send_keys(self._password)
-            try:
-                driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
-            except selenium_exceptions.NoSuchElementException:
-                pwd.send_keys(Keys.ENTER)
+            random_wait(0.4, 0.8)
+            ingresar = wait.until(
+                EC.element_to_be_clickable(
+                    (By.CSS_SELECTOR, 'button[type="submit"][aria-label="Ingresar"]')
+                )
+            )
+            ingresar.click()
             wait.until(EC.presence_of_element_located((By.ID, "accountDetail0")))
         except selenium_exceptions.TimeoutException as e:
             raise LoginError(
@@ -465,10 +470,26 @@ class BancoFalabellaAPI:
         self._dismiss_marketing(driver)
         logger.info("Falabella login OK")
 
+    def _dismiss_cookies(self, driver: webdriver.Chrome | webdriver.Remote) -> None:
+        # ponytail: cookie banner can intercept the Mi Cuenta click
+        try:
+            clicked = driver.execute_script(
+                """
+                const btn = Array.from(document.querySelectorAll('button'))
+                  .find(b => /entendido/i.test(b.innerText || ''));
+                if (btn) { btn.click(); return true; }
+                return false;
+                """
+            )
+            if clicked:
+                random_wait(0.3, 0.6)
+        except selenium_exceptions.WebDriverException as e:
+            logger.debug("Cookie dismiss skipped: %s", e)
+
     def _click_mi_cuenta(self, driver: webdriver.Chrome | webdriver.Remote) -> bool:
         selectors = [
-            "#btn-auth-normal",
-            "#main-header__sub-content button",
+            "#btn-auth-normal",  # legacy
+            "#main-header__sub-content button",  # legacy
         ]
         for sel in selectors:
             try:
@@ -488,8 +509,10 @@ class BancoFalabellaAPI:
         clicked = driver.execute_script(
             """
             const btn = document.querySelector('#btn-auth-normal')
-              || Array.from(document.querySelectorAll('button'))
-                   .find(b => /mi cuenta/i.test(b.innerText || ''));
+              || Array.from(document.querySelectorAll('button,a,[role=button]'))
+                   .find(b => /mi\\s*cuenta/i.test(
+                     b.innerText || b.getAttribute('aria-label') || ''
+                   ));
             if (btn) { btn.click(); return true; }
             return false;
             """
