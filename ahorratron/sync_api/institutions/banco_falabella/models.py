@@ -26,9 +26,7 @@ def currency_to_float(value: str | None) -> float | None:
     )
     if not cleaned or cleaned == "-":
         return None
-    neg = cleaned.startswith("-") or (
-        cleaned.startswith("(") and cleaned.endswith(")")
-    )
+    neg = cleaned.startswith("-") or (cleaned.startswith("(") and cleaned.endswith(")"))
     cleaned = cleaned.strip("-").strip("()")
     if not cleaned:
         return None

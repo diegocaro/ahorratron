@@ -57,9 +57,7 @@ class BancoFalabellaConnector(ConnectorBase):
         )
 
     def get_account_by_id(self, accountId: str) -> Account:
-        product = next(
-            (p for p in self._productos.products if p.id == accountId), None
-        )
+        product = next((p for p in self._productos.products if p.id == accountId), None)
         if not product:
             raise ValueError(f"Account with id {accountId} not found")
         mapped = self._map_account("not_needed_now", product)
@@ -68,9 +66,7 @@ class BancoFalabellaConnector(ConnectorBase):
         return mapped
 
     def get_transactions(self, accountId: str) -> TransactionsResponse:
-        product = next(
-            (p for p in self._productos.products if p.id == accountId), None
-        )
+        product = next((p for p in self._productos.products if p.id == accountId), None)
         if not product:
             logger.warning("Account %s not found in productos", accountId)
             return TransactionsResponse()
@@ -150,9 +146,7 @@ class BancoFalabellaConnector(ConnectorBase):
         # opposite: purchase > 0, payment < 0 — same as Banco de Chile.
         if product.type == ProductType.CREDIT_CARD:
             amount = -movement.amount
-            tx_type = (
-                TransactionType.DEBIT if amount > 0 else TransactionType.CREDIT
-            )
+            tx_type = TransactionType.DEBIT if amount > 0 else TransactionType.CREDIT
         elif movement.tipo == MovementTipo.CARGO:
             tx_type = TransactionType.DEBIT
             amount = movement.amount if movement.amount < 0 else -abs(movement.amount)

@@ -59,7 +59,9 @@ def main() -> int:
         extra = ""
         if txs.results:
             dates = sorted(t.date for t in txs.results)
-            extra = f" range={dates[0].date().isoformat()}…{dates[-1].date().isoformat()}"
+            extra = (
+                f" range={dates[0].date().isoformat()}…{dates[-1].date().isoformat()}"
+            )
         print(
             f"  [{kind}] id=…{acc.id[-4:]} balance={acc.balance:.0f} "
             f"txs={len(txs.results)}{extra}"

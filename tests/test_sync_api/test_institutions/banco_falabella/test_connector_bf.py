@@ -153,10 +153,7 @@ class TestCmrInstallmentsInDescription:
             MovementStatus.PENDING,
         )
         assert mov is not None
-        assert (
-            mov.description
-            == "COMPRA CUOTAS SIN INTERES MP *MERCADO LIBRE 01/12"
-        )
+        assert mov.description == "COMPRA CUOTAS SIN INTERES MP *MERCADO LIBRE 01/12"
 
 
 class TestCheckingPeriodPick:

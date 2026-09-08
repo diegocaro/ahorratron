@@ -975,8 +975,7 @@ class BancoFalabellaAPI:
                 kept = [
                     m
                     for m in page_movs
-                    if target_ym
-                    and (m.datetime.year, m.datetime.month) == target_ym
+                    if target_ym and (m.datetime.year, m.datetime.month) == target_ym
                 ]
                 all_movs.extend(kept)
                 # Left the newest statement month — stop paging.
