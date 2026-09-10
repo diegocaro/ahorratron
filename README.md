@@ -27,7 +27,7 @@ La siguiente demo muestra [Actual Budget](https://actualbudget.org/) sincronizan
 | **Banco Santander** | - | - | - | - | - |  |
 | **Banco Estado** | - | - | - | - | - |  |
 | **Banco Security** | - | - | - | - | - |  |
-| **Banco Falabella** | - | - | - | - | - |  |
+| **Banco Falabella** | ✅ | - | - | ✅ | ✅ | WIP |
 | **Scotiabank** | - | - | - | - | - |  |
 | **Banco BCI** | - | - | - | - | - |  |
 | **Banco Itaú** | - | - | - | - | - |  |
@@ -125,7 +125,7 @@ Para conectar tu banco con Actual Budget a través de Ahorratrón:
    - **Client Secret**: el valor base64 del JSON con las claves por banco
    - **Items ID**: `chile`
 
-   Los identificadores de banco soportados son: `banco_de_chile`, `banco_consorcio`.
+   Los identificadores de banco soportados son: `banco_de_chile`, `banco_consorcio`, `banco_falabella`.
 
 4. **Vincula tu cuenta bancaria:**
    - Elige las cuentas que deseas sincronizar
