@@ -20,19 +20,19 @@ La siguiente demo muestra [Actual Budget](https://actualbudget.org/) sincronizan
 
 ## 🏦 Bancos e Instituciones Soportadas
 
-| Institución | Cuentas Corrientes | Cuentas Vista | Cuentas de Ahorro | Tarjetas de Crédito Facturados | Tarjetas de Crédito No Facturados | Estado |
-|-------------|:------------------:|:-------------:|:-----------------:|:-------------:|:----------------:|:------:|
-| **Banco de Chile** | ✅ | ✅ | - | ✅ | ✅ | **Implementado** |
-| **Banco Consorcio** | ✅ | X | X | X | X | WIP |
+| Institución | Cuentas Corrientes | Cuentas Vista | Cuentas de Ahorro | Tarjetas de Crédito Facturados | Tarjetas de Crédito No Facturados | Estado | Mantenedor |
+|-------------|:------------------:|:-------------:|:-----------------:|:-------------:|:----------------:|:------:|:------:|
+| **Banco de Chile** | ✅ | ✅ | - | ✅ | ✅ | **Implementado** | [@diegocaro](https://github.com/diegocaro) |
+| **Banco Consorcio** | ✅ | - | - | - | - | WIP | [@diegocaro](https://github.com/diegocaro) |
 | **Banco Santander** | - | - | - | - | - |  |
-| **Banco Estado** | - | - | - | - | - |  |
-| **Banco Security** | - | - | - | - | - |  |
-| **Banco Falabella** | ✅ | - | - | ✅ | ✅ | WIP |
-| **Scotiabank** | - | - | - | - | - |  |
-| **Banco BCI** | - | - | - | - | - |  |
-| **Banco Itaú** | - | - | - | - | - |  |
-| **Coopeuch** | - | - | - | - | - |  |
-| **Fintual** | - | - | - | - | - | Coming soon? |
+| **Banco Estado** | - | - | - | - | - |  |  | 
+| **Banco Security** | - | - | - | - | - |  |  |
+| **Banco Falabella** | ✅ | - | - | ✅ | ✅ | WIP | [@whoisvittu](https://github.com/whoisvittu) |
+| **Scotiabank** | - | - | - | - | - |  |  |
+| **Banco BCI** | - | - | - | - | - |  |  |
+| **Banco Itaú** | - | - | - | - | - |  |  |
+| **Coopeuch** | - | - | - | - | - |  |  |
+| **Fintual** | - | - | - | - | - | Coming soon? |  |
 
 **Leyenda:**
 - ✅ **Implementado**: Funciona completamente
